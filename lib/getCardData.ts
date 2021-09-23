@@ -28,136 +28,146 @@ export function getCardData(card: string): null | ICardData {
 
   const words = card.split(' ')
 
-  // handle commons
-  if (words.length === 1) {
-    const name = words[0]
-
-    if (creatures.map((creature) => creature.name).includes(name)) {
-      return {
-        ...creatures.find((creature) => creature.name === name),
-        level: 0,
-        name: card,
-        type: 'creature',
-      }
-    } else if (artifacts.map((artifact) => artifact.name).includes(name)) {
-      return {
-        ...artifacts.find((artifact) => artifact.name === name),
-        level: 0,
-        name: card,
-        type: 'artifact',
-      }
-    } else if (enchantments.map((enchantment) => enchantment.name).includes(name)) {
-      return {
-        ...enchantments.find((enchantment) => enchantment.name === name),
-        level: 0,
-        name: card,
-        type: 'enchantment',
-      }
-    } else if (spells.map((spell) => spell.name).includes(name)) {
-      return { ...spells.find((spell) => spell.name === name), level: 0, name: card, type: 'spell' }
+  let result = helper()
+  if (result) {
+    result = {
+      ...result,
+      name: result.name.replace('DivineRobe', 'Divine Robe').replace('GhostWand', 'Ghost Wand'),
     }
   }
 
-  // handle rare spells, enchantments, artifacts
-  if (words.length === 2) {
-    // first word will be a spell type, second word will be a spell, enchantment, or artifact name
-    const type = words[0]
-    const name = words[1]
+  return result || null
 
-    if (creatures.map((creature) => creature.name).includes(name)) {
-      return {
-        ...creatures.find((creature) => creature.name === name),
-        level: 1,
-        name: card,
-        type: 'creature',
+  function helper() {
+    // handle commons
+    if (words.length === 1) {
+      const name = words[0]
+
+      if (creatures.map((creature) => creature.name).includes(name)) {
+        return {
+          ...creatures.find((creature) => creature.name === name),
+          level: 0,
+          name: card,
+          type: 'creature',
+        }
+      } else if (artifacts.map((artifact) => artifact.name).includes(name)) {
+        return {
+          ...artifacts.find((artifact) => artifact.name === name),
+          level: 0,
+          name: card,
+          type: 'artifact',
+        }
+      } else if (enchantments.map((enchantment) => enchantment.name).includes(name)) {
+        return {
+          ...enchantments.find((enchantment) => enchantment.name === name),
+          level: 0,
+          name: card,
+          type: 'enchantment',
+        }
+      } else if (spells.map((spell) => spell.name).includes(name)) {
+        return { ...spells.find((spell) => spell.name === name), level: 0, name: card, type: 'spell' }
       }
-    } else if (artifacts.map((artifact) => artifact.name).includes(name)) {
-      return {
-        ...artifacts.find((artifact) => artifact.name === name),
-        level: 1,
-        name: card,
-        type: 'artifact',
-      }
-    } else if (enchantments.map((enchantment) => enchantment.name).includes(name)) {
-      return {
-        ...enchantments.find((enchantment) => enchantment.name === name),
-        level: 1,
-        name: card,
-        type: 'enchantment',
-      }
-    } else if (spells.map((spell) => spell.name).includes(name)) {
-      return { ...spells.find((spell) => spell.name === name), level: 1, name: card, type: 'spell' }
     }
-  }
 
-  // from here on out, the name will always be the 3rd word
-  const name = words[2]
+    // handle rare spells, enchantments, artifacts
+    if (words.length === 2) {
+      // first word will be a spell type, second word will be a spell, enchantment, or artifact name
+      const type = words[0]
+      const name = words[1]
 
-  // handle rare creatures and legendary spells, enchantments, artifacts
-  if (words.length === 3) {
-    if (creatures.map((creature) => creature.name).includes(name)) {
+      if (creatures.map((creature) => creature.name).includes(name)) {
+        return {
+          ...creatures.find((creature) => creature.name === name),
+          level: 1,
+          name: card,
+          type: 'creature',
+        }
+      } else if (artifacts.map((artifact) => artifact.name).includes(name)) {
+        return {
+          ...artifacts.find((artifact) => artifact.name === name),
+          level: 1,
+          name: card,
+          type: 'artifact',
+        }
+      } else if (enchantments.map((enchantment) => enchantment.name).includes(name)) {
+        return {
+          ...enchantments.find((enchantment) => enchantment.name === name),
+          level: 1,
+          name: card,
+          type: 'enchantment',
+        }
+      } else if (spells.map((spell) => spell.name).includes(name)) {
+        return { ...spells.find((spell) => spell.name === name), level: 1, name: card, type: 'spell' }
+      }
+    }
+
+    // from here on out, the name will always be the 3rd word
+    const name = words[2]
+
+    // handle rare creatures and legendary spells, enchantments, artifacts
+    if (words.length === 3) {
+      if (creatures.map((creature) => creature.name).includes(name)) {
+        return {
+          ...creatures.find((creature) => creature.name === name),
+          level: 1,
+          name: card,
+          type: 'creature',
+        }
+      } else if (artifacts.map((artifact) => artifact.name).includes(name)) {
+        return {
+          ...artifacts.find((artifact) => artifact.name === name),
+          level: 2,
+          name: card,
+          type: 'artifact',
+        }
+      } else if (enchantments.map((enchantment) => enchantment.name).includes(name)) {
+        return {
+          ...enchantments.find((enchantment) => enchantment.name === name),
+          level: 2,
+          name: card,
+          type: 'enchantment',
+        }
+      } else if (spells.map((spell) => spell.name).includes(name)) {
+        return { ...spells.find((spell) => spell.name === name), level: 2, name: card, type: 'spell' }
+      }
+    }
+
+    // handle legendary creatures
+    if (
+      creatures
+        .filter((creature) => creature.rarity === 'legendary')
+        .map((creature) => creature.name)
+        .includes(name)
+    ) {
+      const locationString = words.slice(3).join(' ')
+      const location = locations.find((location) => location.location === locationString)
+
       return {
         ...creatures.find((creature) => creature.name === name),
-        level: 1,
-        name: card,
-        type: 'creature',
-      }
-    } else if (artifacts.map((artifact) => artifact.name).includes(name)) {
-      return {
-        ...artifacts.find((artifact) => artifact.name === name),
         level: 2,
         name: card,
-        type: 'artifact',
+        specialEffect: location!.effect,
+        type: 'creature',
       }
-    } else if (enchantments.map((enchantment) => enchantment.name).includes(name)) {
+    }
+
+    // handle mythic creatures
+    if (
+      creatures
+        .filter((creature) => creature.rarity === 'mythic')
+        .map((creature) => creature.name)
+        .includes(name)
+    ) {
+      const locationString = words.slice(3).join(' ')
+      const location = locations.find((location) => location.location === locationString)
+
       return {
-        ...enchantments.find((enchantment) => enchantment.name === name),
-        level: 2,
+        ...creatures.find((creature) => creature.name === name),
+        level: 3,
         name: card,
-        type: 'enchantment',
+        specialEffect: location!.effect,
+        type: 'creature',
       }
-    } else if (spells.map((spell) => spell.name).includes(name)) {
-      return { ...spells.find((spell) => spell.name === name), level: 2, name: card, type: 'spell' }
     }
   }
-
-  // handle legendary creatures
-  if (
-    creatures
-      .filter((creature) => creature.rarity === 'legendary')
-      .map((creature) => creature.name)
-      .includes(name)
-  ) {
-    const locationString = words.slice(3).join(' ')
-    const location = locations.find((location) => location.location === locationString)
-
-    return {
-      ...creatures.find((creature) => creature.name === name),
-      level: 2,
-      name: card,
-      specialEffect: location!.effect,
-      type: 'creature',
-    }
-  }
-
-  // handle mythic creatures
-  if (
-    creatures
-      .filter((creature) => creature.rarity === 'mythic')
-      .map((creature) => creature.name)
-      .includes(name)
-  ) {
-    const locationString = words.slice(3).join(' ')
-    const location = locations.find((location) => location.location === locationString)
-
-    return {
-      ...creatures.find((creature) => creature.name === name),
-      level: 3,
-      name: card,
-      specialEffect: location!.effect,
-      type: 'creature',
-    }
-  }
-
-  return null
 }
