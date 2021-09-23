@@ -1,1 +1,141 @@
-export default [{"name":"Divine Robe","color":"white","attack":"0","defense":"3","effect":"Equipped creature has \"Sacrifice Divine Robe: Prevent all damage that would be dealt to you until the end of turn.\""},{"name":"Ghost Wand","color":"blue","attack":"0","defense":"3","effect":"Equipped creature has \"T: Choose a spell at random from spells that have been cast this game. You may cast that spell.\""},{"name":"Scythe","color":"black","attack":"0","defense":"3","effect":"Equipped creature has \"T, Sacrifice Scythe: Destroy target creature.\""},{"name":"Staff","color":"red","attack":"0","defense":"3","effect":"Equipped creature has \"T: Deal 1 damage to target creature.\""},{"name":"Gauntlet","color":"green","attack":"0","defense":"3","effect":"Equipped creature has \"T, Sacrifice Gauntlet: Fight target creature.\""},{"name":"Sword","color":"white","attack":"0","defense":"3","effect":"Equipped creature has +1 Power."},{"name":"Bow","color":"blue","attack":"0","defense":"3","effect":"Equipped creature has \"T: Deal 3 damage to target creature with flying.\""},{"name":"Shield","color":"black","attack":"0","defense":"3","effect":"Equipped creature has \"If damage would be dealt to this creature, deal that much damage minus one instead.\""},{"name":"Helmet","color":"red","attack":"0","defense":"3","effect":"Equipped creature has \"Sacrifice Helmet: Gain indestructible until end of turn.\""},{"name":"Boots","color":"green","attack":"0","defense":"3","effect":"Equipped creature has haste."},{"name":"Ring","color":"white","attack":"0","defense":"3","effect":"Equipped creature has +1 Defense."},{"name":"Amulet","color":"blue","attack":"0","defense":"3","effect":"Equipped creature has \"Pay 1 life: Draw a card.\""},{"name":"Belt","color":"black","attack":"0","defense":"3","effect":"Equipped creature has +1 Power and +1 Defense."},{"name":"Bracers","color":"red","attack":"0","defense":"3","effect":"Equipped creature can block an additional creature."},{"name":"Cloak","color":"green","attack":"0","defense":"3","effect":"Equipped creature has unblockable."},{"name":"Gloves","color":"white","attack":"0","defense":"3","effect":"Equipped creature has \"T, Pay 1 life: Target player reveals their hand. You choose a card from it. That player discards that card.\""},{"name":"Greaves","color":"blue","attack":"0","defense":"3","effect":"Equipped creature has trample."},{"name":"Helm","color":"black","attack":"0","defense":"3","effect":"Equipped creature has \"T: Create an 0/4 Bubble creature token with defender. Sacrifice that creature at the end of your next turn.\" "},{"name":"Pendant","color":"red","attack":"0","defense":"3","effect":"Equipped creature has flying. "},{"name":"Potion","color":"green","attack":"0","defense":"3","effect":"Equipped creature has \"Sacrifice Potion: Gain 2 life\""},{"name":"Scepter","color":"white","attack":"0","defense":"3","effect":"Equipped creature has \"Whenever another creature enters the battlefield, you gain 1 life.\""},{"name":"Sigil","color":"blue","attack":"0","defense":"3","effect":"Equipped creature has \"Pay 1 life: Create a 1/1 Punk creature token\""},{"name":"Tome","color":"black","attack":"0","defense":"3","effect":"Equipped creature has \"When this creature deals damage to a player, mainfest a card\""},{"name":"Crown","color":"red","attack":"0","defense":"3","effect":"Equipped creature has \"Pay 1 life: Create a 1/1 Punk creature token., Pay 2 life: Create a 3/3 Punk Enforcer creature token. Pay 3 life: Create a 5/5 Punk Boss creature token with trample.\""},{"name":"Ring","color":"green","attack":"0","defense":"3","effect":"Equipped creature has +1 Defense."}]
+export default [
+  {
+    name: 'Divine Robe',
+    color: 'white',
+    attack: '0',
+    defense: '0',
+    effect:
+      'Equipped creature has "Sacrifice Divine Robe: Prevent all damage that would be dealt to you until the end of turn."',
+  },
+  {
+    name: 'Ghost Wand',
+    color: 'blue',
+    attack: '0',
+    defense: '0',
+    effect:
+      'Equipped creature has "⤵: Choose a spell at random from spells that have been cast this game. You may cast that spell."',
+  },
+  {
+    name: 'Scythe',
+    color: 'black',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "⤵, Sacrifice Scythe: Destroy target creature."',
+  },
+  {
+    name: 'Staff',
+    color: 'red',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "⤵: Deal 1 damage to target creature."',
+  },
+  {
+    name: 'Gauntlet',
+    color: 'green',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "⤵, Sacrifice Gauntlet: Fight target creature."',
+  },
+  { name: 'Sword', color: 'white', attack: '2', defense: '0', effect: 'Equipped creature has +2 Power.' },
+  {
+    name: 'Bow',
+    color: 'blue',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "⤵: Deal 3 damage to target creature with flying."',
+  },
+  {
+    name: 'Shield',
+    color: 'black',
+    attack: '0',
+    defense: '0',
+    effect:
+      'Equipped creature has "If damage would be dealt to this creature, deal that much damage minus one instead."',
+  },
+  {
+    name: 'Helmet',
+    color: 'red',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "Sacrifice Helmet: Gain indestructible until end of turn."',
+  },
+  { name: 'Boots', color: 'green', attack: '0', defense: '0', effect: 'Equipped creature has haste.' },
+  { name: 'Ring', color: 'white', attack: '0', defense: '1', effect: 'Equipped creature has +1 Defense.' },
+  {
+    name: 'Amulet',
+    color: 'blue',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "Pay 1 life: Draw a card."',
+  },
+  {
+    name: 'Belt',
+    color: 'black',
+    attack: '1',
+    defense: '1',
+    effect: 'Equipped creature has +1 Power and +1 Defense.',
+  },
+  {
+    name: 'Bracers',
+    color: 'red',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature can block an additional creature.',
+  },
+  { name: 'Cloak', color: 'green', attack: '0', defense: '0', effect: 'Equipped creature has unblockable.' },
+  {
+    name: 'Gloves',
+    color: 'white',
+    attack: '0',
+    defense: '0',
+    effect:
+      'Equipped creature has "⤵, Pay 1 life: Target player reveals their hand. You choose a card from it. That player discards that card."',
+  },
+  { name: 'Greaves', color: 'blue', attack: '0', defense: '0', effect: 'Equipped creature has trample.' },
+  {
+    name: 'Helm',
+    color: 'black',
+    attack: '0',
+    defense: '0',
+    effect:
+      'Equipped creature has "⤵: Create an 0/4 Bubble creature token with defender. Sacrifice that creature at the end of your next turn." ',
+  },
+  { name: 'Pendant', color: 'red', attack: '0', defense: '0', effect: 'Equipped creature has flying. ' },
+  {
+    name: 'Potion',
+    color: 'green',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "Sacrifice Potion: Gain 2 life"',
+  },
+  {
+    name: 'Scepter',
+    color: 'white',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "Whenever another creature enters the battlefield, you gain 1 life."',
+  },
+  {
+    name: 'Sigil',
+    color: 'blue',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "Pay 1 life: Create a 1/1 Punk creature token"',
+  },
+  {
+    name: 'Tome',
+    color: 'black',
+    attack: '0',
+    defense: '0',
+    effect: 'Equipped creature has "When this creature deals damage to a player, mainfest a card"',
+  },
+  {
+    name: 'Crown',
+    color: 'red',
+    attack: '0',
+    defense: '0',
+    effect:
+      'Equipped creature has "Pay 1 life: Create a 1/1 Punk creature token., Pay 2 life: Create a 3/3 Punk Enforcer creature token. Pay 3 life: Create a 5/5 Punk Boss creature token with trample."',
+  },
+  { name: 'Ring', color: 'green', attack: '0', defense: '2', effect: 'Equipped creature has +2 Defense.' },
+]

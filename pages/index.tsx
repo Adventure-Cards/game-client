@@ -41,8 +41,8 @@ const HomePage: NextPage = () => {
           ) : decks.length === 0 ? (
             <p>No Adventure Cards!</p>
           ) : (
-            decks.map((deck) => (
-              <div className="">
+            decks.map((deck, idx) => (
+              <div className="underline" key={idx}>
                 <Link href={`/deck/${deck.id}`}>
                   <a>{deck.id}</a>
                 </Link>

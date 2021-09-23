@@ -1,1 +1,60 @@
-export default [{"name":"Lightning","color":"white","effect":"Deal 3 damage to any target."},{"name":"Stricken","color":"blue","effect":"Tap target creature."},{"name":"Revive","color":"black","effect":"Return a creature from your graveyard to the battlefield."},{"name":"Burst","color":"red","effect":"Create a 1/1 Punk creature token."},{"name":"Tempest","color":"green","effect":"Return a creature from the battlefield to its owners hand."},{"name":"Assault","color":"white","effect":"Target creature you control fights target creature you don't control."},{"name":"Pandemonium","color":"blue","effect":"Exchange control of two target creatures."},{"name":"Rage","color":"black","effect":"Creatures you control get +1 Power until end of turn."},{"name":"Sorrow","color":"red","effect":"Creatures your opponents control get -2 Power until end of turn."},{"name":"Frost","color":"green","effect":"Tap all creatures controlled by target opponent. They don't untap at the beginning of their controller's next turn. "},{"name":"Hypnosis","color":"white","effect":"Gain control of target creature until the end of turn."},{"name":"Vortex","color":"blue","effect":"Remove target permanent from the game."},{"name":"Ice","color":"black","effect":"Tap target creature. Draw a card."},{"name":"Fire","color":"red","effect":"Deal 2 damage divided as you choose among one or two target creatures and/or players."},{"name":"Fireball","color":"green","effect":"Deal 5 damage to target creature"},{"name":"Wall","color":"white","effect":"Prevent the next 3 damage that would be dealt to any target this turn."},{"name":"Infuriate","color":"blue","effect":"Counter target spell."},{"name":"Invisibility","color":"black","effect":"Target creature can't be blocked this turn."},{"name":"Fury","color":"red","effect":"Deal 1 damage to each creature."},{"name":"Frenzy","color":"green","effect":"Deal 2 damage to each creature."},{"name":"Stun","color":"white","effect":"Counter target spell unless its controller discards a card or sacrifices a permanent."},{"name":"Heal","color":"blue","effect":"Gain 4 life."},{"name":"Reanimate","color":"black","effect":"Return a creature from a graveyard to the battlefield."},{"name":"Freeze","color":"red","effect":"Tap target creature. It doesn't untap at the beginning of its controller's next turn."},{"name":"Burn","color":"green","effect":"Deal 3 damage to target player."},{"name":"Gravitation","color":"white","effect":"Draw 2 cards."},{"name":"Gale","color":"blue","effect":"Return up to two target creatures to their owner's hand."},{"name":"Torment","color":"black","effect":"Each opponent discards a card"},{"name":"Maelstrom","color":"red","effect":"Return all creatures to their owner's hands."}]
+export default [
+  { name: 'Lightning', color: 'white', effect: 'Deal 3 damage to any target.' },
+  { name: 'Stricken', color: 'blue', effect: 'Tap target creature.' },
+  { name: 'Revive', color: 'black', effect: 'Return a creature from your graveyard to the battlefield.' },
+  { name: 'Burst', color: 'red', effect: 'Create a 1/1 Punk creature token.' },
+  { name: 'Tempest', color: 'green', effect: 'Return a creature from the battlefield to its owners hand.' },
+  {
+    name: 'Assault',
+    color: 'white',
+    effect: "Target creature you control fights target creature you don't control.",
+  },
+  { name: 'Pandemonium', color: 'blue', effect: 'Exchange control of two target creatures.' },
+  { name: 'Rage', color: 'black', effect: 'Creatures you control get +1 Power until end of turn.' },
+  {
+    name: 'Sorrow',
+    color: 'red',
+    effect: 'Creatures your opponents control get -2 Power until end of turn.',
+  },
+  {
+    name: 'Frost',
+    color: 'green',
+    effect:
+      "Tap all creatures controlled by target opponent. They don't untap at the beginning of their controller's next turn. ",
+  },
+  { name: 'Hypnosis', color: 'white', effect: 'Gain control of target creature until the end of turn.' },
+  { name: 'Vortex', color: 'blue', effect: 'Remove target permanent from the game.' },
+  { name: 'Ice', color: 'black', effect: 'Tap target creature. Draw a card.' },
+  {
+    name: 'Fire',
+    color: 'red',
+    effect: 'Deal 2 damage divided as you choose among one or two target creatures and/or players.',
+  },
+  { name: 'Fireball', color: 'green', effect: 'Deal 5 damage to target creature' },
+  {
+    name: 'Wall',
+    color: 'white',
+    effect: 'Prevent the next 3 damage that would be dealt to any target this turn.',
+  },
+  { name: 'Infuriate', color: 'blue', effect: 'Counter target spell.' },
+  { name: 'Invisibility', color: 'black', effect: "Target creature can't be blocked this turn." },
+  { name: 'Fury', color: 'red', effect: 'Deal 1 damage to each creature.' },
+  { name: 'Frenzy', color: 'green', effect: 'Deal 2 damage to each creature.' },
+  {
+    name: 'Stun',
+    color: 'white',
+    effect: 'Counter target spell unless its controller discards a card or sacrifices a permanent.',
+  },
+  { name: 'Heal', color: 'blue', effect: 'Gain 4 life.' },
+  { name: 'Reanimate', color: 'black', effect: 'Return a creature from a graveyard to the battlefield.' },
+  {
+    name: 'Freeze',
+    color: 'red',
+    effect: "Tap target creature. It doesn't untap at the beginning of its controller's next turn.",
+  },
+  { name: 'Burn', color: 'green', effect: 'Deal 3 damage to target player.' },
+  { name: 'Gravitation', color: 'white', effect: 'Draw 2 cards.' },
+  { name: 'Gale', color: 'blue', effect: "Return up to two target creatures to their owner's hand." },
+  { name: 'Torment', color: 'black', effect: 'Each opponent discards a card' },
+  { name: 'Maelstrom', color: 'red', effect: "Return all creatures to their owner's hands." },
+]
