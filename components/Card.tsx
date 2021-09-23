@@ -13,8 +13,8 @@ const Card = ({ card, idx }: { card: ICardData; idx: number }) => {
       <div className="flex flex-col space-y-3 overflow-y-scroll">
         <p className={``}>{card.name}</p>
 
-        <div className="flex justify-center items-center" style={{ width: 256, backgroundColor: '#000000' }}>
-          <Image src={jpeg} height={150} width={150} />
+        <div className="flex justify-center items-center" style={{ width: 248, backgroundColor: '#000000' }}>
+          <Image src={jpeg} height={120} width={120} />
         </div>
 
         <p className={`text-${rarityMap[card.level].toLowerCase()}`}>
