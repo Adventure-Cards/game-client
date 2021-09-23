@@ -1,0 +1,35 @@
+/* tailwind config */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+h3,
+h4,
+p {
+  @apply font-body text-gray-100;
+}
+
+h1,
+h2 {
+  @apply font-title text-gold;
+}
+
+@layer components {
+}
