@@ -19,7 +19,9 @@ const HomePage: NextPage = () => {
     <div className="relative bg-backgrounddark w-screen min-h-screen p-8">
       <div className="flex flex-col items-center w-full space-y-6 mb-16">
         <h1 className="text-4xl md:text-5xl">Adventure Cards</h1>
-        <h3 className="text-xl">{address || 'No wallet selected'}</h3>
+        <h3 className="text-xl">
+          {address ? `${address.slice(0, 6)}...${address.slice(38)}` : 'No wallet selected'}
+        </h3>
       </div>
 
       <div className="flex flex-col md:flex-row gap-12">
