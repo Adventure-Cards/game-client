@@ -67,6 +67,18 @@ const DeckPage: NextPage = () => {
           {!(Number(id) >= 0 && Number(id) < 8000) && <p>Invalid deckId: {id}</p>}
         </div>
       )}
+      <style>{`
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+      `}</style>
     </div>
   )
 }

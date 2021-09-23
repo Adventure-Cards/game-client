@@ -7,10 +7,10 @@ import { rarityMap } from '../lib/utils'
 const Card = ({ card, idx }: { card: ICardData; idx: number }) => {
   return (
     <div
-      className={`flex flex-col justify-between w-72 h-96
-      p-4 bg-background rounded-md shadow-xl border-4 border-${rarityMap[card.level].toLowerCase()}`}
+      className={`flex flex-col justify-between w-72 h-96 p-4 bg-background
+      rounded-md shadow-xl border-4 border-${rarityMap[card.level].toLowerCase()}`}
     >
-      <div className="flex flex-col space-y-3 overflow-y-scroll">
+      <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar">
         <p className={``}>{card.name}</p>
 
         <div className="flex justify-center items-center" style={{ width: 248, backgroundColor: '#000000' }}>
