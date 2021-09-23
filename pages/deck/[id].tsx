@@ -1,11 +1,12 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
 import { useAdventureCardsForDeck } from '../../lib/useAdventureCardsForDeck'
 
+import Nav from '../../components/Nav'
 import Card from '../../components/Card'
-import { useEffect } from 'react'
+import { randomIntFromInterval } from '../../lib/utils'
 
 const DeckPage: NextPage = () => {
   const router = useRouter()
@@ -13,26 +14,59 @@ const DeckPage: NextPage = () => {
 
   const { data: deck, loading, error, fetch } = useAdventureCardsForDeck()
 
+  const [inputId, setInputId] = useState('')
+
+  function handleChangeId(id: string) {
+    if (id.length <= 4) {
+      setInputId(id)
+    }
+    if (Number(id) > 0 && id.length <= 4) {
+      router.push(`/deck/${id}`)
+    }
+  }
+
+  function handleClickRandom() {
+    const randomId = randomIntFromInterval(1, 4800)
+    handleChangeId(String(randomId))
+  }
+
   useEffect(() => {
+    setInputId(String(id))
     fetch(Number(id))
   }, [id])
 
   return (
     <div className="relative bg-backgrounddark w-screen min-h-screen p-8">
-      <div className="relative flex flex-col items-center w-full space-y-6 mb-16">
-        <h1 className="text-4xl md:text-5xl">Adventure Cards</h1>
-        <div className="flex space-x-8">
-          <Link href="/">
-            <a className="text-xl underline">Home</a>
-          </Link>
-          <h3 className="text-xl">Deck #{id}</h3>
+      <Nav />
+
+      <div className="flex flex-col md:flex-row md:items-center justify-center w-full gap-6 mb-16">
+        <div className="flex items-center md:ml-24">
+          <h3 className="text-xl mr-2">Viewing Deck #</h3>
+          <input
+            className="text-xl w-20 bg-backgrounddark px-2 py-1 border border-gray-100"
+            value={inputId}
+            onChange={(e) => handleChangeId(e.target.value)}
+          />
+          <button onClick={handleClickRandom} className="text-xl px-2 py-1 border border-gray-100">
+            Random
+          </button>
         </div>
+
+        {!loading && (
+          <div className="md:ml-24">
+            <h3 className="text-xl mr-2">Owned by {`${deck.owner.slice(0, 6)}...${deck.owner.slice(38)}`}</h3>
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-wrap justify-center gap-12 p-4">
-        {!loading && deck.cards.map((card, idx) => <Card key={idx} card={card} idx={idx} />)}
-        {!loading && !(Number(id) >= 0 && Number(id) < 8000) && <p>Invalid deckId: {id}</p>}
-      </div>
+      {!loading && (
+        <div className="flex flex-wrap justify-center gap-12 p-4">
+          {deck.cards.map((card, idx) => (
+            <Card key={idx} card={card} idx={idx} />
+          ))}
+          {!(Number(id) >= 0 && Number(id) < 8000) && <p>Invalid deckId: {id}</p>}
+        </div>
+      )}
     </div>
   )
 }

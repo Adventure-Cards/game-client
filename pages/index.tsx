@@ -1,6 +1,8 @@
 import type { NextPage } from 'next'
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
+
+import Nav from '../components/Nav'
+import Deck from '../components/Deck'
 
 import { useAdventureDecksForAddress } from '../lib/useAdventureDecksForAddress'
 
@@ -17,42 +19,25 @@ const HomePage: NextPage = () => {
 
   return (
     <div className="relative bg-backgrounddark w-screen min-h-screen p-8">
-      <div className="flex flex-col items-center w-full space-y-6 mb-16">
-        <h1 className="text-4xl md:text-5xl">Adventure Cards</h1>
-        <h3 className="text-xl">
-          {address ? `${address.slice(0, 6)}...${address.slice(38)}` : 'No wallet selected'}
-        </h3>
+      <Nav />
+
+      <div className="flex flex-row w-full justify-center items-center mb-12">
+        <p className="text-xl mr-2">Find by address: </p>
+        <input
+          className="text-xl mr-3 bg-backgrounddark px-2 py-1 border border-gray-100"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Address"
+        />
       </div>
 
-      <div className="flex flex-col md:flex-row gap-12">
-        <div className="flex flex-col w-full md:w-1/2 space-y-4 p-4 bg-background rounded-md shadow-md">
-          <p className="max-w-md">Enter a wallet address</p>
-          <input
-            className="bg-backgrounddark px-2 py-1"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Address"
-          />
+      {!loading && (
+        <div className="flex flex-wrap justify-center gap-12 p-4">
+          {decks.map((deck, idx) => (
+            <Deck key={idx} deck={deck} idx={idx} />
+          ))}
         </div>
-
-        <div className="flex flex-col w-full md:w-1/2 space-y-4 p-4 bg-background rounded-md shadow-md">
-          {error ? (
-            <p>{error}</p>
-          ) : loading ? (
-            <p>Loading...</p>
-          ) : decks.length === 0 ? (
-            <p>No Adventure Cards!</p>
-          ) : (
-            decks.map((deck, idx) => (
-              <div className="underline" key={idx}>
-                <Link href={`/deck/${deck.id}`}>
-                  <a>{deck.id}</a>
-                </Link>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+      )}
     </div>
   )
 }
