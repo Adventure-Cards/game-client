@@ -7,7 +7,8 @@ import { updateAddress } from '../../lib/store'
 import { useDecksForAddress } from '../../lib/useDecksForAddress'
 
 import Nav from '../../components/Nav'
-import Deck from '../../components/Deck'
+import DeckPreview from '../../components/DeckPreview'
+
 
 const AddressPage: NextPage = () => {
   const router = useRouter()
@@ -52,7 +53,7 @@ const AddressPage: NextPage = () => {
       {!loading && (
         <div className="flex flex-wrap justify-center gap-12 md:p-4">
           {decks.map((deck, idx) => (
-            <Deck key={idx} deck={deck} />
+            <DeckPreview key={idx} deck={deck} />
           ))}
         </div>
       )}
