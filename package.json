@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.1",
+    "csstype": "^3.0.9",
     "graphql": "^15.6.0",
     "graphql-request": "^3.5.0",
     "next": "11.0.1",

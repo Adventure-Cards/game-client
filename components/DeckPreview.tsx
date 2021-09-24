@@ -2,19 +2,19 @@ import Link from 'next/link'
 
 import { rarityColorKey } from '../lib/utils'
 import { IDeck } from '../lib/types'
-import images from '../data/images'
+import * as CSS from 'csstype'
 
-const containerStyle = {
+const containerStyle: CSS.Properties = {
   position: "relative",
 };
 
-const deckIdStyle = {
+const deckIdStyle: CSS.Properties = {
   position: "absolute",
   right: "20px",
   top: "20px",
 };
 
-const DeckPreview = ({ deck }: { deck: IDeck }) => {
+const DeckPreview = ({ deck, images }: { deck: IDeck, images: any }) => {
   return (
     <Link href={`/deck/${deck.id}`}>
       <div className="flex flex-col w-96 justify-between p-4 bg-background rounded-md shadow-xl cursor-pointer">
