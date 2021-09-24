@@ -2,13 +2,13 @@ import Image from 'next/image'
 import jpeg from '../public/adv.jpeg'
 
 import { ICardData } from '../lib/getCardData'
-import { rarityMap } from '../lib/utils'
+import { rarityMap, rarityColorKey } from '../lib/utils'
 
-const Card = ({ card, idx }: { card: ICardData; idx: number }) => {
+const Card = ({ card, className }: { card: ICardData; className?: string }) => {
   return (
     <div
       className={`flex flex-col justify-between w-72 h-96 p-4 bg-background
-      rounded-md shadow-xl border-4 border-${rarityMap[card.level].toLowerCase()}`}
+      rounded-md shadow-xl border-4 border-${rarityColorKey(card.level)} ${className}`}
     >
       <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar">
         <p className={``}>{card.name}</p>
@@ -17,7 +17,7 @@ const Card = ({ card, idx }: { card: ICardData; idx: number }) => {
           <Image src={jpeg} height={120} width={120} />
         </div>
 
-        <p className={`text-${rarityMap[card.level].toLowerCase()}`}>
+        <p className={`text-${rarityColorKey(card.level)}`}>
           {rarityMap[card.level]} {card.type.charAt(0).toUpperCase() + card.type.slice(1)}
         </p>
 

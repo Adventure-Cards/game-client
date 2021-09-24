@@ -1,17 +1,10 @@
 import { useState } from 'react'
 import { request, gql } from 'graphql-request'
 
-import { ICardData, getCardData } from './getCardData'
+import { getCardData } from './getCardData'
+import type { IDeck } from './types'
 
 const SUBGRAPH = 'https://api.thegraph.com/subgraphs/name/knav-eth/adventure-cards'
-
-export interface IAdventureCardDeck {
-  id: number
-  numericId: number
-  owner: string
-  name: string
-  cards: ICardData[]
-}
 
 const GET_DECK_BY_ID_QUERY = gql`
   query GetCardsByDeck($deckId: Int) {
@@ -25,8 +18,8 @@ const GET_DECK_BY_ID_QUERY = gql`
   }
 `
 
-export function useAdventureCardsForDeck() {
-  const [data, setData] = useState<IAdventureCardDeck>(null!)
+export function useCardsForDeck() {
+  const [data, setData] = useState<IDeck>(null!)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -38,8 +31,6 @@ export function useAdventureCardsForDeck() {
       setData(null!)
       return setError('No id provided')
     }
-
-    console.log('about to fetch')
 
     startLoading()
     request(SUBGRAPH, GET_DECK_BY_ID_QUERY, { deckId: deckId })

@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { request, gql } from 'graphql-request'
 
 import { getCardData } from './getCardData'
-
-import type { IAdventureCardDeck, ICardData } from './types'
+import type { IDeck } from './types'
 
 const SUBGRAPH = 'https://api.thegraph.com/subgraphs/name/knav-eth/adventure-cards'
 
@@ -19,8 +18,8 @@ const GET_DECKS_BY_OWNER_QUERY = gql`
   }
 `
 
-export function useAdventureDecksForAddress() {
-  const [data, setData] = useState<IAdventureCardDeck[]>([])
+export function useDecksForAddress() {
+  const [data, setData] = useState<IDeck[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -42,8 +41,6 @@ export function useAdventureDecksForAddress() {
 
     startLoading()
     request(SUBGRAPH, GET_DECKS_BY_OWNER_QUERY, { owner: address })
-      // .then((data) => setData(data.adventureCardPacks))
-
       .then((data) => {
         setData(
           data.adventureCardPacks.map((deck: { cards: string[] }) => ({

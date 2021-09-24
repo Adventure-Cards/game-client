@@ -1,12 +1,12 @@
-export interface IAdventureCardDeck {
+export interface IDeck {
   id: number
   numericId: number
   owner: string
   name: string
-  cards: ICardData[]
+  cards: ICard[]
 }
 
-export interface ICardData {
+export interface ICard {
   level: number
   name: string
   type: string
