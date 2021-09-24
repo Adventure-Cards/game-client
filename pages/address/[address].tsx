@@ -39,10 +39,10 @@ const AddressPage: NextPage = () => {
     <div className="relative w-screen min-h-screen p-4 md:p-8">
       <Nav />
 
-      <div className="flex flex-row w-full justify-center items-center mb-12">
-        <p className="text-xl mr-2">Find by address: </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-center w-full gap-6 mb-16">
+        <p className="text-xl md:mr-2">Find by address: </p>
         <input
-          className="text-xl mr-3 bg-backgrounddark px-2 py-1 border border-gray-100"
+          className="text-xl bg-backgrounddark px-2 py-1 border border-gray-100"
           value={address}
           onChange={(e) => handleChangeAddress(e.target.value)}
           placeholder="Address"
@@ -50,7 +50,7 @@ const AddressPage: NextPage = () => {
       </div>
 
       {!loading && (
-        <div className="flex flex-wrap justify-center gap-12 p-4">
+        <div className="flex flex-wrap justify-center gap-12 md:p-4">
           {decks.map((deck, idx) => (
             <Deck key={idx} deck={deck} />
           ))}

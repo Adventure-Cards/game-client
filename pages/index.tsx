@@ -18,6 +18,10 @@ const HomePage: NextPage = () => {
     fetch(address)
   }, [address])
 
+  function handleChangeAddress(address: string) {
+    dispatch(updateAddress(address))
+  }
+
   return (
     <div className="relative w-screen min-h-screen p-4 md:p-8">
       <Nav />
@@ -27,7 +31,7 @@ const HomePage: NextPage = () => {
         <input
           className="text-xl bg-backgrounddark px-2 py-1 border border-gray-100"
           value={address}
-          onChange={(e) => dispatch(updateAddress(e.target.value))}
+          onChange={(e) => handleChangeAddress(e.target.value)}
           placeholder="Address"
         />
       </div>
