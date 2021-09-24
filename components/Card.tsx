@@ -2,7 +2,7 @@ import Image from 'next/image'
 import jpeg from '../public/adv.jpeg'
 
 import { ICardData } from '../lib/getCardData'
-import { rarityMap, rarityColorKey } from '../lib/utils'
+import { rarityMap, rarityColorKey, toSentenceCase } from '../lib/utils'
 
 const Card = ({ card, className }: { card: ICardData; className?: string }) => {
   return (
@@ -18,7 +18,7 @@ const Card = ({ card, className }: { card: ICardData; className?: string }) => {
         </div>
 
         <p className={`text-${rarityColorKey(card.level)}`}>
-          {rarityMap[card.level]} {card.type.charAt(0).toUpperCase() + card.type.slice(1)}
+          {rarityMap[card.level]} {toSentenceCase(card.type)}
         </p>
 
         {card.effect && <p>{card.effect}</p>}

@@ -17,3 +17,7 @@ export function randomIntFromInterval(min: number, max: number) {
 export function isNumeric(num: any) {
   return !isNaN(num)
 }
+
+export function toSentenceCase(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
