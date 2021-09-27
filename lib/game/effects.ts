@@ -1,4 +1,4 @@
-import { Game, Phase, EffectItem, EffectType, Effect, Player, EffectItemType } from './types'
+import { Game, Phase, EffectItem, EffectType, Effect, Player, EffectItemType, CardLocation } from './types'
 
 import { updateAvailableActionsForPlayers } from './actions'
 
@@ -67,6 +67,7 @@ function advancePhase(initialGame: Game) {
   // triggered by other effects
 
   if (game.phase === Phase.UNTAP) {
+    // untap all permanents
     game.players
       .filter((player) => player.id === game.hasPriority)
       .map((player) => player.deck)
@@ -74,6 +75,11 @@ function advancePhase(initialGame: Game) {
       .forEach((card) => (card.tapped = false))
     game.phase = Phase.DRAW
   } else if (game.phase === Phase.DRAW) {
+    // draw a card
+    if (game.players[0].deck.filter((card) => card.location === CardLocation.LIBRARY).length > 0) {
+      game.players[0].deck.filter((card) => card.location === CardLocation.LIBRARY)[0].location =
+        CardLocation.HAND
+    }
     game.phase = Phase.MAIN
   } else if (game.phase === Phase.MAIN) {
     game.phase = Phase.COMBAT

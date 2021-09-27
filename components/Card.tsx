@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import jpeg from '../public/adv.jpeg'
 
-import { ICardData } from '../lib/getCardData'
+import { ICardData } from '../lib/types'
 import { rarityMap, rarityColorKey, toSentenceCase } from '../lib/utils'
 
 const Card = ({ card, className }: { card: ICardData; className?: string }) => {

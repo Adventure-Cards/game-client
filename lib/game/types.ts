@@ -52,6 +52,8 @@ export enum Target {
 // CARDS //
 
 export interface BaseCard {
+  name: string
+  level: number
   id: string
   type: CardType
   location: CardLocation
@@ -183,7 +185,6 @@ export enum EffectType {
 export interface EffectDamageAny extends BaseEffect {
   executionType: EffectExecutionType.RESPONDABLE
   type: EffectType.DAMAGE_ANY
-  number_of_targets: number
   amount: number
 }
 
@@ -292,6 +293,9 @@ export enum AbilitySpeed {
 }
 
 export interface Ability {
+  id: string
+  name: string
+  description: string
   speed: AbilitySpeed
   costs: Cost[]
   effects: Effect[]
@@ -320,6 +324,7 @@ export enum ActionType {
 
 export interface AbilityAction extends BaseAction {
   type: ActionType.ABILITY_ACTION
+  abilityId: string
   cardId: string
 }
 

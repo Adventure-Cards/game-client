@@ -3,10 +3,10 @@ export interface IDeck {
   numericId: number
   owner: string
   name: string
-  cards: ICard[]
+  cards: ICardData[]
 }
 
-export interface ICard {
+export interface ICardData {
   level: number
   name: string
   type: string
@@ -16,4 +16,7 @@ export interface ICard {
   defense?: string | undefined
   effect?: string | undefined
   specialEffect?: string | undefined
+  ability_1?: string | undefined
+  ability_2?: string | undefined
+  emoji?: string | undefined
 }

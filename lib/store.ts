@@ -35,19 +35,23 @@ export const { updateAddress, updateDeckId, updateCardIdx } = appSlice.actions
 
 import { buildTestGame, submitAction as _submitAction, processStackItem as _processStackItem } from './game'
 import type { Game, Action } from './game/types'
+import { IDeck } from './types'
 
 interface GameState {
   game: Game
 }
 
 const initialGameState: GameState = {
-  game: buildTestGame(),
+  game: null!,
 }
 
 export const gameSlice = createSlice({
   name: 'app',
   initialState: initialGameState,
   reducers: {
+    startGame: (state, action: PayloadAction<IDeck>) => {
+      state.game = buildTestGame(action.payload)
+    },
     submitAction: (state, action: PayloadAction<Action>) => {
       state.game = _submitAction(state.game, action.payload)
     },
@@ -57,7 +61,7 @@ export const gameSlice = createSlice({
   },
 })
 
-export const { submitAction, processStack } = gameSlice.actions
+export const { startGame, submitAction, processStack } = gameSlice.actions
 
 export const store = configureStore({
   reducer: {

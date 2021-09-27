@@ -1,14 +1,18 @@
 import { v4 as uuidv4 } from 'uuid'
 
+import abilities from '../../data/abilities'
+import effects from '../../data/effects'
+import costs from '../../data/costs'
+
 import {
   ManaColor,
   Game,
   Phase,
   Player,
-  Creature,
-  Artifact,
+  Card,
   CardType,
   CardLocation,
+  Ability,
   EffectType,
   Target,
   CostType,
@@ -17,58 +21,22 @@ import {
 } from './types'
 
 import { updateAvailableActionsForPlayers } from './actions'
+import { IDeck, ICardData } from '../types'
+import { randomIntFromInterval } from '../utils'
 
-export function buildTestGame(): Game {
-  const card1: Creature = {
-    id: uuidv4(),
-    type: CardType.CREATURE,
-    location: CardLocation.HAND,
-    tapped: false,
-    abilities: [
-      {
-        speed: AbilitySpeed.NORMAL,
-        costs: [{ target: Target.PLAYER, type: CostType.MANA, color: ManaColor.WHITE, amount: 2 }],
-        effects: [
-          {
-            executionType: EffectExecutionType.RESPONDABLE,
-            type: EffectType.DAMAGE_ANY,
-            number_of_targets: 1,
-            amount: 1,
-          },
-        ],
-      },
-    ],
-    attack: 1,
-    defense: 1,
-  }
+export function buildTestGame(deck: IDeck): Game {
+  const cards = deck.cards.map((card) => getCard(card))
 
-  const card2: Artifact = {
-    id: uuidv4(),
-    type: CardType.ARTIFACT,
-    location: CardLocation.HAND,
-    tapped: false,
-    abilities: [
-      {
-        speed: AbilitySpeed.INSTANT,
-        costs: [{ target: Target.CARD, type: CostType.TAP }],
-        effects: [
-          {
-            executionType: EffectExecutionType.IMMEDIATE,
-            type: EffectType.MANA_ADD,
-            target: Target.PLAYER,
-            color: ManaColor.WHITE,
-            amount: 1,
-          },
-        ],
-      },
-    ],
+  // put 3 cards into hand at random
+  while (cards.filter((card) => card.location === CardLocation.HAND).length < 3) {
+    cards[randomIntFromInterval(0, 44)].location = CardLocation.HAND
   }
 
   const player1: Player = {
     id: uuidv4(),
-    username: 'Olias',
+    username: `deck-${deck.id}`,
     life: 20,
-    deck: [{ ...card1 }, { ...card2 }],
+    deck: cards,
     availableActions: [],
     manaPool: {
       white: 0,
@@ -91,5 +59,135 @@ export function buildTestGame(): Game {
 
   game = updateAvailableActionsForPlayers(game)
 
+  console.log('just updated available actions, new game:', game)
+
   return game
+}
+
+function getCard(cardData: ICardData): Card {
+  let card: Card
+
+  switch (cardData.type) {
+    case 'CREATURE':
+      if (!cardData.attack || !cardData.defense) {
+        throw new Error('creature card missing stats')
+      }
+      card = {
+        name: cardData.name,
+        level: cardData.level,
+        id: uuidv4(),
+        type: (<any>CardType)[cardData.type],
+        location: CardLocation.LIBRARY,
+        tapped: false,
+        abilities: [],
+        attack: Number(cardData.attack),
+        defense: Number(cardData.defense),
+      }
+      break
+    case 'ARTIFACT':
+      card = {
+        name: cardData.name,
+        level: cardData.level,
+        id: uuidv4(),
+        type: (<any>CardType)[cardData.type],
+        location: CardLocation.LIBRARY,
+        tapped: false,
+        abilities: [],
+      }
+      break
+    case 'ENCHANTMENT':
+      card = {
+        name: cardData.name,
+        level: cardData.level,
+        id: uuidv4(),
+        type: (<any>CardType)[cardData.type],
+        location: CardLocation.LIBRARY,
+        tapped: false,
+        abilities: [],
+      }
+      break
+    case 'SPELL':
+      card = {
+        name: cardData.name,
+        level: cardData.level,
+        id: uuidv4(),
+        type: (<any>CardType)[cardData.type],
+        location: CardLocation.LIBRARY,
+        tapped: false,
+        abilities: [],
+      }
+      break
+    default:
+      throw new Error('card type not matched')
+  }
+
+  if (cardData.ability_1) {
+    const ability1 = getAbility(cardData.ability_1)
+    card.abilities.push(ability1)
+  }
+  if (cardData.ability_2) {
+    const ability2 = getAbility(cardData.ability_2)
+    card.abilities.push(ability2)
+  }
+
+  return card
+}
+
+function getAbility(abilityId: string): Ability {
+  const foundAbility = abilities.find((ability) => ability.id === abilityId)
+  if (!foundAbility) {
+    throw new Error(`abilityId not found: ${abilityId}`)
+  }
+
+  const result: Ability = {
+    id: foundAbility.id,
+    name: foundAbility.name,
+    description: foundAbility.description,
+    speed: foundAbility.speed as AbilitySpeed,
+    costs: [],
+    effects: [],
+  }
+
+  const costKeys = ['cost1', 'cost2', 'cost3']
+  costKeys.forEach((costIdx) => {
+    // @ts-ignore
+    const costId = foundAbility[costIdx]
+
+    if (costId !== '') {
+      const foundCost = costs.find((cost) => cost.id === costId)
+      if (!foundCost) {
+        throw new Error(`costId not found: ${costId}`)
+      }
+
+      result.costs.push({
+        type: (<any>CostType)[foundCost.type],
+        target: (<any>Target)[foundCost.target],
+        color: (<any>ManaColor)[foundCost.color],
+        amount: Number(foundCost.amount),
+      })
+    }
+  })
+
+  const effectKeys = ['effect1', 'effect2', 'effect3']
+  effectKeys.forEach((effectIdx) => {
+    // @ts-ignore
+    const effectId = foundAbility[effectIdx]
+
+    if (effectId !== '') {
+      const foundEffect = effects.find((effect) => effect.id === effectId)
+      if (!foundEffect) {
+        throw new Error(`costId not found: ${effectId}`)
+      }
+
+      result.effects.push({
+        type: (<any>EffectType)[foundEffect.type],
+        executionType: (<any>EffectExecutionType)[foundEffect.executionType],
+        target: (<any>Target)[foundEffect.target],
+        color: (<any>ManaColor)[foundEffect.color],
+        amount: Number(foundEffect.amount),
+      })
+    }
+  })
+
+  return result
 }

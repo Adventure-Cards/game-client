@@ -5,19 +5,9 @@ import spells from '../data/spells'
 import locations from '../data/locations'
 import modifiers from '../data/modifiers'
 
-export interface ICardData {
-  level: number
-  name: string
-  type: string
-  rarity?: string | undefined
-  color?: string | undefined
-  attack?: string | undefined
-  defense?: string | undefined
-  effect?: string | undefined
-  specialEffect?: string | undefined
-}
+import { ICard } from './types'
 
-export function getCardData(card: string): null | ICardData {
+export function getCardData(card: string): ICard | null {
   // hack to handle two word artifact names
   card = card.replace('Divine Robe', 'DivineRobe')
   card = card.replace('Ghost Wand', 'GhostWand')
@@ -29,14 +19,16 @@ export function getCardData(card: string): null | ICardData {
   const words = card.split(' ')
 
   let result = helper()
-  if (result) {
-    result = {
-      ...result,
-      name: result.name.replace('DivineRobe', 'Divine Robe').replace('GhostWand', 'Ghost Wand'),
-    }
+  if (!result) {
+    return null
   }
 
-  return result || null
+  result = {
+    ...result,
+    name: result.name.replace('DivineRobe', 'Divine Robe').replace('GhostWand', 'Ghost Wand'),
+  }
+
+  return result
 
   function helper() {
     // handle commons
@@ -48,24 +40,24 @@ export function getCardData(card: string): null | ICardData {
           ...creatures.find((creature) => creature.name === name),
           level: 0,
           name: card,
-          type: 'creature',
+          type: 'CREATURE',
         }
       } else if (artifacts.map((artifact) => artifact.name).includes(name)) {
         return {
           ...artifacts.find((artifact) => artifact.name === name),
           level: 0,
           name: card,
-          type: 'artifact',
+          type: 'ARTIFACT',
         }
       } else if (enchantments.map((enchantment) => enchantment.name).includes(name)) {
         return {
           ...enchantments.find((enchantment) => enchantment.name === name),
           level: 0,
           name: card,
-          type: 'enchantment',
+          type: 'ENCHANTMENT',
         }
       } else if (spells.map((spell) => spell.name).includes(name)) {
-        return { ...spells.find((spell) => spell.name === name), level: 0, name: card, type: 'spell' }
+        return { ...spells.find((spell) => spell.name === name), level: 0, name: card, type: 'SPELL' }
       }
     }
 
@@ -80,24 +72,24 @@ export function getCardData(card: string): null | ICardData {
           ...creatures.find((creature) => creature.name === name),
           level: 1,
           name: card,
-          type: 'creature',
+          type: 'CREATURE',
         }
       } else if (artifacts.map((artifact) => artifact.name).includes(name)) {
         return {
           ...artifacts.find((artifact) => artifact.name === name),
           level: 1,
           name: card,
-          type: 'artifact',
+          type: 'ARTIFACT',
         }
       } else if (enchantments.map((enchantment) => enchantment.name).includes(name)) {
         return {
           ...enchantments.find((enchantment) => enchantment.name === name),
           level: 1,
           name: card,
-          type: 'enchantment',
+          type: 'ENCHANTMENT',
         }
       } else if (spells.map((spell) => spell.name).includes(name)) {
-        return { ...spells.find((spell) => spell.name === name), level: 1, name: card, type: 'spell' }
+        return { ...spells.find((spell) => spell.name === name), level: 1, name: card, type: 'SPELL' }
       }
     }
 
@@ -111,24 +103,24 @@ export function getCardData(card: string): null | ICardData {
           ...creatures.find((creature) => creature.name === name),
           level: 1,
           name: card,
-          type: 'creature',
+          type: 'CREATURE',
         }
       } else if (artifacts.map((artifact) => artifact.name).includes(name)) {
         return {
           ...artifacts.find((artifact) => artifact.name === name),
           level: 2,
           name: card,
-          type: 'artifact',
+          type: 'ARTIFACT',
         }
       } else if (enchantments.map((enchantment) => enchantment.name).includes(name)) {
         return {
           ...enchantments.find((enchantment) => enchantment.name === name),
           level: 2,
           name: card,
-          type: 'enchantment',
+          type: 'ENCHANTMENT',
         }
       } else if (spells.map((spell) => spell.name).includes(name)) {
-        return { ...spells.find((spell) => spell.name === name), level: 2, name: card, type: 'spell' }
+        return { ...spells.find((spell) => spell.name === name), level: 2, name: card, type: 'SPELL' }
       }
     }
 
@@ -147,7 +139,7 @@ export function getCardData(card: string): null | ICardData {
         level: 2,
         name: card,
         specialEffect: location!.effect,
-        type: 'creature',
+        type: 'CREATURE',
       }
     }
 
@@ -166,7 +158,7 @@ export function getCardData(card: string): null | ICardData {
         level: 3,
         name: card,
         specialEffect: location!.effect,
-        type: 'creature',
+        type: 'CREATURE',
       }
     }
   }

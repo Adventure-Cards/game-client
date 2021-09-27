@@ -1,24 +1,75 @@
 import type { NextPage } from 'next'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 
 import { useDispatch, useSelector } from '../../lib/hooks'
-import { submitAction, processStack } from '../../lib/store'
+import { startGame, updateDeckId, submitAction, processStack } from '../../lib/store'
+import { useCardsForDeck } from '../../lib/useCardsForDeck'
 
-import { Action, Card as ICard, ActionType, AbilityAction } from '../../lib/game/types'
+import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
+
+import {
+  Action,
+  Card as ICard,
+  ActionType,
+  AbilityAction,
+  CardLocation,
+  CardType,
+  Ability,
+} from '../../lib/game/types'
 
 const PlayPage: NextPage = () => {
+  const router = useRouter()
+  const { deckId: pathDeckId } = router.query
+
+  const dispatch = useDispatch()
+  const game = useSelector((state) => state.game.game)
+
+  const { data: deck, fetch } = useCardsForDeck()
+
+  useEffect(() => {
+    // when the path changes (by user or when it becomes defined)
+    // kick off the fetch function
+    const pathDeckIdAsNumber = Number(pathDeckId)
+    dispatch(updateDeckId(pathDeckIdAsNumber))
+    fetch(pathDeckIdAsNumber)
+  }, [pathDeckId])
+
+  function handleStartGame() {
+    dispatch(startGame(deck))
+  }
+
+  useEffect(() => {
+    if (game && game.opponentLife < 0) {
+      alert('you win!')
+    }
+  }, [game])
+
+  if (!deck) {
+    return <div className="relative w-screen h-screen p-4" />
+  }
+
+  if (!game) {
+    return (
+      <div className="relative w-screen h-screen p-4">
+        <div className="flex flex-col justify-center items-center h-full w-full ">
+          <button className="px-6 py-4 bg-gold border border-gray-200" onClick={handleStartGame}>
+            Start Game
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="relative w-screen h-screen p-4">
-      <div className="flex flex-col h-full w-full ">
-        <div className="border border-gray-200">
-          <OpponentPanel />
-        </div>
-
-        <div className="flex flex-row flex-1">
-          <div className="flex flex-row w-3/4 border-l border-gray-200">
-            <div className="w-1/2 h-full border-r border-gray-200">
+      <div className="flex flex-col h-full w-full">
+        <div className="flex flex-row border-t border-gray-200" style={{ height: 'calc(100% - 66px)' }}>
+          <div className="flex flex-row w-3/4 h-full border-l border-gray-200">
+            <div className="w-1/2 overflow-scroll border-r border-gray-200">
               <HandPanel />
             </div>
-            <div className="w-1/2 h-full border-r">
+            <div className="w-1/2 overflow-scroll border-r border-gray-200">
               <BattlefieldPanel />
             </div>
           </div>
@@ -28,8 +79,9 @@ const PlayPage: NextPage = () => {
           </div>
         </div>
 
-        <div className="flex flex-row justify-between border border-gray-200">
+        <div className="flex flex-row justify-between border border-gray-200" style={{ height: '66px' }}>
           <PlayerPanel />
+          <OpponentPanel />
           <GamePanel />
         </div>
       </div>
@@ -82,7 +134,9 @@ function PlayerPanel() {
 
       <div className="flex flex-col text-center w-16">
         <p className="text-white">Library</p>
-        <p className="">{game.players[0].deck.length}</p>
+        <p className="">
+          {game.players[0].deck.filter((card) => card.location === CardLocation.LIBRARY).length}
+        </p>
       </div>
 
       <div className="border-r border-gray-200" />
@@ -131,7 +185,7 @@ function GamePanel() {
               className="px-2 py-1 bg-gold border border-gray-200"
               onClick={() => handleClickSubmitAction(action)}
             >
-              Release Priority
+              Next Phase
             </button>
           </div>
         ))}
@@ -187,31 +241,40 @@ function StackPanel() {
 }
 
 function BattlefieldPanel() {
-  const game = useSelector((state) => state.game.game)
-
-  return (
-    <div className="h-full flex flex-col justify-between items-center gap-4 p-2 ">
-      <p className="text-center">Battlefield</p>
-    </div>
+  const cardsOnBattlefield = useSelector((state) =>
+    state.game.game.players[0].deck.filter((card) => card.location === CardLocation.BATTLEFIELD)
   )
-}
-
-function HandPanel() {
-  const game = useSelector((state) => state.game.game)
 
   return (
-    <div className="h-full flex flex-col gap-4 p-2 ">
-      <p className="text-center">Hand</p>
+    <div className="flex flex-col items-center gap-6 p-2 pb-6">
+      <p className="">Battlefield ({cardsOnBattlefield.length})</p>
 
-      {game.players[0].deck.map((card, idx) => (
+      {cardsOnBattlefield.map((card, idx) => (
         <Card key={idx} card={card} />
       ))}
     </div>
   )
 }
 
-function Card({ card }: { card: ICard }) {
+function HandPanel() {
+  const cardsInHand = useSelector((state) =>
+    state.game.game.players[0].deck.filter((card) => card.location === CardLocation.HAND)
+  )
+
+  return (
+    <div className="flex flex-col items-center gap-6 p-2 pb-6">
+      <p className="">Hand ({cardsInHand.length})</p>
+
+      {cardsInHand.map((card, idx) => (
+        <Card key={idx} card={card} />
+      ))}
+    </div>
+  )
+}
+
+const Card = ({ card, className }: { card: ICard; className?: string }) => {
   const dispatch = useDispatch()
+
   const game = useSelector((state) => state.game.game)
 
   const availableActionsForCard = useSelector((state) =>
@@ -220,27 +283,87 @@ function Card({ card }: { card: ICard }) {
       .filter((action) => (action as AbilityAction).cardId === card.id)
   )
 
+  function getActionForAbility(ability: Ability) {
+    const action = game.players[0].availableActions
+      .filter((action) => action.type === ActionType.ABILITY_ACTION)
+      .filter((action) => (action as AbilityAction).cardId === card.id)
+      .find((action) => (action as AbilityAction).abilityId === ability.id)
+
+    return action
+  }
+
+  function handleClickSubmitActionForAbility(ability: Ability) {
+    const action = getActionForAbility(ability)
+
+    if (action) {
+      console.log('dispatching action:', action)
+      dispatch(submitAction(action))
+    }
+  }
+
   function handleClickSubmitAction(action: Action) {
     dispatch(submitAction(action))
   }
 
+  useEffect(() => {
+    console.log('availableActionsForCard for card.id', card.id, availableActionsForCard)
+  }, [availableActionsForCard])
+
   return (
-    <div className="flex flex-col border-blue-400 rounded-md">
-      <p>id: {card.id}</p>
-      <p>type: {card.type}</p>
-      <p>tapped: {card.tapped ? 'true' : 'false'}</p>
-      <p>abilities: </p>
-      {availableActionsForCard.map((action, idx) => (
-        <div key={idx} className="flex">
-          <p>Effect: {action.effectItems[0].effect.type}</p>
+    <div
+      className={`flex flex-col justify-between w-72 h-96 p-4 bg-background
+      rounded-md shadow-xl border-4 border-${rarityColorKey(card.level)} transition-all
+      ${card.tapped ? 'transform rotate-12' : 'transform rotate-0'} ${className}`}
+    >
+      <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar">
+        <p className={``}>{card.name}</p>
+
+        <p className={`text-${rarityColorKey(card.level)}`}>
+          {rarityMap[card.level]} {toSentenceCase(card.type)}
+        </p>
+
+        {card.abilities.map((ability, idx) => (
+          <div key={idx} className="flex flex-col">
+            <div className="flex flex-row justify-between items-center pb-2">
+              <p className="py-2">{ability.name}</p>
+              {getActionForAbility(ability) && (
+                <button
+                  className="px-2 py-1 bg-gold border border-gray-200"
+                  onClick={() => handleClickSubmitActionForAbility(ability)}
+                >
+                  Submit Action
+                </button>
+              )}
+            </div>
+
+            <p>{ability.description}</p>
+          </div>
+        ))}
+
+        {availableActionsForCard.map((action, idx) => (
           <button
+            key={idx}
             className="px-2 py-1 bg-gold border border-gray-200"
             onClick={() => handleClickSubmitAction(action)}
           >
-            Submit Action
+            Submit Action: {action.type}
           </button>
-        </div>
-      ))}
+        ))}
+      </div>
+
+      <div className="flex flex-row justify-end">
+        {card.type === CardType.CREATURE && (
+          <p>
+            {card.attack}/{card.defense}
+          </p>
+        )}
+        {/* @ts-ignore */}
+        {/* {card.type === 'artifact' && (card.attack > 0 || card.defense > 0) && (
+          <p>
+            +{card.attack}/+{card.defense}
+          </p>
+        )} */}
+      </div>
     </div>
   )
 }

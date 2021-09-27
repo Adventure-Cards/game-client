@@ -64,6 +64,11 @@ const DeckPage: NextPage = () => {
             </button>
           </div>
           {!(Number(deckId) >= 0 && Number(deckId) < 4888) && <p>Invalid deckId: {deckId}</p>}
+          {deck && (
+            <Link href={`/play/${deck.id}`}>
+              <a className="underline">Playtest</a>
+            </Link>
+          )}
         </div>
 
         {deck && (

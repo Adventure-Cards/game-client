@@ -81,7 +81,9 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
     // prepare and validate cost items
     const costItems: CostItem[] = []
 
-    for (const cost of ability.costs) {
+    for (const _cost of ability.costs) {
+      const cost = { ..._cost }
+
       switch (cost.target) {
         case Target.PLAYER:
           costItems.push({
@@ -139,6 +141,7 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
 
     actions.push({
       type: ActionType.ABILITY_ACTION,
+      abilityId: ability.id,
       cardId: card.id,
       controllerId: player.id,
       costItems: costItems,
@@ -157,6 +160,7 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
     if (validateCostItem(game, combatCostItem)) {
       actions.push({
         type: ActionType.ABILITY_ACTION,
+        abilityId: 'combat',
         cardId: card.id,
         controllerId: player.id,
         costItems: [combatCostItem],
