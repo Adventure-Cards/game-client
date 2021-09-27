@@ -1,7 +1,17 @@
 const { writeFile } = require('fs/promises')
 const { GoogleSpreadsheet } = require('google-spreadsheet')
 
-const sheetNames = ['creatures', 'spells', 'artifacts', 'enchantments', 'locations', 'modifiers']
+const sheetNames = [
+  'creatures',
+  'spells',
+  'artifacts',
+  'enchantments',
+  'locations',
+  'modifiers',
+  'abilities',
+  'costs',
+  'effects',
+]
 
 async function loadAdditionalCardData() {
   const doc = new GoogleSpreadsheet('1ZfwQ4sVlR8x7mpz2iimLwnUFGNeUdJSGLCm-zwJVZbw')

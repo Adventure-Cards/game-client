@@ -1,0 +1,26 @@
+export default [
+  {
+    id: 'expert-shot',
+    speed: 'NORMAL',
+    name: 'Expert Shot',
+    description: '2 white mana: Deal 1 damage to any target',
+    cost1: 'mana-white-2',
+    cost2: '',
+    cost3: '',
+    effect1: 'damage-any-1',
+    effect2: '',
+    effect3: '',
+  },
+  {
+    id: 'feast',
+    speed: 'INSTANT',
+    name: 'Feast',
+    description: '⤵: Add 1 white mana to your mana pool',
+    cost1: 'tap',
+    cost2: '',
+    cost3: '',
+    effect1: 'add-white-mana-1',
+    effect2: '',
+    effect3: '',
+  },
+]

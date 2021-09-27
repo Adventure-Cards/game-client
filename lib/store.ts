@@ -1,12 +1,13 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
+// APP SLICE //
 interface AppState {
   address: string
   deckId: number
   cardIdx: number
 }
 
-const initialState: AppState = {
+const initialAppState: AppState = {
   address: '0xd17d1BcDe2A28AaDe2b3B5012f93b8B079d0E86B',
   deckId: 1,
   cardIdx: 0,
@@ -14,7 +15,7 @@ const initialState: AppState = {
 
 export const appSlice = createSlice({
   name: 'app',
-  initialState,
+  initialState: initialAppState,
   reducers: {
     updateAddress: (state, action: PayloadAction<string>) => {
       state.address = action.payload
@@ -30,9 +31,42 @@ export const appSlice = createSlice({
 
 export const { updateAddress, updateDeckId, updateCardIdx } = appSlice.actions
 
+// GAME SLICE //
+
+import { buildTestGame, submitAction as _submitAction, processStackItem as _processStackItem } from './game'
+import type { Game, Action } from './game/types'
+import { IDeck } from './types'
+
+interface GameState {
+  game: Game
+}
+
+const initialGameState: GameState = {
+  game: null!,
+}
+
+export const gameSlice = createSlice({
+  name: 'app',
+  initialState: initialGameState,
+  reducers: {
+    startGame: (state, action: PayloadAction<IDeck>) => {
+      state.game = buildTestGame(action.payload)
+    },
+    submitAction: (state, action: PayloadAction<Action>) => {
+      state.game = _submitAction(state.game, action.payload)
+    },
+    processStack: (state, action: PayloadAction<void>) => {
+      state.game = _processStackItem(state.game)
+    },
+  },
+})
+
+export const { startGame, submitAction, processStack } = gameSlice.actions
+
 export const store = configureStore({
   reducer: {
     app: appSlice.reducer,
+    game: gameSlice.reducer,
   },
 })
 
