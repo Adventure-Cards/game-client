@@ -277,10 +277,13 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
 
   const game = useSelector((state) => state.game.game)
 
-  const availableActionsForCard = useSelector((state) =>
-    state.game.game.players[0].availableActions
-      .filter((action) => action.type === ActionType.ABILITY_ACTION)
-      .filter((action) => (action as AbilityAction).cardId === card.id)
+  const combatAction = useSelector((state) =>
+    state.game.game.players[0].availableActions.find(
+      (action) =>
+        action.type === ActionType.ABILITY_ACTION &&
+        action.cardId === card.id &&
+        action.abilityId === 'combat'
+    )
   )
 
   function getActionForAbility(ability: Ability) {
@@ -304,10 +307,6 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
   function handleClickSubmitAction(action: Action) {
     dispatch(submitAction(action))
   }
-
-  useEffect(() => {
-    console.log('availableActionsForCard for card.id', card.id, availableActionsForCard)
-  }, [availableActionsForCard])
 
   return (
     <div
@@ -340,20 +339,33 @@ const Card = ({ card, className }: { card: ICard; className?: string }) => {
           </div>
         ))}
 
-        {availableActionsForCard.map((action, idx) => (
-          <button
-            key={idx}
-            className="px-2 py-1 bg-gold border border-gray-200"
-            onClick={() => handleClickSubmitAction(action)}
-          >
-            Submit Action: {action.type}
-          </button>
-        ))}
+        {/* {availableActionsForCard
+          .filter((action) => action.type === ActionType.ABILITY_ACTION && action.abilityId === 'combat')
+          .map((action, idx) => (
+            <button
+              key={idx}
+              className="px-2 py-1 bg-gold border border-gray-200"
+              onClick={() => handleClickSubmitAction(action)}
+            >
+              Combat
+            </button>
+          ))} */}
       </div>
 
-      <div className="flex flex-row justify-end">
+      <div className="flex flex-row justify-between">
+        {combatAction ? (
+          <button
+            className="px-2 py-1 bg-gold border border-gray-200"
+            onClick={() => handleClickSubmitAction(combatAction)}
+          >
+            Combat
+          </button>
+        ) : (
+          <div />
+        )}
+
         {card.type === CardType.CREATURE && (
-          <p>
+          <p className="py-2">
             {card.attack}/{card.defense}
           </p>
         )}

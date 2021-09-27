@@ -10,6 +10,8 @@ export function processEffectItem(initialGame: Game, effectItem: EffectItem) {
     throw new Error(`player with id ${effectItem.controllerId} not found`)
   }
 
+  console.log('handling effectItem', effectItem)
+
   switch (effectItem.type) {
     case EffectItemType.CORE:
       game = processEffectCore(game, effectItem.effect, player)
@@ -18,7 +20,7 @@ export function processEffectItem(initialGame: Game, effectItem: EffectItem) {
       game = processEffectWithAmount(game, effectItem.effect, effectItem.amount)
       break
     default:
-      throw new Error(`unhandled effect type`)
+      throw new Error(`unhandled EffectItemType: ${effectItem.type}`)
   }
 
   // after processing an effect, need to refresh the available actions
@@ -39,7 +41,7 @@ function processEffectCore(initialGame: Game, effect: Effect, player: Player) {
       game = advancePhase(game)
       break
     default:
-      throw new Error(`unhandled effect type`)
+      throw new Error(`unhandled EffectType: ${effect.type}`)
   }
 
   return game
@@ -49,11 +51,14 @@ function processEffectWithAmount(initialGame: Game, effect: Effect, amount: numb
   let game = { ...initialGame }
 
   switch (effect.type) {
+    case EffectType.DAMAGE_ANY:
+      game.opponentLife -= amount
+      break
     case EffectType.DAMAGE_PLAYER:
       game.opponentLife -= amount
       break
     default:
-      throw new Error(`unhandled effect type`)
+      throw new Error(`unhandled EffectType: ${effect.type}`)
   }
 
   return game

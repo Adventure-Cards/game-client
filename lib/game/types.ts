@@ -185,7 +185,6 @@ export enum EffectType {
 export interface EffectDamageAny extends BaseEffect {
   executionType: EffectExecutionType.RESPONDABLE
   type: EffectType.DAMAGE_ANY
-  amount: number
 }
 
 export interface EffectDamagePlayer extends BaseEffect {

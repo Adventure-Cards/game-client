@@ -117,7 +117,10 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
 
     const effectItems: EffectItem[] = []
 
-    for (const effect of ability.effects) {
+    for (const _effect of ability.effects) {
+      const effect = { ..._effect }
+
+      console.log('getting effectItem for effect', effect)
       switch (effect.type) {
         case EffectType.MANA_ADD:
           effectItems.push({
@@ -126,16 +129,16 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
             effect: effect,
           })
           break
-        case EffectType.DAMAGE_PLAYER:
+        case EffectType.DAMAGE_ANY:
           effectItems.push({
-            type: EffectItemType.TARGETS_PLAYER,
+            type: EffectItemType.WITH_AMOUNT,
             controllerId: player.id,
             effect: effect,
-            playerId: '123',
+            amount: 1,
           })
           break
         default:
-          throw new Error(`unhandled cost target`)
+          throw new Error(`unhandled EffectType: ${effect.type}`)
       }
     }
 
