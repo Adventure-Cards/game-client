@@ -33,8 +33,8 @@ export const { updateAddress, updateDeckId, updateCardIdx } = appSlice.actions
 
 // GAME SLICE //
 
-import { buildTestGame, handleAction, processStackItem } from './game'
-import type { Game, Action } from './game'
+import { buildTestGame, submitAction as _submitAction, processStackItem as _processStackItem } from './game'
+import type { Game, Action } from './game/types'
 
 interface GameState {
   game: Game
@@ -49,10 +49,10 @@ export const gameSlice = createSlice({
   initialState: initialGameState,
   reducers: {
     submitAction: (state, action: PayloadAction<Action>) => {
-      state.game = handleAction(state.game, action.payload)
+      state.game = _submitAction(state.game, action.payload)
     },
     processStack: (state, action: PayloadAction<void>) => {
-      state.game = processStackItem(state.game)
+      state.game = _processStackItem(state.game)
     },
   },
 })

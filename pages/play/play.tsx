@@ -3,7 +3,7 @@ import type { NextPage } from 'next'
 import { useDispatch, useSelector } from '../../lib/hooks'
 import { submitAction, processStack } from '../../lib/store'
 
-import { Action, Card as ICard, ActionType, AbilityAction } from '../../lib/game'
+import { Action, Card as ICard, ActionType, AbilityAction } from '../../lib/game/types'
 
 const PlayPage: NextPage = () => {
   return (
@@ -133,9 +133,8 @@ function PlayerPanel() {
       {game.players[0].availableActions
         .filter((action) => action.type === 'PRIORITY_ACTION')
         .map((action, idx) => (
-          <div className="flex flex-col justify-center mx-2">
+          <div key={idx} className="flex flex-col justify-center mx-2">
             <button
-              key={idx}
               className="px-2 py-1 bg-gold border border-gray-200"
               onClick={() => handleClickSubmitAction(action)}
             >
@@ -222,8 +221,8 @@ function Card({ card }: { card: ICard }) {
       <p>type: {card.type}</p>
       <p>tapped: {card.tapped ? 'true' : 'false'}</p>
       <p>abilities: </p>
-      {availableActionsForCard.map((action) => (
-        <div className="flex">
+      {availableActionsForCard.map((action, idx) => (
+        <div key={idx} className="flex">
           <p>Effect: {action.effects[0].type}</p>
           <button
             className="px-2 py-1 bg-gold border border-gray-200"
