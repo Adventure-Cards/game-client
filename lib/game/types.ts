@@ -14,10 +14,14 @@ export interface Game {
   hasPriority: string
   phase: Phase
   stack: StackItem[]
+  turn: number
 }
 
 export enum Phase {
+  UNTAP = 'UNTAP',
+  DRAW = 'DRAW',
   MAIN = 'MAIN',
+  COMBAT = 'COMBAT',
   END = 'END',
 }
 
@@ -37,6 +41,11 @@ export interface Player {
   deck: Card[]
   availableActions: Action[]
   manaPool: ManaPool
+}
+
+export enum Target {
+  PLAYER = 'PLAYER',
+  CARD = 'CARD',
 }
 
 // CARDS //
@@ -88,13 +97,8 @@ export type Card = Creature | Artifact | Enchantment | Spell
 // Costs are used to create CostItems when submitting an Action
 
 export interface BaseCost {
-  target: CostTarget
+  target: Target
   type: CostType
-}
-
-export enum CostTarget {
-  PLAYER = 'PLAYER',
-  CARD = 'CARD',
 }
 
 export enum CostType {
@@ -104,20 +108,20 @@ export enum CostType {
 }
 
 export interface CostMana extends BaseCost {
-  target: CostTarget.PLAYER
+  target: Target.PLAYER
   type: CostType.MANA
   color: ManaColor
   amount: number
 }
 
 export interface CostSacrificePermanent extends BaseCost {
-  target: CostTarget.PLAYER
+  target: Target.PLAYER
   type: CostType.SACRIFICE_PERMANENT
   number: number
 }
 
 export interface CostTap extends BaseCost {
-  target: CostTarget.CARD
+  target: Target.CARD
   type: CostType.TAP
 }
 
@@ -129,26 +133,129 @@ export type Cost = CostMana | CostSacrificePermanent | CostTap
 
 export interface BaseCostItem {
   cost: Cost
-  target: CostTarget
+  target: Target
 }
 
 export interface CostItemPlayer extends BaseCostItem {
-  cost: Cost
-  target: CostTarget.PLAYER
+  target: Target.PLAYER
   playerId: string
 }
 
 export interface CostItemCard extends BaseCostItem {
-  cost: Cost
-  target: CostTarget.CARD
+  target: Target.CARD
   cardId: string
 }
 
 export type CostItem = CostItemPlayer | CostItemCard
 
+// EFFECTS
+// an Effect exists as part of the static data associated with a card
+// Effects are used to create EffectItems when submitting an Action
+
+export interface BaseEffect {
+  executionType: EffectExecutionType
+  type: EffectType
+}
+
+export enum EffectExecutionType {
+  RESPONDABLE = 'RESPONDABLE',
+  IMMEDIATE = 'IMMEDIATE',
+}
+
+export enum EffectType {
+  DAMAGE_ANY = 'DAMAGE_ANY',
+  DAMAGE_PLAYER = 'DAMAGE_PLAYER',
+  DAMAGE_CREATURE = 'DAMAGE_CREATURE',
+  SELECT_TARGET = 'SELECT_TARGET',
+  MANA_ADD = 'MANA_ADD',
+
+  PHASE_UNTAP = 'PHASE_UNTAP',
+  PHASE_DRAW = 'PHASE_DRAW',
+  PHASE_MAIN = 'PHASE_MAIN',
+  PHASE_COMBAT = 'PHASE_COMBAT',
+  PHASE_END = 'PHASE_END',
+
+  RELEASE_PRIORITY = 'RELEASE_PRIORITY',
+}
+
+export interface EffectDamageAny extends BaseEffect {
+  executionType: EffectExecutionType.RESPONDABLE
+  type: EffectType.DAMAGE_ANY
+  number_of_targets: number
+  amount: number
+}
+
+// this just mutates the controllers mana pool
+export interface EffectManaAdd extends BaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.MANA_ADD
+  color: ManaColor
+  amount: number
+}
+
+// this mutates the games priorityPlayerId
+export interface EffectReleasePriority extends BaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.RELEASE_PRIORITY
+}
+
+export interface EffectPhaseUntap extends BaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.PHASE_UNTAP
+}
+
+export interface EffectPhaseDraw extends BaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.PHASE_DRAW
+}
+
+export interface EffectPhaseMain extends BaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.PHASE_MAIN
+}
+
+export interface EffectPhaseCombat extends BaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.PHASE_COMBAT
+}
+
+export interface EffectPhaseEnd extends BaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.PHASE_END
+}
+
+export type Effect =
+  | EffectManaAdd
+  | EffectDamageAny
+  | EffectReleasePriority
+  | EffectPhaseUntap
+  | EffectPhaseDraw
+  | EffectPhaseMain
+  | EffectPhaseCombat
+  | EffectPhaseEnd
+
+// EFFECT ITEMS //
+// an EffectItem exists as part of an Action
+// it refers to a specific effect that will happen
+
+export interface BaseEffectItem {
+  effect: Effect
+  controllerId: string
+}
+
+// later will need to add effectItem types like "single target", "multi target", etc
+
+export type EffectItem = BaseEffectItem
+
 // EFFECT CREATORS
 
+export enum AbilitySpeed {
+  NORMAL = 'NORMAL',
+  INSTANT = 'INSTANT',
+}
+
 export interface Ability {
+  speed: AbilitySpeed
   costs: Cost[]
   effects: Effect[]
 }
@@ -159,54 +266,13 @@ export interface EffectTrigger {
   effects: Effect[]
 }
 
-// EFFECTS
-
-export interface BaseEffect {
-  type: EffectType
-}
-
-export enum EffectType {
-  DAMAGE_ANY = 'DAMAGE_ANY',
-  DAMAGE_PLAYER = 'DAMAGE_PLAYER',
-  DAMAGE_CREATURE = 'DAMAGE_CREATURE',
-  SELECT_TARGET = 'SELECT_TARGET',
-  MANA_ADD = 'MANA_ADD',
-  MANA_SUBTRACT = 'MANA_SUBTRACT',
-  PHASE_UNTAP = 'PHASE_UNTAP',
-  PHASE_UPKEEP = 'PHASE_UPKEEP',
-  PHASE_DRAW = 'PHASE_DRAW',
-  PHASE_MAIN = 'PHASE_MAIN',
-  RELEASE_PRIORITY = 'RELEASE_PRIORITY',
-}
-
-// this will kick off the EffectSelectTargets????? who knows
-export interface EffectDamageAny extends BaseEffect {
-  type: EffectType.DAMAGE_ANY
-  number_of_targets: 1
-  amount: number
-}
-
-// this just mutates the controllers mana pool
-export interface EffectManaAdd extends BaseEffect {
-  type: EffectType.MANA_ADD
-  color: ManaColor
-  amount: number
-}
-
-// this mutates the games priorityPlayerId
-export interface EffectReleasePriority extends BaseEffect {
-  type: EffectType.RELEASE_PRIORITY
-}
-
-export type Effect = EffectManaAdd | EffectDamageAny | EffectReleasePriority
-
 // ACTIONS
 
 export interface BaseAction {
   type: ActionType
   controllerId: string
   costItems: CostItem[]
-  effects: Effect[]
+  effectItems: EffectItem[]
 }
 
 export enum ActionType {
@@ -234,5 +300,5 @@ export type Action = AbilityAction | EffectAction | PriorityAction
 
 export interface StackItem {
   controllerId: string
-  effect: Effect
+  effectItem: EffectItem
 }

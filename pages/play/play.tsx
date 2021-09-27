@@ -14,22 +14,6 @@ const PlayPage: NextPage = () => {
         </div>
 
         <div className="flex flex-row flex-1">
-          {/* <div className="flex flex-col w-1/3 gap-4 border border-gray-200 p-2">
-            <p>Number of available actions: {game.players[0].availableActions.length}</p>
-            {game.players[0].availableActions.map((action, idx) => (
-              <div key={idx} className="flex flex-col">
-                <p>type: {action.type}</p>
-                <p>effects:</p>
-                {action.effects.map((effect, idx) => (
-                  <p key={`${effect}-${idx}`}>&nbsp; &nbsp; type: {effect.type}</p>
-                ))}
-                <button className="flex flex-shrink" onClick={() => handleClickSubmitAction(action)}>
-                  Submit Action
-                </button>
-              </div>
-            ))}
-          </div> */}
-
           <div className="flex flex-row w-3/4 border-l border-gray-200">
             <div className="w-1/2 h-full border-r border-gray-200">
               <HandPanel />
@@ -44,8 +28,9 @@ const PlayPage: NextPage = () => {
           </div>
         </div>
 
-        <div className="border border-gray-200">
+        <div className="flex flex-row justify-between border border-gray-200">
           <PlayerPanel />
+          <GamePanel />
         </div>
       </div>
     </div>
@@ -77,12 +62,7 @@ function OpponentPanel() {
 }
 
 function PlayerPanel() {
-  const dispatch = useDispatch()
   const game = useSelector((state) => state.game.game)
-
-  function handleClickSubmitAction(action: Action) {
-    dispatch(submitAction(action))
-  }
 
   return (
     <div className="flex flex-row gap-2 p-2">
@@ -129,7 +109,20 @@ function PlayerPanel() {
       </div>
 
       <div className="border-r border-gray-200" />
+    </div>
+  )
+}
 
+function GamePanel() {
+  const dispatch = useDispatch()
+  const game = useSelector((state) => state.game.game)
+
+  function handleClickSubmitAction(action: Action) {
+    dispatch(submitAction(action))
+  }
+
+  return (
+    <div className="flex flex-row gap-2 p-2">
       {game.players[0].availableActions
         .filter((action) => action.type === 'PRIORITY_ACTION')
         .map((action, idx) => (
@@ -142,6 +135,20 @@ function PlayerPanel() {
             </button>
           </div>
         ))}
+
+      <div className="border-r border-gray-200" />
+
+      <div className="flex flex-col text-center w-12">
+        <p className="text-white">Turn</p>
+        <p className="">{game.turn}</p>
+      </div>
+
+      <div className="border-r border-gray-200" />
+
+      <div className="flex flex-col text-center w-20">
+        <p className="text-white">Phase</p>
+        <p className="">{game.phase}</p>
+      </div>
     </div>
   )
 }
@@ -165,14 +172,16 @@ function StackPanel() {
             <p className="">
               {game.players.find((player) => player.id === stackItem.controllerId)?.username}
             </p>
-            <p className="">{stackItem.effect.type}</p>
+            <p className="">{stackItem.effectItem.effect.type}</p>
           </div>
         ))}
       </div>
 
-      <button className="px-2 py-1 bg-gold border border-gray-200" onClick={handleClickProcessStack}>
-        Process Stack
-      </button>
+      {game.stack.length > 0 && (
+        <button className="px-2 py-1 bg-gold border border-gray-200" onClick={handleClickProcessStack}>
+          Process Stack
+        </button>
+      )}
     </div>
   )
 }
@@ -223,7 +232,7 @@ function Card({ card }: { card: ICard }) {
       <p>abilities: </p>
       {availableActionsForCard.map((action, idx) => (
         <div key={idx} className="flex">
-          <p>Effect: {action.effects[0].type}</p>
+          <p>Effect: {action.effectItems[0].effect.type}</p>
           <button
             className="px-2 py-1 bg-gold border border-gray-200"
             onClick={() => handleClickSubmitAction(action)}

@@ -1,10 +1,10 @@
-import { Game, CostTarget, CostType, Cost, CostItem } from './types'
+import { Game, Target, CostType, Cost, CostItem } from './types'
 
 export function validateCostItem(game: Game, costItem: CostItem) {
   switch (costItem.target) {
-    case CostTarget.PLAYER:
+    case Target.PLAYER:
       return validateCostPlayer(game, costItem.playerId, costItem.cost)
-    case CostTarget.CARD:
+    case Target.CARD:
       return validateCostCard(game, costItem.cardId, costItem.cost)
     default:
       throw new Error(`unhandled CostTarget`)
@@ -57,10 +57,10 @@ export function processCostItem(initialGame: Game, costItem: CostItem) {
   let game = { ...initialGame }
 
   switch (costItem.target) {
-    case CostTarget.PLAYER:
+    case Target.PLAYER:
       game = processCostPlayer(game, costItem.playerId, costItem.cost)
       break
-    case CostTarget.CARD:
+    case Target.CARD:
       game = processCostCard(game, costItem.cardId, costItem.cost)
       break
     default:

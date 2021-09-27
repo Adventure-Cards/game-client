@@ -6,10 +6,15 @@ import {
   ActionType,
   EffectType,
   AbilityAction,
-  CostTarget,
+  Target,
   CostItem,
+  EffectItem,
+  EffectExecutionType,
+  AbilitySpeed,
+  Phase,
 } from './types'
 
+import { processEffectItem } from './effects'
 import { validateCostItem, processCostItem } from './costs'
 
 export function updateAvailableActionsForPlayers(initialGame: Game): Game {
@@ -22,14 +27,15 @@ export function updateAvailableActionsForPlayers(initialGame: Game): Game {
 
     availableActions = [...availableActions, ...cardActions]
 
-    if (game.hasPriority === player.id) {
+    if (game.hasPriority === player.id && game.stack.length === 0) {
       const releasePriorityAction: Action = {
         type: ActionType.PRIORITY_ACTION,
         controllerId: player.id,
         costItems: [],
-        effects: [
+        effectItems: [
           {
-            type: EffectType.RELEASE_PRIORITY,
+            controllerId: player.id,
+            effect: { type: EffectType.RELEASE_PRIORITY, executionType: EffectExecutionType.IMMEDIATE },
           },
         ],
       }
@@ -47,20 +53,40 @@ export function updateAvailableActionsForPlayers(initialGame: Game): Game {
 function getActionsForCard(game: Game, player: Player, card: Card) {
   const actions: AbilityAction[] = []
 
+  // handle explicitly-listed abilities
   for (const ability of card.abilities) {
-    // put together CostItems
+    // validate ability speed
+    let speedOk = true
+    switch (ability.speed) {
+      case AbilitySpeed.NORMAL:
+        if (game.hasPriority !== player.id || game.phase !== Phase.MAIN) {
+          speedOk = false
+        }
+        break
+      case AbilitySpeed.INSTANT:
+        if (game.hasPriority !== player.id || game.phase === Phase.DRAW) {
+          speedOk = false
+        }
+        break
+      default:
+        throw new Error(`unhandled ability speed`)
+    }
+    if (!speedOk) {
+      continue
+    }
+    // prepare and validate cost items
     const costItems: CostItem[] = []
 
     for (const cost of ability.costs) {
       switch (cost.target) {
-        case CostTarget.PLAYER:
+        case Target.PLAYER:
           costItems.push({
             cost: cost,
             target: cost.target,
             playerId: player.id,
           })
           break
-        case CostTarget.CARD:
+        case Target.CARD:
           costItems.push({
             cost: cost,
             target: cost.target,
@@ -72,7 +98,6 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
       }
     }
 
-    // validate that costItems can be paid
     let payable = true
     for (const costItem of costItems) {
       if (!validateCostItem(game, costItem)) {
@@ -81,7 +106,16 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
       }
     }
     if (!payable) {
-      break
+      continue
+    }
+
+    const effectItems: EffectItem[] = []
+
+    for (const effect of ability.effects) {
+      effectItems.push({
+        effect: effect,
+        controllerId: player.id,
+      })
     }
 
     actions.push({
@@ -89,9 +123,11 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
       cardId: card.id,
       controllerId: player.id,
       costItems: costItems,
-      effects: ability.effects,
+      effectItems: effectItems,
     })
   }
+
+  // handle combat abilities
 
   return actions
 }
@@ -115,12 +151,21 @@ export function submitAction(initialGame: Game, action: Action): Game {
     game = processCostItem(game, costItem)
   }
 
-  // add effects to the stack (TODO be more precise about the order they get added)
-  for (const effect of action.effects) {
-    game.stack.push({
-      controllerId: action.controllerId,
-      effect: effect,
-    })
+  // handle effects based on execution type
+  for (const effectItem of action.effectItems) {
+    switch (effectItem.effect.executionType) {
+      case EffectExecutionType.IMMEDIATE:
+        game = processEffectItem(game, effectItem)
+        break
+      case EffectExecutionType.RESPONDABLE:
+        game.stack.push({
+          controllerId: action.controllerId,
+          effectItem: effectItem,
+        })
+        break
+      default:
+        throw new Error('unhandled effect execution type')
+    }
   }
 
   // update available actions to reflect changes made while paying costs

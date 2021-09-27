@@ -1,7 +1,6 @@
 import { Game } from './types'
 
-import { updateAvailableActionsForPlayers } from './actions'
-import { processEffect } from './effects'
+import { processEffectItem } from './effects'
 
 export function processStackItem(initialGame: Game) {
   let game = { ...initialGame }
@@ -17,12 +16,8 @@ export function processStackItem(initialGame: Game) {
   const stackItem = game.stack.pop()
 
   if (stackItem) {
-    processEffect(game, stackItem.controllerId, stackItem.effect)
+    game = processEffectItem(game, stackItem.effectItem)
   }
-
-  // after processing a stack item, need to refresh the available actions
-  // for each player, because the game state has changed
-  game = updateAvailableActionsForPlayers(game)
 
   return game
 }

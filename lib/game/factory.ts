@@ -10,8 +10,10 @@ import {
   CardType,
   CardLocation,
   EffectType,
-  CostTarget,
+  Target,
   CostType,
+  EffectExecutionType,
+  AbilitySpeed,
 } from './types'
 
 import { updateAvailableActionsForPlayers } from './actions'
@@ -24,9 +26,11 @@ export function buildTestGame(): Game {
     tapped: false,
     abilities: [
       {
-        costs: [{ target: CostTarget.PLAYER, type: CostType.MANA, color: ManaColor.WHITE, amount: 2 }],
+        speed: AbilitySpeed.NORMAL,
+        costs: [{ target: Target.PLAYER, type: CostType.MANA, color: ManaColor.WHITE, amount: 2 }],
         effects: [
           {
+            executionType: EffectExecutionType.RESPONDABLE,
             type: EffectType.DAMAGE_ANY,
             number_of_targets: 1,
             amount: 1,
@@ -45,9 +49,11 @@ export function buildTestGame(): Game {
     tapped: false,
     abilities: [
       {
-        costs: [{ target: CostTarget.CARD, type: CostType.TAP }],
+        speed: AbilitySpeed.INSTANT,
+        costs: [{ target: Target.CARD, type: CostType.TAP }],
         effects: [
           {
+            executionType: EffectExecutionType.IMMEDIATE,
             type: EffectType.MANA_ADD,
             color: ManaColor.WHITE,
             amount: 1,
@@ -78,6 +84,7 @@ export function buildTestGame(): Game {
     hasPriority: player1.id,
     phase: Phase.MAIN,
     stack: [],
+    turn: 1,
   }
 
   game = updateAvailableActionsForPlayers(game)
