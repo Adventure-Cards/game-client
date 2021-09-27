@@ -10,11 +10,12 @@ export enum ManaColor {
 }
 
 export interface Game {
-  players: Player[]
-  hasPriority: string
-  phase: Phase
-  stack: StackItem[]
   turn: number
+  phase: Phase
+  players: Player[]
+  opponentLife: number // hack for demo
+  hasPriority: string
+  stack: StackItem[]
 }
 
 export enum Phase {
@@ -155,6 +156,7 @@ export type CostItem = CostItemPlayer | CostItemCard
 export interface BaseEffect {
   executionType: EffectExecutionType
   type: EffectType
+  target?: Target
 }
 
 export enum EffectExecutionType {
@@ -183,6 +185,12 @@ export interface EffectDamageAny extends BaseEffect {
   type: EffectType.DAMAGE_ANY
   number_of_targets: number
   amount: number
+}
+
+export interface EffectDamagePlayer extends BaseEffect {
+  executionType: EffectExecutionType.RESPONDABLE
+  type: EffectType.DAMAGE_PLAYER
+  target: Target.PLAYER
 }
 
 // this just mutates the controllers mana pool
@@ -227,6 +235,7 @@ export interface EffectPhaseEnd extends BaseEffect {
 export type Effect =
   | EffectManaAdd
   | EffectDamageAny
+  | EffectDamagePlayer
   | EffectReleasePriority
   | EffectPhaseUntap
   | EffectPhaseDraw
@@ -239,13 +248,41 @@ export type Effect =
 // it refers to a specific effect that will happen
 
 export interface BaseEffectItem {
-  effect: Effect
+  type: EffectItemType
   controllerId: string
+  effect: Effect
 }
 
-// later will need to add effectItem types like "single target", "multi target", etc
+export enum EffectItemType {
+  CORE = 'CORE',
+  TARGETS_PLAYER = 'TARGETS_PLAYER',
+  TARGETS_CARD = 'TARGETS_CARD',
+  WITH_AMOUNT = 'WITH_AMOUNT',
+}
+export interface EffectItemCore extends BaseEffectItem {
+  type: EffectItemType.CORE
+}
 
-export type EffectItem = BaseEffectItem
+export interface EffectItemTargetsPlayer extends BaseEffectItem {
+  type: EffectItemType.TARGETS_PLAYER
+  playerId: string
+}
+
+export interface EffectItemTargetsCard extends BaseEffectItem {
+  type: EffectItemType.TARGETS_CARD
+  cardId: string
+}
+
+export interface EffectItemWithAmount extends BaseEffectItem {
+  type: EffectItemType.WITH_AMOUNT
+  amount: number
+}
+
+export type EffectItem =
+  | EffectItemCore
+  | EffectItemTargetsPlayer
+  | EffectItemTargetsCard
+  | EffectItemWithAmount
 
 // EFFECT CREATORS
 

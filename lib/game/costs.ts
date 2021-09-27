@@ -3,15 +3,15 @@ import { Game, Target, CostType, Cost, CostItem } from './types'
 export function validateCostItem(game: Game, costItem: CostItem) {
   switch (costItem.target) {
     case Target.PLAYER:
-      return validateCostPlayer(game, costItem.playerId, costItem.cost)
+      return validateCostPlayer(game, costItem.cost, costItem.playerId)
     case Target.CARD:
-      return validateCostCard(game, costItem.cardId, costItem.cost)
+      return validateCostCard(game, costItem.cost, costItem.cardId)
     default:
       throw new Error(`unhandled CostTarget`)
   }
 }
 
-function validateCostPlayer(game: Game, playerId: string, cost: Cost) {
+function validateCostPlayer(game: Game, cost: Cost, playerId: string) {
   const player = game.players.find((player) => player.id === playerId)
   if (!player) {
     throw new Error(`no player found with id ${playerId} while paying CostItem`)
@@ -30,7 +30,7 @@ function validateCostPlayer(game: Game, playerId: string, cost: Cost) {
   return true
 }
 
-function validateCostCard(game: Game, cardId: string, cost: Cost) {
+function validateCostCard(game: Game, cost: Cost, cardId: string) {
   const card = game.players
     .map((player) => player.deck)
     .flat()
@@ -58,10 +58,10 @@ export function processCostItem(initialGame: Game, costItem: CostItem) {
 
   switch (costItem.target) {
     case Target.PLAYER:
-      game = processCostPlayer(game, costItem.playerId, costItem.cost)
+      game = processCostPlayer(game, costItem.cost, costItem.playerId)
       break
     case Target.CARD:
-      game = processCostCard(game, costItem.cardId, costItem.cost)
+      game = processCostCard(game, costItem.cost, costItem.cardId)
       break
     default:
       throw new Error(`unhandled CostTarget`)
@@ -70,7 +70,7 @@ export function processCostItem(initialGame: Game, costItem: CostItem) {
   return game
 }
 
-function processCostPlayer(initialGame: Game, playerId: string, cost: Cost) {
+function processCostPlayer(initialGame: Game, cost: Cost, playerId: string) {
   let game = { ...initialGame }
 
   const player = game.players.find((player) => player.id === playerId)
@@ -89,7 +89,7 @@ function processCostPlayer(initialGame: Game, playerId: string, cost: Cost) {
   return game
 }
 
-function processCostCard(initialGame: Game, cardId: string, cost: Cost) {
+function processCostCard(initialGame: Game, cost: Cost, cardId: string) {
   let game = { ...initialGame }
 
   const card = game.players

@@ -12,6 +12,9 @@ import {
   EffectExecutionType,
   AbilitySpeed,
   Phase,
+  CardType,
+  CostType,
+  EffectItemType,
 } from './types'
 
 import { processEffectItem } from './effects'
@@ -34,6 +37,7 @@ export function updateAvailableActionsForPlayers(initialGame: Game): Game {
         costItems: [],
         effectItems: [
           {
+            type: EffectItemType.CORE,
             controllerId: player.id,
             effect: { type: EffectType.RELEASE_PRIORITY, executionType: EffectExecutionType.IMMEDIATE },
           },
@@ -112,10 +116,25 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
     const effectItems: EffectItem[] = []
 
     for (const effect of ability.effects) {
-      effectItems.push({
-        effect: effect,
-        controllerId: player.id,
-      })
+      switch (effect.type) {
+        case EffectType.MANA_ADD:
+          effectItems.push({
+            type: EffectItemType.CORE,
+            controllerId: player.id,
+            effect: effect,
+          })
+          break
+        case EffectType.DAMAGE_PLAYER:
+          effectItems.push({
+            type: EffectItemType.TARGETS_PLAYER,
+            controllerId: player.id,
+            effect: effect,
+            playerId: '123',
+          })
+          break
+        default:
+          throw new Error(`unhandled cost target`)
+      }
     }
 
     actions.push({
@@ -127,7 +146,35 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
     })
   }
 
-  // handle combat abilities
+  // handle combat ability
+  if (card.type === CardType.CREATURE && game.hasPriority === player.id && game.phase === Phase.COMBAT) {
+    const combatCostItem: CostItem = {
+      cost: { target: Target.CARD, type: CostType.TAP },
+      target: Target.CARD,
+      cardId: card.id,
+    }
+
+    if (validateCostItem(game, combatCostItem)) {
+      actions.push({
+        type: ActionType.ABILITY_ACTION,
+        cardId: card.id,
+        controllerId: player.id,
+        costItems: [combatCostItem],
+        effectItems: [
+          {
+            type: EffectItemType.WITH_AMOUNT,
+            controllerId: player.id,
+            effect: {
+              executionType: EffectExecutionType.RESPONDABLE,
+              type: EffectType.DAMAGE_PLAYER,
+              target: Target.PLAYER,
+            },
+            amount: card.attack,
+          },
+        ],
+      })
+    }
+  }
 
   return actions
 }

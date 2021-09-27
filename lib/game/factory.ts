@@ -55,6 +55,7 @@ export function buildTestGame(): Game {
           {
             executionType: EffectExecutionType.IMMEDIATE,
             type: EffectType.MANA_ADD,
+            target: Target.PLAYER,
             color: ManaColor.WHITE,
             amount: 1,
           },
@@ -85,6 +86,7 @@ export function buildTestGame(): Game {
     phase: Phase.MAIN,
     stack: [],
     turn: 1,
+    opponentLife: 20,
   }
 
   game = updateAvailableActionsForPlayers(game)

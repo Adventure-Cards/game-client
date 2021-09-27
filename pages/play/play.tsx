@@ -53,7 +53,7 @@ function OpponentPanel() {
 
       <div className="flex flex-col text-center w-12">
         <p className="text-white">Life</p>
-        <p className="">{game.players[0].life}</p>
+        <p className="">{game.opponentLife}</p>
       </div>
 
       <div className="border-r border-gray-200" />
