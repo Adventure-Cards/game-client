@@ -5,9 +5,9 @@ import spells from '../data/spells'
 import locations from '../data/locations'
 import modifiers from '../data/modifiers'
 
-import { ICard } from './types'
+import { ICardData } from './types'
 
-export function getCardData(card: string): ICard | null {
+export function getCardData(card: string): ICardData | null {
   // hack to handle two word artifact names
   card = card.replace('Divine Robe', 'DivineRobe')
   card = card.replace('Ghost Wand', 'GhostWand')
