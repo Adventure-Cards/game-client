@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
@@ -96,8 +97,10 @@ function OpponentPanel() {
 
   return (
     <div className="flex flex-row gap-2 p-2">
+      <div className="border-r border-gray-200" />
+
       <div className="flex flex-col text-center">
-        <p className="text-white">Address</p>
+        <p className="text-white">Opponent</p>
         <p className="">test-opponent</p>
       </div>
 
@@ -115,12 +118,15 @@ function OpponentPanel() {
 
 function PlayerPanel() {
   const game = useSelector((state) => state.game.game)
+  const deckId = useSelector((state) => state.app.deckId)
 
   return (
     <div className="flex flex-row gap-2 p-2">
       <div className="flex flex-col text-center">
-        <p className="text-white">Address</p>
-        <p className="">{game.players[0].username}</p>
+        <p className="text-white">Player</p>
+        <Link href={`/deck/${deckId}`}>
+          <a className="underline">{game.players[0].username}</a>
+        </Link>
       </div>
 
       <div className="border-r border-gray-200" />
