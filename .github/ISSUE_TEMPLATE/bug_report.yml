@@ -1,0 +1,122 @@
+# Ref:
+#  (1) https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms#about-yaml-syntax-for-issue-forms
+#  (2) https://raw.githubusercontent.com/vercel/next.js/canary/.github/ISSUE_TEMPLATE/1.bug_report.yml
+#  (3) https://raw.githubusercontent.com/aio-libs/aiohttp/master/.github/ISSUE_TEMPLATE/bug_report.yml
+---
+name: 🐛 Bug Report
+description: Create a report to help us improve.
+labels: 'template: bug'
+assignees: 0xOlias
+body:
+- type: markdown
+  attributes:
+    value: |
+      **Thanks for taking the time to file a bug report!**
+
+      Verify first that your issue is not [already reported on GitHub][issue search].
+
+      _Please fill out the form below with as many precise
+      details as possible._
+
+      [issue search]: ../search?q=is%3Aissue&type=issues
+
+- type: dropdown
+  attributes:
+    label: Type of Issue
+    description: >-
+      deck-viewer is both a published dApp and community project.
+      For clarity, please select 'User' or 'Developer'.
+    multiple: false
+    options:
+    - User
+    - Developer
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Describe the Bug
+    description: >-
+      A clear and concise description of what the bug is.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: To Reproduce
+    description: >-
+      Describe the steps to reproduce this bug.
+    placeholder: |
+      1. Navigate to '...'
+      2. Then do '...'
+      3. The following error or unexpected behavior occurs: '...'
+  validations:
+    required: true
+
+- type: markdown
+  attributes:
+    value: Before posting the issue go through the steps you've written down to make sure the steps provided are detailed and clear.
+
+- type: markdown
+  attributes:
+    value: Contributors should be able to follow the steps provided in order to reproduce the bug.
+
+- type: textarea
+  attributes:
+    label: Expected behavior
+    description: |
+      A clear and concise description of what you expected to happen.
+      Screenshots can be provided in the issue body below.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Logs / Stack Traces
+    description: |
+      If applicable, add logs or stack traces to help explain your problem.
+      Paste the output of the steps above, including the commands or actions
+      and their output. Otherwise, write "N/A".
+    render: console
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: What version of Node.js are you using?
+    description:  |
+      If this is a bug found while contributing to the source code, please
+      include the node version you are using. Otherwise, write "N/A".
+    value: |
+      $ node --version
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: What operating system are you using?
+    description: You may select more than one.
+    options:
+      - label: macOS
+      - label: Windows
+      - label: Linux
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Additional Context
+    description: |
+      Add any other context about the problem here.
+
+- type: checkboxes
+  attributes:
+    label: Code of Conduct
+    description: |
+      Read the [Adventure Cards Code of Conduct][CoC] first.
+
+      [CoC]: https://github.com/Adventure-Cards/deck-viewer/CODE_OF_CONDUCT.md
+    options:
+    - label: I agree to follow the Adventure Cards Code of Conduct
+      required: true
+...
