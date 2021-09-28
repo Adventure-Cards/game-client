@@ -92,7 +92,7 @@ body:
   validations:
     required: true
 
-- type: textarea
+- type: dropdown
   attributes:
     label: What operating system are you using?
     description: You may select more than one.
