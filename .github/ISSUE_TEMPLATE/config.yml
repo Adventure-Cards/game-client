@@ -1,0 +1,9 @@
+# Ref: https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository#configuring-the-template-chooser
+blank_issues_enabled: false  # default: true
+contact_links:
+- name: 🛠 Adventure Cards Discord
+  url: https://discord.com/channels/883402804998307851/889931177350299698
+  about: Chat with us in "#🛠-buidl"
+- name: 🐦 Adventure Cards Twitter
+  url: https://twitter.com/0xadventures
+  about: Give us a shout-out on the bird app
