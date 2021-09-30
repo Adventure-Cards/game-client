@@ -34,11 +34,11 @@ export const { updateAddress, updateDeckId, updateCardIdx } = appSlice.actions
 // GAME SLICE //
 
 import { buildTestGame, submitAction as _submitAction, processStackItem as _processStackItem } from './game'
-import type { Game, Action } from './game/types'
+import type { IGame, IAction } from './game/types'
 import { IDeck } from './types'
 
 interface GameState {
-  game: Game
+  game: IGame
 }
 
 const initialGameState: GameState = {
@@ -52,7 +52,7 @@ export const gameSlice = createSlice({
     startGame: (state, action: PayloadAction<IDeck>) => {
       state.game = buildTestGame(action.payload)
     },
-    submitAction: (state, action: PayloadAction<Action>) => {
+    submitAction: (state, action: PayloadAction<IAction>) => {
       state.game = _submitAction(state.game, action.payload)
     },
     processStack: (state, action: PayloadAction<void>) => {
@@ -72,3 +72,12 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
+
+import {
+  TypedUseSelectorHook,
+  useDispatch as useDispatchRedux,
+  useSelector as useSelectorRedux,
+} from 'react-redux'
+
+export const useDispatch = () => useDispatchRedux<AppDispatch>()
+export const useSelector: TypedUseSelectorHook<RootState> = useSelectorRedux

@@ -5,14 +5,14 @@ import effects from '../../data/effects'
 import costs from '../../data/costs'
 
 import {
-  ManaColor,
-  Game,
+  IManaColor,
+  IGame,
   Phase,
-  Player,
-  Card,
+  IPlayer,
+  ICard,
   CardType,
   CardLocation,
-  Ability,
+  IAbility,
   EffectType,
   Target,
   CostType,
@@ -24,7 +24,7 @@ import { updateAvailableActionsForPlayers } from './actions'
 import { IDeck, ICardData } from '../types'
 import { randomIntFromInterval } from '../utils'
 
-export function buildTestGame(deck: IDeck): Game {
+export function buildTestGame(deck: IDeck): IGame {
   const cards = deck.cards.map((card) => getCard(card))
 
   // put 3 cards into hand at random
@@ -32,7 +32,7 @@ export function buildTestGame(deck: IDeck): Game {
     cards[randomIntFromInterval(0, 44)].location = CardLocation.HAND
   }
 
-  const player1: Player = {
+  const player1: IPlayer = {
     id: uuidv4(),
     username: `deck-${deck.id}`,
     life: 20,
@@ -48,7 +48,7 @@ export function buildTestGame(deck: IDeck): Game {
     },
   }
 
-  let game: Game = {
+  let game: IGame = {
     players: [{ ...player1 }],
     hasPriority: player1.id,
     phase: Phase.MAIN,
@@ -64,8 +64,8 @@ export function buildTestGame(deck: IDeck): Game {
   return game
 }
 
-function getCard(cardData: ICardData): Card {
-  let card: Card
+function getCard(cardData: ICardData): ICard {
+  let card: ICard
 
   switch (cardData.type) {
     case 'CREATURE':
@@ -133,13 +133,13 @@ function getCard(cardData: ICardData): Card {
   return card
 }
 
-function getAbility(abilityId: string): Ability {
+function getAbility(abilityId: string): IAbility {
   const foundAbility = abilities.find((ability) => ability.id === abilityId)
   if (!foundAbility) {
     throw new Error(`abilityId not found: ${abilityId}`)
   }
 
-  const result: Ability = {
+  const result: IAbility = {
     id: foundAbility.id,
     name: foundAbility.name,
     description: foundAbility.description,
@@ -162,7 +162,7 @@ function getAbility(abilityId: string): Ability {
       result.costs.push({
         type: (<any>CostType)[foundCost.type],
         target: (<any>Target)[foundCost.target],
-        color: (<any>ManaColor)[foundCost.color],
+        color: (<any>IManaColor)[foundCost.color],
         amount: Number(foundCost.amount),
       })
     }
@@ -183,7 +183,7 @@ function getAbility(abilityId: string): Ability {
         type: (<any>EffectType)[foundEffect.type],
         executionType: (<any>EffectExecutionType)[foundEffect.executionType],
         target: (<any>Target)[foundEffect.target],
-        color: (<any>ManaColor)[foundEffect.color],
+        color: (<any>IManaColor)[foundEffect.color],
         amount: Number(foundEffect.amount),
       })
     }

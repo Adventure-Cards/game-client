@@ -5,9 +5,7 @@
 
 html,
 body {
-  padding: 0;
-  margin: 0;
-  @apply bg-backgrounddark;
+  @apply bg-backgrounddark p-0 m-0;
 }
 
 a {
@@ -44,15 +42,15 @@ h2 {
     scrollbar-width: none; /* Firefox */
   }
 
-  .has-tooltip {
-    @apply cursor-pointer;
-  }
+  /* .has-tooltip {
+    @apply relative;
+  } */
 
   .tooltip {
-    @apply invisible absolute bottom-0 right-0;
+    @apply invisible absolute z-50;
   }
 
   .has-tooltip:hover .tooltip {
-    @apply visible z-50;
+    @apply visible;
   }
 }

@@ -1,14 +1,14 @@
 import {
-  Game,
-  Player,
-  Card,
-  Action,
+  IGame,
+  IPlayer,
+  ICard,
+  IAction,
   ActionType,
   EffectType,
-  AbilityAction,
+  IAbilityAction,
   Target,
-  CostItem,
-  EffectItem,
+  ICostItem,
+  IEffectItem,
   EffectExecutionType,
   AbilitySpeed,
   Phase,
@@ -20,18 +20,18 @@ import {
 import { processEffectItem } from './effects'
 import { validateCostItem, processCostItem } from './costs'
 
-export function updateAvailableActionsForPlayers(initialGame: Game): Game {
+export function updateAvailableActionsForPlayers(initialGame: IGame): IGame {
   let game = { ...initialGame }
 
   for (const player of game.players) {
-    let availableActions: Action[] = []
+    let availableActions: IAction[] = []
 
     const cardActions = player.deck.map((card) => getActionsForCard(game, player, card)).flat()
 
     availableActions = [...availableActions, ...cardActions]
 
     if (game.hasPriority === player.id && game.stack.length === 0) {
-      const releasePriorityAction: Action = {
+      const releasePriorityAction: IAction = {
         type: ActionType.PRIORITY_ACTION,
         controllerId: player.id,
         costItems: [],
@@ -54,8 +54,8 @@ export function updateAvailableActionsForPlayers(initialGame: Game): Game {
   return game
 }
 
-function getActionsForCard(game: Game, player: Player, card: Card) {
-  const actions: AbilityAction[] = []
+function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
+  const actions: IAbilityAction[] = []
 
   // handle explicitly-listed abilities
   for (const ability of card.abilities) {
@@ -79,7 +79,7 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
       continue
     }
     // prepare and validate cost items
-    const costItems: CostItem[] = []
+    const costItems: ICostItem[] = []
 
     for (const _cost of ability.costs) {
       const cost = { ..._cost }
@@ -115,7 +115,7 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
       continue
     }
 
-    const effectItems: EffectItem[] = []
+    const effectItems: IEffectItem[] = []
 
     for (const _effect of ability.effects) {
       const effect = { ..._effect }
@@ -154,7 +154,7 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
 
   // handle combat ability
   if (card.type === CardType.CREATURE && game.hasPriority === player.id && game.phase === Phase.COMBAT) {
-    const combatCostItem: CostItem = {
+    const combatCostItem: ICostItem = {
       cost: { target: Target.CARD, type: CostType.TAP },
       target: Target.CARD,
       cardId: card.id,
@@ -186,7 +186,7 @@ function getActionsForCard(game: Game, player: Player, card: Card) {
   return actions
 }
 
-export function submitAction(initialGame: Game, action: Action): Game {
+export function submitAction(initialGame: IGame, action: IAction): IGame {
   let game = { ...initialGame }
 
   // validate that costItems can be paid

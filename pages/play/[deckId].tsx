@@ -3,21 +3,20 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import { useDispatch, useSelector } from '../../lib/hooks'
-import { startGame, updateDeckId, submitAction, processStack } from '../../lib/store'
+import {
+  useDispatch,
+  useSelector,
+  startGame,
+  updateDeckId,
+  submitAction,
+  processStack,
+} from '../../lib/store'
 import { useCardsForDeck } from '../../lib/useCardsForDeck'
 
-import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
+import { IAction, CardLocation } from '../../lib/game/types'
 
-import {
-  Action,
-  Card as ICard,
-  ActionType,
-  AbilityAction,
-  CardLocation,
-  CardType,
-  Ability,
-} from '../../lib/game/types'
+import CardInHand from '../../components/game/CardInHand'
+import Card from '../../components/game/Card'
 
 const PlayPage: NextPage = () => {
   const router = useRouter()
@@ -50,6 +49,16 @@ const PlayPage: NextPage = () => {
     return <div className="relative w-screen h-screen p-4" />
   }
 
+  if (window && window.innerWidth < 768) {
+    return (
+      <div className="relative w-screen h-screen p-4">
+        <div className="flex flex-col justify-center items-center h-full w-full ">
+          Please visit on desktop to play!
+        </div>
+      </div>
+    )
+  }
+
   if (!game) {
     return (
       <div className="relative w-screen h-screen p-4">
@@ -63,30 +72,35 @@ const PlayPage: NextPage = () => {
   }
 
   return (
-    <div className="relative w-screen h-screen p-4">
-      <div className="flex flex-col h-full w-full">
-        <div className="flex flex-row border-t border-gray-200" style={{ height: 'calc(100% - 66px)' }}>
-          <div className="flex flex-row w-3/4 h-full border-l border-gray-200">
-            <div className="w-1/2 overflow-scroll border-r border-gray-200">
-              <HandPanel />
-            </div>
-            <div className="w-1/2 overflow-scroll border-r border-gray-200">
-              <BattlefieldPanel />
-            </div>
+    <>
+      <div className="relative w-screen h-screen p-4">
+        <div className="flex flex-col h-full w-full">
+          <div className="flex flex-1">
+            <BattlefieldPanel />
           </div>
 
-          <div className="w-1/4 border-r border-gray-200">
-            <StackPanel />
+          <div className="flex flex-row">
+            <NewHandPanel />
           </div>
-        </div>
-
-        <div className="flex flex-row justify-between border border-gray-200" style={{ height: '66px' }}>
-          <PlayerPanel />
-          <OpponentPanel />
-          <GamePanel />
         </div>
       </div>
-    </div>
+
+      <div className="absolute top-0 right-0 z-20">
+        <StackPanel />
+      </div>
+
+      <div className="absolute bottom-0 left-0 z-20">
+        <PlayerPanel />
+      </div>
+
+      <div className="absolute bottom-0 right-0 z-20">
+        <GamePanel />
+      </div>
+
+      <div className="absolute top-0 z-20" style={{ right: 'calc(50vw - 120px)' }}>
+        <OpponentPanel />
+      </div>
+    </>
   )
 }
 
@@ -96,22 +110,9 @@ function OpponentPanel() {
   const game = useSelector((state) => state.game.game)
 
   return (
-    <div className="flex flex-row gap-2 p-2">
-      <div className="border-r border-gray-200" />
-
-      <div className="flex flex-col text-center">
-        <p className="text-white">Opponent</p>
-        <p className="">test-opponent</p>
-      </div>
-
-      <div className="border-r border-gray-200" />
-
-      <div className="flex flex-col text-center w-12">
-        <p className="text-white">Life</p>
-        <p className="">{game.opponentLife}</p>
-      </div>
-
-      <div className="border-r border-gray-200" />
+    <div className="flex flex-col text-center gap-3 p-4 text-sm" style={{ width: '240px' }}>
+      <p className="">test-opponent</p>
+      <p className="">Life: {game.opponentLife}</p>
     </div>
   )
 }
@@ -121,54 +122,42 @@ function PlayerPanel() {
   const deckId = useSelector((state) => state.app.deckId)
 
   return (
-    <div className="flex flex-row gap-2 p-2">
-      <div className="flex flex-col text-center">
-        <p className="text-white">Player</p>
-        <Link href={`/deck/${deckId}`}>
-          <a className="underline">{game.players[0].username}</a>
-        </Link>
-      </div>
+    <div className="flex flex-col justify-end gap-3 p-4 text-sm">
+      <p className="text-white">
+        Mana:
+        <span className="text-white mx-2">
+          {game.players[0].manaPool.white ? game.players[0].manaPool.white : ''}
+        </span>
+        <span className="text-blue-600 mx-2">
+          {game.players[0].manaPool.blue ? game.players[0].manaPool.blue : ''}
+        </span>
+        <span className="text-black mx-2">
+          {game.players[0].manaPool.black ? game.players[0].manaPool.black : ''}
+        </span>
+        <span className="text-red-700 mx-2">
+          {game.players[0].manaPool.red ? game.players[0].manaPool.red : ''}
+        </span>
+        <span className="text-green-700 mx-2">
+          {game.players[0].manaPool.green ? game.players[0].manaPool.green : ''}
+        </span>
+      </p>
 
-      <div className="border-r border-gray-200" />
-
-      <div className="flex flex-col text-center w-12">
-        <p className="text-white">Life</p>
-        <p className="">{game.players[0].life}</p>
-      </div>
-
-      <div className="border-r border-gray-200" />
-
-      <div className="flex flex-col text-center w-16">
-        <p className="text-white">Library</p>
+      <div className="flex flex-col gap-2">
         <p className="">
+          <span className="w-12">Life:</span> {game.players[0].life}
+        </p>
+
+        <p className="">
+          <span className="w-12">Library:</span>{' '}
           {game.players[0].deck.filter((card) => card.location === CardLocation.LIBRARY).length}
         </p>
-      </div>
 
-      <div className="border-r border-gray-200" />
-
-      <div className="flex flex-col text-center w-12">
-        <p className="text-white">White</p>
-        <p className="">{game.players[0].manaPool.white}</p>
+        <p className="">
+          <Link href={`/deck/${deckId}`}>
+            <a className="underline">{game.players[0].username}</a>
+          </Link>
+        </p>
       </div>
-      <div className="flex flex-col text-center w-12">
-        <p className="text-blue-600">Blue</p>
-        <p className="">{game.players[0].manaPool.blue}</p>
-      </div>
-      <div className="flex flex-col text-center w-12">
-        <p className="text-black">Black</p>
-        <p className="">{game.players[0].manaPool.black}</p>
-      </div>
-      <div className="flex flex-col text-center w-12">
-        <p className="text-red-700">Red</p>
-        <p className="">{game.players[0].manaPool.red}</p>
-      </div>
-      <div className="flex flex-col text-center w-12">
-        <p className="text-green-700">Green</p>
-        <p className="">{game.players[0].manaPool.green}</p>
-      </div>
-
-      <div className="border-r border-gray-200" />
     </div>
   )
 }
@@ -177,37 +166,36 @@ function GamePanel() {
   const dispatch = useDispatch()
   const game = useSelector((state) => state.game.game)
 
-  function handleClickSubmitAction(action: Action) {
+  function handleClickSubmitAction(action: IAction) {
     dispatch(submitAction(action))
   }
 
   return (
-    <div className="flex flex-row gap-2 p-2">
-      {game.players[0].availableActions
-        .filter((action) => action.type === 'PRIORITY_ACTION')
-        .map((action, idx) => (
-          <div key={idx} className="flex flex-col justify-center mx-2">
-            <button
-              className="px-2 py-1 bg-gold border border-gray-200"
-              onClick={() => handleClickSubmitAction(action)}
-            >
-              Next Phase
-            </button>
-          </div>
-        ))}
-
-      <div className="border-r border-gray-200" />
-
-      <div className="flex flex-col text-center w-12">
-        <p className="text-white">Turn</p>
-        <p className="">{game.turn}</p>
+    <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
+      <div>
+        {game.players[0].availableActions
+          .filter((action) => action.type === 'PRIORITY_ACTION')
+          .map((action, idx) => (
+            <div key={idx} className="flex flex-col justify-center">
+              <button
+                className="px-2 py-1 bg-gold border border-gray-200 text-base"
+                onClick={() => handleClickSubmitAction(action)}
+              >
+                Next Phase
+              </button>
+            </div>
+          ))}
       </div>
+      <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-col text-center">
+          <p>Turn</p>
+          <p>{game.turn}</p>
+        </div>
 
-      <div className="border-r border-gray-200" />
-
-      <div className="flex flex-col text-center w-20">
-        <p className="text-white">Phase</p>
-        <p className="">{game.phase}</p>
+        <div className="flex flex-col text-center">
+          <p>Phase</p>
+          <p>{game.phase}</p>
+        </div>
       </div>
     </div>
   )
@@ -222,13 +210,13 @@ function StackPanel() {
   }
 
   return (
-    <div className="flex flex-col h-full items-center gap-4 p-2 ">
+    <div className="flex flex-col items-end gap-4 p-4 text-sm">
       <p className="text-center">Stack</p>
 
-      <div className="flex flex-col flex-1 justify-end w-full overflow-y-scroll no-scrollbar">
+      <div className="flex flex-col justify-end">
         {[...game.stack].reverse().map((stackItem, idx) => (
-          <div key={idx} className="flex flex-row w-full gap-4">
-            <p className="w-5">{game.stack.length - idx - 1}</p>
+          <div key={idx} className="flex flex-row w-full gap-3">
+            <p className="">{game.stack.length - idx - 1}</p>
             <p className="">
               {game.players.find((player) => player.id === stackItem.controllerId)?.username}
             </p>
@@ -238,7 +226,10 @@ function StackPanel() {
       </div>
 
       {game.stack.length > 0 && (
-        <button className="px-2 py-1 bg-gold border border-gray-200" onClick={handleClickProcessStack}>
+        <button
+          className="px-2 py-1 bg-gold border border-gray-200 text-base"
+          onClick={handleClickProcessStack}
+        >
           Process Stack
         </button>
       )}
@@ -262,126 +253,23 @@ function BattlefieldPanel() {
   )
 }
 
-function HandPanel() {
+function NewHandPanel() {
   const cardsInHand = useSelector((state) =>
     state.game.game.players[0].deck.filter((card) => card.location === CardLocation.HAND)
   )
 
   return (
-    <div className="flex flex-col items-center gap-6 p-2 pb-6">
-      <p className="">Hand ({cardsInHand.length})</p>
-
+    <div className="flex-1 flex flex-row justify-center gap-2">
       {cardsInHand.map((card, idx) => (
-        <Card key={idx} card={card} />
+        // <div
+        //   style={{
+        //     transformOrigin: '50% 100%',
+        //     transform: `rotate(${10 * (idx + 1 - cardsInHand.length / 2)}deg)`,
+        //   }}
+        // >
+        <CardInHand key={idx} card={card} />
+        // </div>
       ))}
-    </div>
-  )
-}
-
-const Card = ({ card, className }: { card: ICard; className?: string }) => {
-  const dispatch = useDispatch()
-
-  const game = useSelector((state) => state.game.game)
-
-  const combatAction = useSelector((state) =>
-    state.game.game.players[0].availableActions.find(
-      (action) =>
-        action.type === ActionType.ABILITY_ACTION &&
-        action.cardId === card.id &&
-        action.abilityId === 'combat'
-    )
-  )
-
-  function getActionForAbility(ability: Ability) {
-    const action = game.players[0].availableActions
-      .filter((action) => action.type === ActionType.ABILITY_ACTION)
-      .filter((action) => (action as AbilityAction).cardId === card.id)
-      .find((action) => (action as AbilityAction).abilityId === ability.id)
-
-    return action
-  }
-
-  function handleClickSubmitActionForAbility(ability: Ability) {
-    const action = getActionForAbility(ability)
-
-    if (action) {
-      console.log('dispatching action:', action)
-      dispatch(submitAction(action))
-    }
-  }
-
-  function handleClickSubmitAction(action: Action) {
-    dispatch(submitAction(action))
-  }
-
-  return (
-    <div
-      className={`flex flex-col justify-between w-72 h-96 p-4 bg-background
-      rounded-md shadow-xl border-4 border-${rarityColorKey(card.level)} transition-all
-      ${card.tapped ? 'transform rotate-12' : 'transform rotate-0'} ${className}`}
-    >
-      <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar">
-        <p className={``}>{card.name}</p>
-
-        <p className={`text-${rarityColorKey(card.level)}`}>
-          {rarityMap[card.level]} {toSentenceCase(card.type)}
-        </p>
-
-        {card.abilities.map((ability, idx) => (
-          <div key={idx} className="flex flex-col">
-            <div className="flex flex-row justify-between items-center pb-2">
-              <p className="py-2">{ability.name}</p>
-              {getActionForAbility(ability) && (
-                <button
-                  className="px-2 py-1 bg-gold border border-gray-200"
-                  onClick={() => handleClickSubmitActionForAbility(ability)}
-                >
-                  Submit Action
-                </button>
-              )}
-            </div>
-
-            <p>{ability.description}</p>
-          </div>
-        ))}
-
-        {/* {availableActionsForCard
-          .filter((action) => action.type === ActionType.ABILITY_ACTION && action.abilityId === 'combat')
-          .map((action, idx) => (
-            <button
-              key={idx}
-              className="px-2 py-1 bg-gold border border-gray-200"
-              onClick={() => handleClickSubmitAction(action)}
-            >
-              Combat
-            </button>
-          ))} */}
-      </div>
-
-      <div className="flex flex-row justify-between">
-        {combatAction ? (
-          <button
-            className="px-2 py-1 bg-gold border border-gray-200"
-            onClick={() => handleClickSubmitAction(combatAction)}
-          >
-            Combat
-          </button>
-        ) : (
-          <div />
-        )}
-
-        {card.type === CardType.CREATURE && (
-          <p className="py-2">
-            {card.attack}/{card.defense}
-          </p>
-        )}
-        {/* @ts-ignore */}
-        {/* {card.type === 'artifact' && (card.attack > 0 || card.defense > 0) && (
-          <p>
-            +{card.attack}/+{card.defense}
-          </p>
-        )} */}
-      </div>
     </div>
   )
 }
