@@ -4,6 +4,9 @@ module.exports = {
   purge: [],
   darkMode: false, // or 'media' or 'class'
   theme: {
+    scale: {
+      '95': '.95'
+    },
     extend: {
       fontFamily: {
         title: ['MedievalSharp', 'Georgia', 'serif'],
