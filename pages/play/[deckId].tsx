@@ -16,7 +16,7 @@ import { useCardsForDeck } from '../../lib/useCardsForDeck'
 import { IAction, CardLocation } from '../../lib/game/types'
 
 import CardInHand from '../../components/game/CardInHand'
-import Card from '../../components/game/Card'
+import CardOnBattlefield from '../../components/game/CardOnBattlefield'
 
 const PlayPage: NextPage = () => {
   const router = useRouter()
@@ -80,7 +80,7 @@ const PlayPage: NextPage = () => {
           </div>
 
           <div className="flex flex-row">
-            <NewHandPanel />
+            <HandPanel />
           </div>
         </div>
       </div>
@@ -106,6 +106,34 @@ const PlayPage: NextPage = () => {
 
 export default PlayPage
 
+function BattlefieldPanel() {
+  const cardsOnBattlefield = useSelector((state) =>
+    state.game.game.players[0].deck.filter((card) => card.location === CardLocation.BATTLEFIELD)
+  )
+
+  return (
+    <div className="flex flex-row flex-1  justify-center items-center gap-6">
+      {cardsOnBattlefield.map((card, idx) => (
+        <CardOnBattlefield key={idx} card={card} />
+      ))}
+    </div>
+  )
+}
+
+function HandPanel() {
+  const cardsInHand = useSelector((state) =>
+    state.game.game.players[0].deck.filter((card) => card.location === CardLocation.HAND)
+  )
+
+  return (
+    <div className="flex-1 flex flex-row justify-center gap-2">
+      {cardsInHand.map((card, idx) => (
+        <CardInHand key={idx} card={card} />
+      ))}
+    </div>
+  )
+}
+
 function OpponentPanel() {
   const game = useSelector((state) => state.game.game)
 
@@ -125,31 +153,22 @@ function PlayerPanel() {
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
       <p className="text-white">
         Mana:
-        <span className="text-white mx-2">
-          {game.players[0].manaPool.white ? game.players[0].manaPool.white : ''}
-        </span>
-        <span className="text-blue-600 mx-2">
-          {game.players[0].manaPool.blue ? game.players[0].manaPool.blue : ''}
-        </span>
-        <span className="text-black mx-2">
-          {game.players[0].manaPool.black ? game.players[0].manaPool.black : ''}
-        </span>
-        <span className="text-red-700 mx-2">
-          {game.players[0].manaPool.red ? game.players[0].manaPool.red : ''}
-        </span>
-        <span className="text-green-700 mx-2">
-          {game.players[0].manaPool.green ? game.players[0].manaPool.green : ''}
-        </span>
+        <span className="text-white mx-2">{game.players[0].manaPool.white}</span>
+        <span className="text-blue-600 mx-2">{game.players[0].manaPool.blue}</span>
+        <span className="text-black mx-2">{game.players[0].manaPool.black}</span>
+        <span className="text-red-700 mx-2">{game.players[0].manaPool.red}</span>
+        <span className="text-green-700 mx-2">{game.players[0].manaPool.green}</span>
       </p>
 
       <div className="flex flex-col gap-2">
+        <p className="">Life: {game.players[0].life}</p>
+
         <p className="">
-          <span className="w-12">Life:</span> {game.players[0].life}
+          Library: {game.players[0].deck.filter((card) => card.location === CardLocation.LIBRARY).length}
         </p>
 
         <p className="">
-          <span className="w-12">Library:</span>{' '}
-          {game.players[0].deck.filter((card) => card.location === CardLocation.LIBRARY).length}
+          Graveyard: {game.players[0].deck.filter((card) => card.location === CardLocation.GRAVEYARD).length}
         </p>
 
         <p className="">
@@ -233,43 +252,6 @@ function StackPanel() {
           Process Stack
         </button>
       )}
-    </div>
-  )
-}
-
-function BattlefieldPanel() {
-  const cardsOnBattlefield = useSelector((state) =>
-    state.game.game.players[0].deck.filter((card) => card.location === CardLocation.BATTLEFIELD)
-  )
-
-  return (
-    <div className="flex flex-col items-center gap-6 p-2 pb-6">
-      <p className="">Battlefield ({cardsOnBattlefield.length})</p>
-
-      {cardsOnBattlefield.map((card, idx) => (
-        <Card key={idx} card={card} />
-      ))}
-    </div>
-  )
-}
-
-function NewHandPanel() {
-  const cardsInHand = useSelector((state) =>
-    state.game.game.players[0].deck.filter((card) => card.location === CardLocation.HAND)
-  )
-
-  return (
-    <div className="flex-1 flex flex-row justify-center gap-2">
-      {cardsInHand.map((card, idx) => (
-        // <div
-        //   style={{
-        //     transformOrigin: '50% 100%',
-        //     transform: `rotate(${10 * (idx + 1 - cardsInHand.length / 2)}deg)`,
-        //   }}
-        // >
-        <CardInHand key={idx} card={card} />
-        // </div>
-      ))}
     </div>
   )
 }

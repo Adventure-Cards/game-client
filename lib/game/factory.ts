@@ -12,12 +12,14 @@ import {
   ICard,
   CardType,
   CardLocation,
+  ICost,
   IAbility,
   EffectType,
   Target,
   CostType,
   EffectExecutionType,
   AbilitySpeed,
+  IEffect,
 } from './types'
 
 import { updateAvailableActionsForPlayers } from './actions'
@@ -39,11 +41,11 @@ export function buildTestGame(deck: IDeck): IGame {
     deck: cards,
     availableActions: [],
     manaPool: {
-      white: 0,
-      blue: 0,
+      white: 5,
+      blue: 5,
       black: 0,
       red: 0,
-      green: 0,
+      green: 5,
       colorless: 0,
     },
   }
@@ -59,13 +61,23 @@ export function buildTestGame(deck: IDeck): IGame {
 
   game = updateAvailableActionsForPlayers(game)
 
-  console.log('just updated available actions, new game:', game)
-
   return game
 }
 
 function getCard(cardData: ICardData): ICard {
   let card: ICard
+
+  // first get card cost
+  const foundCost = costs.find((cost) => cost.id === cardData.cost)
+  if (!foundCost) {
+    throw new Error(`costId not found: ${cardData.cost}`)
+  }
+  const cost: ICost = {
+    type: (<any>CostType)[foundCost.type],
+    target: (<any>Target)[foundCost.target],
+    color: (<any>IManaColor)[foundCost.color],
+    amount: Number(foundCost.amount),
+  }
 
   switch (cardData.type) {
     case 'CREATURE':
@@ -79,6 +91,7 @@ function getCard(cardData: ICardData): ICard {
         type: (<any>CardType)[cardData.type],
         location: CardLocation.LIBRARY,
         tapped: false,
+        cost: cost,
         abilities: [],
         attack: Number(cardData.attack),
         defense: Number(cardData.defense),
@@ -92,6 +105,7 @@ function getCard(cardData: ICardData): ICard {
         type: (<any>CardType)[cardData.type],
         location: CardLocation.LIBRARY,
         tapped: false,
+        cost: cost,
         abilities: [],
       }
       break
@@ -103,6 +117,7 @@ function getCard(cardData: ICardData): ICard {
         type: (<any>CardType)[cardData.type],
         location: CardLocation.LIBRARY,
         tapped: false,
+        cost: cost,
         abilities: [],
       }
       break
@@ -114,20 +129,36 @@ function getCard(cardData: ICardData): ICard {
         type: (<any>CardType)[cardData.type],
         location: CardLocation.LIBRARY,
         tapped: false,
-        abilities: [],
+        cost: cost,
+        effects: [],
       }
       break
     default:
       throw new Error('card type not matched')
   }
 
-  if (cardData.ability_1) {
-    const ability1 = getAbility(cardData.ability_1)
-    card.abilities.push(ability1)
-  }
-  if (cardData.ability_2) {
-    const ability2 = getAbility(cardData.ability_2)
-    card.abilities.push(ability2)
+  if (card.type === CardType.SPELL) {
+    if (cardData.effect1) {
+      const effect1 = getEffect(cardData.effect1)
+      card.effects.push(effect1)
+    }
+    if (cardData.effect2) {
+      const effect1 = getEffect(cardData.effect2)
+      card.effects.push(effect1)
+    }
+    if (cardData.effect3) {
+      const effect1 = getEffect(cardData.effect3)
+      card.effects.push(effect1)
+    }
+  } else {
+    if (cardData.ability_1) {
+      const ability1 = getAbility(cardData.ability_1)
+      card.abilities.push(ability1)
+    }
+    if (cardData.ability_2) {
+      const ability2 = getAbility(cardData.ability_2)
+      card.abilities.push(ability2)
+    }
   }
 
   return card
@@ -154,17 +185,7 @@ function getAbility(abilityId: string): IAbility {
     const costId = foundAbility[costIdx]
 
     if (costId !== '') {
-      const foundCost = costs.find((cost) => cost.id === costId)
-      if (!foundCost) {
-        throw new Error(`costId not found: ${costId}`)
-      }
-
-      result.costs.push({
-        type: (<any>CostType)[foundCost.type],
-        target: (<any>Target)[foundCost.target],
-        color: (<any>IManaColor)[foundCost.color],
-        amount: Number(foundCost.amount),
-      })
+      result.costs.push(getCost(costId))
     }
   })
 
@@ -174,20 +195,38 @@ function getAbility(abilityId: string): IAbility {
     const effectId = foundAbility[effectIdx]
 
     if (effectId !== '') {
-      const foundEffect = effects.find((effect) => effect.id === effectId)
-      if (!foundEffect) {
-        throw new Error(`costId not found: ${effectId}`)
-      }
-
-      result.effects.push({
-        type: (<any>EffectType)[foundEffect.type],
-        executionType: (<any>EffectExecutionType)[foundEffect.executionType],
-        target: (<any>Target)[foundEffect.target],
-        color: (<any>IManaColor)[foundEffect.color],
-        amount: Number(foundEffect.amount),
-      })
+      result.effects.push(getEffect(effectId))
     }
   })
 
   return result
+}
+
+function getCost(costId: string): ICost {
+  const foundCost = costs.find((cost) => cost.id === costId)
+  if (!foundCost) {
+    throw new Error(`costId not found: ${costId}`)
+  }
+
+  return {
+    type: (<any>CostType)[foundCost.type],
+    target: (<any>Target)[foundCost.target],
+    color: (<any>IManaColor)[foundCost.color],
+    amount: Number(foundCost.amount),
+  }
+}
+
+function getEffect(effectId: string): IEffect {
+  const foundEffect = effects.find((effect) => effect.id === effectId)
+  if (!foundEffect) {
+    throw new Error(`costId not found: ${effectId}`)
+  }
+
+  return {
+    type: (<any>EffectType)[foundEffect.type],
+    executionType: (<any>EffectExecutionType)[foundEffect.executionType],
+    target: (<any>Target)[foundEffect.target],
+    color: (<any>IManaColor)[foundEffect.color],
+    amount: Number(foundEffect.amount),
+  }
 }

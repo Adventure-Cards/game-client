@@ -7,6 +7,7 @@ import {
   IPlayer,
   EffectItemType,
   CardLocation,
+  CardType,
 } from './types'
 
 import { updateAvailableActionsForPlayers } from './actions'
@@ -19,11 +20,12 @@ export function processEffectItem(initialGame: IGame, effectItem: IEffectItem) {
     throw new Error(`player with id ${effectItem.controllerId} not found`)
   }
 
-  console.log('handling effectItem', effectItem)
-
   switch (effectItem.type) {
     case EffectItemType.CORE:
       game = processEffectCore(game, effectItem.effect, player)
+      break
+    case EffectItemType.CAST:
+      game = processEffectCast(game, effectItem.effect, effectItem.cardId)
       break
     case EffectItemType.WITH_AMOUNT:
       game = processEffectWithAmount(game, effectItem.effect, effectItem.amount)
@@ -65,6 +67,37 @@ function processEffectWithAmount(initialGame: IGame, effect: IEffect, amount: nu
       break
     case EffectType.DAMAGE_PLAYER:
       game.opponentLife -= amount
+      break
+    default:
+      throw new Error(`unhandled EffectType: ${effect.type}`)
+  }
+
+  return game
+}
+
+function processEffectCast(initialGame: IGame, effect: IEffect, cardId: string) {
+  let game = { ...initialGame }
+
+  const card = game.players
+    .map((player) => player.deck)
+    .flat()
+    .find((card) => card.id === cardId)
+
+  if (!card) {
+    throw new Error(`no card found with id ${cardId} while handling Cast`)
+  }
+
+  switch (effect.type) {
+    case EffectType.CAST:
+      if (card.type === CardType.SPELL) {
+        card.location = CardLocation.GRAVEYARD
+        // how do we kick of spell effects?
+        card.effects.forEach((effect) => {
+          game = processEffectWithAmount(game, effect, 1)
+        })
+      } else {
+        card.location = CardLocation.BATTLEFIELD
+      }
       break
     default:
       throw new Error(`unhandled EffectType: ${effect.type}`)

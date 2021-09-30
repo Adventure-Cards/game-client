@@ -58,7 +58,7 @@ export interface IBaseCard {
   type: CardType
   location: CardLocation
   tapped: boolean
-  abilities: IAbility[]
+  cost: ICostMana
 }
 
 export enum CardType {
@@ -77,20 +77,24 @@ export enum CardLocation {
 
 export interface ICreature extends IBaseCard {
   type: CardType.CREATURE
+  abilities: IAbility[]
   attack: number
   defense: number
 }
 
 export interface IArtifact extends IBaseCard {
   type: CardType.ARTIFACT
+  abilities: IAbility[]
 }
 
 export interface IEnchantment extends IBaseCard {
   type: CardType.ENCHANTMENT
+  abilities: IAbility[]
 }
 
 export interface ISpell extends IBaseCard {
   type: CardType.SPELL
+  effects: IEffect[]
 }
 
 export type ICard = ICreature | IArtifact | IEnchantment | ISpell
@@ -167,6 +171,8 @@ export enum EffectExecutionType {
 }
 
 export enum EffectType {
+  CAST = 'CAST',
+
   DAMAGE_ANY = 'DAMAGE_ANY',
   DAMAGE_PLAYER = 'DAMAGE_PLAYER',
   DAMAGE_CREATURE = 'DAMAGE_CREATURE',
@@ -182,6 +188,10 @@ export enum EffectType {
   RELEASE_PRIORITY = 'RELEASE_PRIORITY',
 }
 
+export interface IEffectCast extends IBaseEffect {
+  executionType: EffectExecutionType.RESPONDABLE
+  type: EffectType.CAST
+}
 export interface IEffectDamageAny extends IBaseEffect {
   executionType: EffectExecutionType.RESPONDABLE
   type: EffectType.DAMAGE_ANY
@@ -233,6 +243,7 @@ export interface IEffectPhaseEnd extends IBaseEffect {
 }
 
 export type IEffect =
+  | IEffectCast
   | IEffectManaAdd
   | IEffectDamageAny
   | IEffectDamagePlayer
@@ -255,12 +266,18 @@ export interface IBaseEffectItem {
 
 export enum EffectItemType {
   CORE = 'CORE',
+  CAST = 'CAST',
   TARGETS_PLAYER = 'TARGETS_PLAYER',
   TARGETS_CARD = 'TARGETS_CARD',
   WITH_AMOUNT = 'WITH_AMOUNT',
 }
 export interface IEffectItemCore extends IBaseEffectItem {
   type: EffectItemType.CORE
+}
+
+export interface IEffectItemCast extends IBaseEffectItem {
+  type: EffectItemType.CAST
+  cardId: string
 }
 
 export interface IEffectItemTargetsPlayer extends IBaseEffectItem {
@@ -280,6 +297,7 @@ export interface IEffectItemWithAmount extends IBaseEffectItem {
 
 export type IEffectItem =
   | IEffectItemCore
+  | IEffectItemCast
   | IEffectItemTargetsPlayer
   | IEffectItemTargetsCard
   | IEffectItemWithAmount
@@ -316,9 +334,21 @@ export interface IBaseAction {
 }
 
 export enum ActionType {
+  CAST_ACTION = 'CAST_ACTION',
+  COMBAT_ACTION = 'COMBAT_ACTION',
   ABILITY_ACTION = 'ABILITY_ACTION',
   EFFECT_ACTION = 'EFFECT_ACTION',
   PRIORITY_ACTION = 'PRIORITY_ACTION',
+}
+
+export interface ICastAction extends IBaseAction {
+  type: ActionType.CAST_ACTION
+  cardId: string
+}
+
+export interface ICombatAction extends IBaseAction {
+  type: ActionType.COMBAT_ACTION
+  cardId: string
 }
 
 export interface IAbilityAction extends IBaseAction {
@@ -335,7 +365,7 @@ export interface IPriorityAction extends IBaseAction {
   type: ActionType.PRIORITY_ACTION
 }
 
-export type IAction = IAbilityAction | IEffectAction | IPriorityAction
+export type IAction = ICastAction | ICombatAction | IAbilityAction | IEffectAction | IPriorityAction
 
 // STACK
 

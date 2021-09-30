@@ -1,28 +1,53 @@
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 import { useSmartHover } from '../../lib/useSmartHover'
+import { submitAction, useDispatch, useSelector } from '../../lib/store'
 
-import { ICard, CardType } from '../../lib/game/types'
+import { IAction, ICard, ActionType, IAbilityAction, CardType, IAbility } from '../../lib/game/types'
 
 import CardDetail from './CardDetail'
 
 const CardInHand = ({ card }: { card: ICard }) => {
   const { parentRef, childRef, handleMouseEnter } = useSmartHover()
 
+  const dispatch = useDispatch()
+
+  const castAction = useSelector((state) =>
+    state.game.game.players[0].availableActions.find(
+      (action) => action.type === ActionType.CAST_ACTION && action.cardId === card.id
+    )
+  )
+
+  function handleClickSubmitAction(action: IAction) {
+    dispatch(submitAction(action))
+  }
+
   return (
     <div
       ref={parentRef}
-      className={`flex flex-col justify-between w-36 h-24 p-2 bg-background
-      rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)} has-tooltip`}
+      className={`has-tooltip flex flex-col justify-between w-36 p-2 bg-background
+      rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)} `}
       onMouseEnter={handleMouseEnter}
     >
       <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
-        <p>{card.name}</p>
+        {castAction && (
+          <button
+            className="px-2 py-1 bg-gold border border-gray-200"
+            onClick={() => handleClickSubmitAction(castAction)}
+          >
+            Cast
+          </button>
+        )}
 
         <div className="flex flex-row justify-between">
-          <p className={`text-${rarityColorKey(card.level)}`}>
-            {rarityMap[card.level]} {toSentenceCase(card.type)}
-          </p>
+          <p>{card.name}</p>
+          <p className={`text-${getColorForManaColor(card.cost.color)}`}>{card.cost.amount}</p>
+        </div>
 
+        <p className={`text-${rarityColorKey(card.level)}`}>
+          {rarityMap[card.level]} {toSentenceCase(card.type)}
+        </p>
+
+        <div className="flex flex-row justify-end">
           {card.type === CardType.CREATURE && (
             <p>
               {card.attack}/{card.defense}
@@ -30,9 +55,27 @@ const CardInHand = ({ card }: { card: ICard }) => {
           )}
         </div>
       </div>
+
       <CardDetail ref={childRef} card={card} />
     </div>
   )
 }
 
 export default CardInHand
+
+export function getColorForManaColor(color: string) {
+  switch (color) {
+    case 'white':
+      return 'white'
+    case 'blue':
+      return 'blue-600'
+    case 'black':
+      return 'black'
+    case 'red':
+      return 'red-700'
+    case 'green':
+      return 'green-700'
+    default:
+      throw new Error(`unhandled color: ${color}`)
+  }
+}

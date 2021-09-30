@@ -7,7 +7,6 @@ export function useSmartHover() {
   function handleMouseEnter() {
     if (window && parentRef.current && childRef.current) {
       const newChildCoords = getHoverPosition(parentRef.current, childRef.current)
-      console.log(newChildCoords)
       childRef.current.style.top = `${newChildCoords.top}px`
       childRef.current.style.left = `${newChildCoords.left}px`
     }
@@ -29,8 +28,6 @@ function getHoverPosition(parent: HTMLElement, child: HTMLElement) {
 
   const midpointX = parentCoords.left + parentCoords.width / 2
   const midpointY = parentCoords.top + parentCoords.height / 2
-
-  console.log('midpoint is at %', midpointY / window.innerHeight)
 
   if (midpointY <= window.innerHeight * 0.15) {
     // parent in top 15% of screen, show child below parent

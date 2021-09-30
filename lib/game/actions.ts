@@ -5,7 +5,6 @@ import {
   IAction,
   ActionType,
   EffectType,
-  IAbilityAction,
   Target,
   ICostItem,
   IEffectItem,
@@ -15,6 +14,7 @@ import {
   CardType,
   CostType,
   EffectItemType,
+  CardLocation,
 } from './types'
 
 import { processEffectItem } from './effects'
@@ -55,10 +55,48 @@ export function updateAvailableActionsForPlayers(initialGame: IGame): IGame {
 }
 
 function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
-  const actions: IAbilityAction[] = []
+  const actions: IAction[] = []
 
-  // handle explicitly-listed abilities
+  // handle casting ability
+  if (game.phase === Phase.MAIN && card.location === CardLocation.HAND && game.stack.length === 0) {
+    const castCostItem: ICostItem = {
+      target: Target.PLAYER,
+      playerId: player.id,
+      cost: card.cost,
+    }
+
+    if (validateCostItem(game, castCostItem)) {
+      actions.push({
+        type: ActionType.CAST_ACTION,
+        cardId: card.id,
+        controllerId: player.id,
+        costItems: [castCostItem],
+        effectItems: [
+          {
+            type: EffectItemType.CAST,
+            controllerId: player.id,
+            effect: {
+              executionType: EffectExecutionType.RESPONDABLE,
+              type: EffectType.CAST,
+            },
+            cardId: card.id,
+          },
+        ],
+      })
+    }
+  }
+
+  // handle activated abilities
+  if (card.type === CardType.SPELL) {
+    return actions
+  }
+
   for (const ability of card.abilities) {
+    // validate card is on battlefield
+    if (card.location !== CardLocation.BATTLEFIELD) {
+      continue
+    }
+
     // validate ability speed
     let speedOk = true
     switch (ability.speed) {
@@ -78,9 +116,9 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     if (!speedOk) {
       continue
     }
+
     // prepare and validate cost items
     const costItems: ICostItem[] = []
-
     for (const _cost of ability.costs) {
       const cost = { ..._cost }
 
@@ -104,23 +142,23 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
       }
     }
 
-    let payable = true
+    let canAffordCosts = true
     for (const costItem of costItems) {
       if (!validateCostItem(game, costItem)) {
-        payable = false
+        canAffordCosts = false
         break
       }
     }
-    if (!payable) {
+    if (!canAffordCosts) {
       continue
     }
 
+    // prepare and submit effect items
     const effectItems: IEffectItem[] = []
 
     for (const _effect of ability.effects) {
       const effect = { ..._effect }
 
-      console.log('getting effectItem for effect', effect)
       switch (effect.type) {
         case EffectType.MANA_ADD:
           effectItems.push({
@@ -162,8 +200,7 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
 
     if (validateCostItem(game, combatCostItem)) {
       actions.push({
-        type: ActionType.ABILITY_ACTION,
-        abilityId: 'combat',
+        type: ActionType.COMBAT_ACTION,
         cardId: card.id,
         controllerId: player.id,
         costItems: [combatCostItem],
@@ -223,6 +260,7 @@ export function submitAction(initialGame: IGame, action: IAction): IGame {
   }
 
   // update available actions to reflect changes made while paying costs
+  // and possible effects added to stack
   game = updateAvailableActionsForPlayers(game)
 
   return game
