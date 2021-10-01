@@ -88,65 +88,27 @@ function getHoverPosition(trigger: HTMLElement, detail: HTMLElement) {
   const triggerCoords = getCoords(trigger)
   const detailCoords = getCoords(detail)
 
-  const midpointX = triggerCoords.left + triggerCoords.width / 2
   const midpointY = triggerCoords.top + triggerCoords.height / 2
 
-  if (midpointY <= window.innerHeight * 0.15) {
-    // trigger in top 15% of screen, show detail below trigger
-    let newDetailLeft = triggerCoords.left - triggerCoords.width / 2
-    newDetailLeft = Math.max(newDetailLeft, 0)
-    if (newDetailLeft + detailCoords.width > window.innerWidth) {
-      newDetailLeft = window.innerWidth - detailCoords.width
-    }
+  // try to put the detail on the right side of the trigger
+  let newDetailTop = midpointY - detailCoords.height / 2
+  if (newDetailTop < 0) {
+    newDetailTop = 0
+  }
+  if (newDetailTop + detailCoords.height > window.innerHeight) {
+    newDetailTop = window.innerHeight - detailCoords.height
+  }
+  let newDetailLeft = triggerCoords.left + triggerCoords.width
 
-    const newDetailTop = triggerCoords.top + triggerCoords.height
-
-    return {
-      top: newDetailTop,
-      left: newDetailLeft,
-    }
+  // if the detail is going to overflow off the right side of the viewport,
+  // put it on the left side of the trigger instead
+  if (newDetailLeft + detailCoords.width > window.innerWidth) {
+    newDetailLeft = triggerCoords.left - detailCoords.width
   }
 
-  if (midpointY >= window.innerHeight * 0.85) {
-    // trigger in bottom 15% of screen, show detail above trigger
-    let newDetailLeft = triggerCoords.left - triggerCoords.width / 2
-    newDetailLeft = Math.max(newDetailLeft, 0)
-    if (newDetailLeft + detailCoords.width > window.innerWidth) {
-      newDetailLeft = window.innerWidth - detailCoords.width
-    }
-
-    const newDetailTop = triggerCoords.top - detailCoords.height
-
-    return {
-      top: newDetailTop,
-      left: newDetailLeft,
-    }
-  }
-
-  if (midpointX <= window.innerWidth / 2) {
-    // trigger in left half of screen, show detail on right of trigger
-    const newDetailLeft = triggerCoords.left + triggerCoords.width
-
-    let newDetailTop = midpointY - detailCoords.height / 2
-    newDetailTop = Math.max(newDetailTop, 0)
-    newDetailTop = Math.min(newDetailTop, window.innerHeight)
-
-    return {
-      top: newDetailTop,
-      left: newDetailLeft,
-    }
-  } else {
-    // trigger in right half, render on left side of trigger
-    const newDetailLeft = triggerCoords.left - detailCoords.width
-
-    let newDetailTop = midpointY - detailCoords.height / 2
-    newDetailTop = Math.max(newDetailTop, 0)
-    newDetailTop = Math.min(newDetailTop, window.innerHeight)
-
-    return {
-      top: newDetailTop,
-      left: newDetailLeft,
-    }
+  return {
+    top: newDetailTop,
+    left: newDetailLeft,
   }
 }
 
