@@ -2,12 +2,12 @@ import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 import { useSmartHover } from '../../lib/useSmartHover'
 import { submitAction, useDispatch, useSelector } from '../../lib/store'
 
-import { IAction, ICard, ActionType, IAbilityAction, CardType, IAbility } from '../../lib/game/types'
+import { IAction, ICard, ActionType, CardType } from '../../lib/game/types'
 
 import CardDetail from './CardDetail'
 
 const CardInHand = ({ card }: { card: ICard }) => {
-  const { parentRef, childRef, handleMouseEnter } = useSmartHover()
+  const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
 
   const dispatch = useDispatch()
 
@@ -22,42 +22,45 @@ const CardInHand = ({ card }: { card: ICard }) => {
   }
 
   return (
-    <div
-      ref={parentRef}
-      className={`has-tooltip flex flex-col justify-between w-36 p-2 bg-background
-      rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)} `}
-      onMouseEnter={handleMouseEnter}
-    >
-      <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
-        {castAction && (
-          <button
-            className="px-2 py-1 bg-gold border border-gray-200"
-            onClick={() => handleClickSubmitAction(castAction)}
-          >
-            Cast
-          </button>
-        )}
+    <>
+      <HoverTrigger {...hoverTriggerProps}>
+        <div
+          className={`flex flex-col justify-between w-36 p-2 bg-background
+          rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)} `}
+        >
+          <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
+            {castAction && (
+              <button
+                className="px-2 py-1 bg-gold border border-gray-200"
+                onClick={() => handleClickSubmitAction(castAction)}
+              >
+                Cast
+              </button>
+            )}
 
-        <div className="flex flex-row justify-between">
-          <p>{card.name}</p>
-          <p className={`text-${getColorForManaColor(card.cost.color)}`}>{card.cost.amount}</p>
-        </div>
+            <div className="flex flex-row justify-between">
+              <p>{card.name}</p>
+              <p className={`text-${getColorForManaColor(card.cost.color)}`}>{card.cost.amount}</p>
+            </div>
 
-        <p className={`text-${rarityColorKey(card.level)}`}>
-          {rarityMap[card.level]} {toSentenceCase(card.type)}
-        </p>
-
-        <div className="flex flex-row justify-end">
-          {card.type === CardType.CREATURE && (
-            <p>
-              {card.attack}/{card.defense}
+            <p className={`text-${rarityColorKey(card.level)}`}>
+              {rarityMap[card.level]} {toSentenceCase(card.type)}
             </p>
-          )}
-        </div>
-      </div>
 
-      <CardDetail ref={childRef} card={card} />
-    </div>
+            <div className="flex flex-row justify-end">
+              {card.type === CardType.CREATURE && (
+                <p>
+                  {card.attack}/{card.defense}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </HoverTrigger>
+      <HoverDetail {...hoverDetailProps}>
+        <CardDetail card={card} />
+      </HoverDetail>
+    </>
   )
 }
 

@@ -1,19 +1,81 @@
-import { useRef } from 'react'
+import React, { useState, useRef } from 'react'
 
+/*
+  useSmartHover returns a component definition and an instance of props for
+  a trigger and a detail component:
+
+  function CardWithDetailOnHover() {
+    const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
+  
+    return (
+      <>
+        <HoverTrigger {...hoverTriggerProps}>
+          <CardPreview />
+        </HoverTrigger/>
+        <HoverDetail {...hoverDetailProps}>
+          <CardDetail />
+        </HoverDetail>
+      </>
+    )
+  }
+*/
 export function useSmartHover() {
-  const parentRef = useRef<HTMLDivElement>(null)
-  const childRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const detailRef = useRef<HTMLDivElement>(null)
+
+  const [visible, setVisible] = useState(false)
 
   function handleMouseEnter() {
-    if (window && parentRef.current && childRef.current) {
-      const newChildCoords = getHoverPosition(parentRef.current, childRef.current)
-      childRef.current.style.top = `${newChildCoords.top}px`
-      childRef.current.style.left = `${newChildCoords.left}px`
+    if (window && triggerRef.current && detailRef.current) {
+      const newDetailCoords = getHoverPosition(triggerRef.current, detailRef.current)
+      detailRef.current.style.top = `${newDetailCoords.top}px`
+      detailRef.current.style.left = `${newDetailCoords.left}px`
     }
   }
 
-  return { parentRef, childRef, handleMouseEnter }
+  return {
+    hoverTriggerProps: { ref: triggerRef, setVisible, handleMouseEnter },
+    HoverTrigger,
+    hoverDetailProps: { ref: detailRef, visible },
+    HoverDetail,
+  }
 }
+
+interface HoverTriggerProps {
+  setVisible: (visible: boolean) => void
+  handleMouseEnter: () => void
+}
+
+const HoverTrigger = React.forwardRef<HTMLDivElement, HoverTriggerProps>(
+  ({ setVisible, handleMouseEnter, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        onMouseEnter={() => {
+          setVisible(true)
+          handleMouseEnter()
+        }}
+        onMouseLeave={() => {
+          setVisible(false)
+        }}
+      >
+        {props.children}
+      </div>
+    )
+  }
+)
+
+interface HoverDetailProps {
+  visible: boolean
+}
+
+const HoverDetail = React.forwardRef<HTMLDivElement, HoverDetailProps>(({ visible, ...props }, ref) => {
+  return (
+    <div ref={ref} className={`absolute z-50 p-2 ${visible ? 'visible' : 'invisible'}`}>
+      {props.children}
+    </div>
+  )
+})
 
 interface ICoords {
   top: number
@@ -22,68 +84,68 @@ interface ICoords {
   width: number
 }
 
-function getHoverPosition(parent: HTMLElement, child: HTMLElement) {
-  const parentCoords = getCoords(parent)
-  const childCoords = getCoords(child)
+function getHoverPosition(trigger: HTMLElement, detail: HTMLElement) {
+  const triggerCoords = getCoords(trigger)
+  const detailCoords = getCoords(detail)
 
-  const midpointX = parentCoords.left + parentCoords.width / 2
-  const midpointY = parentCoords.top + parentCoords.height / 2
+  const midpointX = triggerCoords.left + triggerCoords.width / 2
+  const midpointY = triggerCoords.top + triggerCoords.height / 2
 
   if (midpointY <= window.innerHeight * 0.15) {
-    // parent in top 15% of screen, show child below parent
-    let newChildLeft = parentCoords.left - parentCoords.width / 2
-    newChildLeft = Math.max(newChildLeft, 0)
-    if (newChildLeft + childCoords.width > window.innerWidth) {
-      newChildLeft = window.innerWidth - childCoords.width
+    // trigger in top 15% of screen, show detail below trigger
+    let newDetailLeft = triggerCoords.left - triggerCoords.width / 2
+    newDetailLeft = Math.max(newDetailLeft, 0)
+    if (newDetailLeft + detailCoords.width > window.innerWidth) {
+      newDetailLeft = window.innerWidth - detailCoords.width
     }
 
-    const newChildTop = parentCoords.top + parentCoords.height
+    const newDetailTop = triggerCoords.top + triggerCoords.height
 
     return {
-      top: newChildTop,
-      left: newChildLeft,
+      top: newDetailTop,
+      left: newDetailLeft,
     }
   }
 
   if (midpointY >= window.innerHeight * 0.85) {
-    // parent in bottom 15% of screen, show child above parent
-    let newChildLeft = parentCoords.left - parentCoords.width / 2
-    newChildLeft = Math.max(newChildLeft, 0)
-    if (newChildLeft + childCoords.width > window.innerWidth) {
-      newChildLeft = window.innerWidth - childCoords.width
+    // trigger in bottom 15% of screen, show detail above trigger
+    let newDetailLeft = triggerCoords.left - triggerCoords.width / 2
+    newDetailLeft = Math.max(newDetailLeft, 0)
+    if (newDetailLeft + detailCoords.width > window.innerWidth) {
+      newDetailLeft = window.innerWidth - detailCoords.width
     }
 
-    const newChildTop = parentCoords.top - childCoords.height
+    const newDetailTop = triggerCoords.top - detailCoords.height
 
     return {
-      top: newChildTop,
-      left: newChildLeft,
+      top: newDetailTop,
+      left: newDetailLeft,
     }
   }
 
   if (midpointX <= window.innerWidth / 2) {
-    // parent in left half of screen, show child on right of parent
-    const newChildLeft = parentCoords.left + parentCoords.width
+    // trigger in left half of screen, show detail on right of trigger
+    const newDetailLeft = triggerCoords.left + triggerCoords.width
 
-    let newChildTop = midpointY - childCoords.height / 2
-    newChildTop = Math.max(newChildTop, 0)
-    newChildTop = Math.min(newChildTop, window.innerHeight)
+    let newDetailTop = midpointY - detailCoords.height / 2
+    newDetailTop = Math.max(newDetailTop, 0)
+    newDetailTop = Math.min(newDetailTop, window.innerHeight)
 
     return {
-      top: newChildTop,
-      left: newChildLeft,
+      top: newDetailTop,
+      left: newDetailLeft,
     }
   } else {
-    // parent in right half, render on left side of parent
-    const newChildLeft = parentCoords.left - childCoords.width
+    // trigger in right half, render on left side of trigger
+    const newDetailLeft = triggerCoords.left - detailCoords.width
 
-    let newChildTop = midpointY - childCoords.height / 2
-    newChildTop = Math.max(newChildTop, 0)
-    newChildTop = Math.min(newChildTop, window.innerHeight)
+    let newDetailTop = midpointY - detailCoords.height / 2
+    newDetailTop = Math.max(newDetailTop, 0)
+    newDetailTop = Math.min(newDetailTop, window.innerHeight)
 
     return {
-      top: newChildTop,
-      left: newChildLeft,
+      top: newDetailTop,
+      left: newDetailLeft,
     }
   }
 }
