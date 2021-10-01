@@ -1,8 +1,18 @@
-import { Game, Phase, EffectItem, EffectType, Effect, Player, EffectItemType, CardLocation } from './types'
+import {
+  IGame,
+  Phase,
+  IEffectItem,
+  EffectType,
+  IEffect,
+  IPlayer,
+  EffectItemType,
+  CardLocation,
+  CardType,
+} from './types'
 
 import { updateAvailableActionsForPlayers } from './actions'
 
-export function processEffectItem(initialGame: Game, effectItem: EffectItem) {
+export function processEffectItem(initialGame: IGame, effectItem: IEffectItem) {
   let game = { ...initialGame }
 
   const player = game.players.find((player) => player.id === effectItem.controllerId)
@@ -10,11 +20,12 @@ export function processEffectItem(initialGame: Game, effectItem: EffectItem) {
     throw new Error(`player with id ${effectItem.controllerId} not found`)
   }
 
-  console.log('handling effectItem', effectItem)
-
   switch (effectItem.type) {
     case EffectItemType.CORE:
       game = processEffectCore(game, effectItem.effect, player)
+      break
+    case EffectItemType.CAST:
+      game = processEffectCast(game, effectItem.effect, effectItem.cardId)
       break
     case EffectItemType.WITH_AMOUNT:
       game = processEffectWithAmount(game, effectItem.effect, effectItem.amount)
@@ -30,7 +41,7 @@ export function processEffectItem(initialGame: Game, effectItem: EffectItem) {
   return game
 }
 
-function processEffectCore(initialGame: Game, effect: Effect, player: Player) {
+function processEffectCore(initialGame: IGame, effect: IEffect, player: IPlayer) {
   let game = { ...initialGame }
 
   switch (effect.type) {
@@ -47,7 +58,7 @@ function processEffectCore(initialGame: Game, effect: Effect, player: Player) {
   return game
 }
 
-function processEffectWithAmount(initialGame: Game, effect: Effect, amount: number) {
+function processEffectWithAmount(initialGame: IGame, effect: IEffect, amount: number) {
   let game = { ...initialGame }
 
   switch (effect.type) {
@@ -64,7 +75,38 @@ function processEffectWithAmount(initialGame: Game, effect: Effect, amount: numb
   return game
 }
 
-function advancePhase(initialGame: Game) {
+function processEffectCast(initialGame: IGame, effect: IEffect, cardId: string) {
+  let game = { ...initialGame }
+
+  const card = game.players
+    .map((player) => player.deck)
+    .flat()
+    .find((card) => card.id === cardId)
+
+  if (!card) {
+    throw new Error(`no card found with id ${cardId} while handling Cast`)
+  }
+
+  switch (effect.type) {
+    case EffectType.CAST:
+      if (card.type === CardType.SPELL) {
+        card.location = CardLocation.GRAVEYARD
+        // how do we kick of spell effects?
+        card.effects.forEach((effect) => {
+          game = processEffectWithAmount(game, effect, 1)
+        })
+      } else {
+        card.location = CardLocation.BATTLEFIELD
+      }
+      break
+    default:
+      throw new Error(`unhandled EffectType: ${effect.type}`)
+  }
+
+  return game
+}
+
+function advancePhase(initialGame: IGame) {
   let game = { ...initialGame }
 
   // eventually, we might want this function to kick off other effects

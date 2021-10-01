@@ -1,6 +1,6 @@
 // WORLD //
 
-export enum ManaColor {
+export enum IManaColor {
   WHITE = 'white',
   BLUE = 'blue',
   BLACK = 'black',
@@ -9,13 +9,13 @@ export enum ManaColor {
   COLORLESS = 'colorless',
 }
 
-export interface Game {
+export interface IGame {
   turn: number
   phase: Phase
-  players: Player[]
+  players: IPlayer[]
   opponentLife: number // hack for demo
   hasPriority: string
-  stack: StackItem[]
+  stack: IStackItem[]
 }
 
 export enum Phase {
@@ -26,7 +26,7 @@ export enum Phase {
   END = 'END',
 }
 
-export interface ManaPool {
+export interface IManaPool {
   white: number
   blue: number
   black: number
@@ -35,13 +35,13 @@ export interface ManaPool {
   colorless: number
 }
 
-export interface Player {
+export interface IPlayer {
   id: string
   username: string
   life: number
-  deck: Card[]
-  availableActions: Action[]
-  manaPool: ManaPool
+  deck: ICard[]
+  availableActions: IAction[]
+  manaPool: IManaPool
 }
 
 export enum Target {
@@ -51,14 +51,14 @@ export enum Target {
 
 // CARDS //
 
-export interface BaseCard {
+export interface IBaseCard {
   name: string
   level: number
   id: string
   type: CardType
   location: CardLocation
   tapped: boolean
-  abilities: Ability[]
+  cost: ICostMana
 }
 
 export enum CardType {
@@ -75,31 +75,35 @@ export enum CardLocation {
   GRAVEYARD = 'GRAVEYARD',
 }
 
-export interface Creature extends BaseCard {
+export interface ICreature extends IBaseCard {
   type: CardType.CREATURE
+  abilities: IAbility[]
   attack: number
   defense: number
 }
 
-export interface Artifact extends BaseCard {
+export interface IArtifact extends IBaseCard {
   type: CardType.ARTIFACT
+  abilities: IAbility[]
 }
 
-export interface Enchantment extends BaseCard {
+export interface IEnchantment extends IBaseCard {
   type: CardType.ENCHANTMENT
+  abilities: IAbility[]
 }
 
-export interface Spell extends BaseCard {
+export interface ISpell extends IBaseCard {
   type: CardType.SPELL
+  effects: IEffect[]
 }
 
-export type Card = Creature | Artifact | Enchantment | Spell
+export type ICard = ICreature | IArtifact | IEnchantment | ISpell
 
 // COSTS //
 // a Cost exists as part of the static data associated with a card
 // Costs are used to create CostItems when submitting an Action
 
-export interface BaseCost {
+export interface IBaseCost {
   target: Target
   type: CostType
 }
@@ -110,52 +114,52 @@ export enum CostType {
   SACRIFICE_PERMANENT = 'SACRIFICE_PERMANENT',
 }
 
-export interface CostMana extends BaseCost {
+export interface ICostMana extends IBaseCost {
   target: Target.PLAYER
   type: CostType.MANA
-  color: ManaColor
+  color: IManaColor
   amount: number
 }
 
-export interface CostSacrificePermanent extends BaseCost {
+export interface ICostSacrificePermanent extends IBaseCost {
   target: Target.PLAYER
   type: CostType.SACRIFICE_PERMANENT
   number: number
 }
 
-export interface CostTap extends BaseCost {
+export interface ICostTap extends IBaseCost {
   target: Target.CARD
   type: CostType.TAP
 }
 
-export type Cost = CostMana | CostSacrificePermanent | CostTap
+export type ICost = ICostMana | ICostSacrificePermanent | ICostTap
 
 // COST ITEMS //
 // a CostItem exists as part of an Action
 // it refers to a specific cost being paid in the game
 
-export interface BaseCostItem {
-  cost: Cost
+export interface IBaseCostItem {
+  cost: ICost
   target: Target
 }
 
-export interface CostItemPlayer extends BaseCostItem {
+export interface ICostItemPlayer extends IBaseCostItem {
   target: Target.PLAYER
   playerId: string
 }
 
-export interface CostItemCard extends BaseCostItem {
+export interface ICostItemCard extends IBaseCostItem {
   target: Target.CARD
   cardId: string
 }
 
-export type CostItem = CostItemPlayer | CostItemCard
+export type ICostItem = ICostItemPlayer | ICostItemCard
 
 // EFFECTS
 // an Effect exists as part of the static data associated with a card
 // Effects are used to create EffectItems when submitting an Action
 
-export interface BaseEffect {
+export interface IBaseEffect {
   executionType: EffectExecutionType
   type: EffectType
   target?: Target
@@ -167,6 +171,8 @@ export enum EffectExecutionType {
 }
 
 export enum EffectType {
+  CAST = 'CAST',
+
   DAMAGE_ANY = 'DAMAGE_ANY',
   DAMAGE_PLAYER = 'DAMAGE_PLAYER',
   DAMAGE_CREATURE = 'DAMAGE_CREATURE',
@@ -182,107 +188,119 @@ export enum EffectType {
   RELEASE_PRIORITY = 'RELEASE_PRIORITY',
 }
 
-export interface EffectDamageAny extends BaseEffect {
+export interface IEffectCast extends IBaseEffect {
+  executionType: EffectExecutionType.RESPONDABLE
+  type: EffectType.CAST
+}
+export interface IEffectDamageAny extends IBaseEffect {
   executionType: EffectExecutionType.RESPONDABLE
   type: EffectType.DAMAGE_ANY
 }
 
-export interface EffectDamagePlayer extends BaseEffect {
+export interface IEffectDamagePlayer extends IBaseEffect {
   executionType: EffectExecutionType.RESPONDABLE
   type: EffectType.DAMAGE_PLAYER
   target: Target.PLAYER
 }
 
 // this just mutates the controllers mana pool
-export interface EffectManaAdd extends BaseEffect {
+export interface IEffectManaAdd extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
   type: EffectType.MANA_ADD
-  color: ManaColor
+  color: IManaColor
   amount: number
 }
 
 // this mutates the games priorityPlayerId
-export interface EffectReleasePriority extends BaseEffect {
+export interface IEffectReleasePriority extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
   type: EffectType.RELEASE_PRIORITY
 }
 
-export interface EffectPhaseUntap extends BaseEffect {
+export interface IEffectPhaseUntap extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
   type: EffectType.PHASE_UNTAP
 }
 
-export interface EffectPhaseDraw extends BaseEffect {
+export interface IEffectPhaseDraw extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
   type: EffectType.PHASE_DRAW
 }
 
-export interface EffectPhaseMain extends BaseEffect {
+export interface IEffectPhaseMain extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
   type: EffectType.PHASE_MAIN
 }
 
-export interface EffectPhaseCombat extends BaseEffect {
+export interface IEffectPhaseCombat extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
   type: EffectType.PHASE_COMBAT
 }
 
-export interface EffectPhaseEnd extends BaseEffect {
+export interface IEffectPhaseEnd extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
   type: EffectType.PHASE_END
 }
 
-export type Effect =
-  | EffectManaAdd
-  | EffectDamageAny
-  | EffectDamagePlayer
-  | EffectReleasePriority
-  | EffectPhaseUntap
-  | EffectPhaseDraw
-  | EffectPhaseMain
-  | EffectPhaseCombat
-  | EffectPhaseEnd
+export type IEffect =
+  | IEffectCast
+  | IEffectManaAdd
+  | IEffectDamageAny
+  | IEffectDamagePlayer
+  | IEffectReleasePriority
+  | IEffectPhaseUntap
+  | IEffectPhaseDraw
+  | IEffectPhaseMain
+  | IEffectPhaseCombat
+  | IEffectPhaseEnd
 
 // EFFECT ITEMS //
 // an EffectItem exists as part of an Action
 // it refers to a specific effect that will happen
 
-export interface BaseEffectItem {
+export interface IBaseEffectItem {
   type: EffectItemType
   controllerId: string
-  effect: Effect
+  effect: IEffect
 }
 
 export enum EffectItemType {
   CORE = 'CORE',
+  CAST = 'CAST',
   TARGETS_PLAYER = 'TARGETS_PLAYER',
   TARGETS_CARD = 'TARGETS_CARD',
   WITH_AMOUNT = 'WITH_AMOUNT',
 }
-export interface EffectItemCore extends BaseEffectItem {
+export interface IEffectItemCore extends IBaseEffectItem {
   type: EffectItemType.CORE
 }
 
-export interface EffectItemTargetsPlayer extends BaseEffectItem {
+export interface IEffectItemCast extends IBaseEffectItem {
+  type: EffectItemType.CAST
+  cardId: string
+}
+
+export interface IEffectItemTargetsPlayer extends IBaseEffectItem {
   type: EffectItemType.TARGETS_PLAYER
   playerId: string
 }
 
-export interface EffectItemTargetsCard extends BaseEffectItem {
+export interface IEffectItemTargetsCard extends IBaseEffectItem {
   type: EffectItemType.TARGETS_CARD
   cardId: string
 }
 
-export interface EffectItemWithAmount extends BaseEffectItem {
+export interface IEffectItemWithAmount extends IBaseEffectItem {
   type: EffectItemType.WITH_AMOUNT
   amount: number
 }
 
-export type EffectItem =
-  | EffectItemCore
-  | EffectItemTargetsPlayer
-  | EffectItemTargetsCard
-  | EffectItemWithAmount
+export type IEffectItem =
+  | IEffectItemCore
+  | IEffectItemCast
+  | IEffectItemTargetsPlayer
+  | IEffectItemTargetsCard
+  | IEffectItemWithAmount
 
 // EFFECT CREATORS
 
@@ -291,55 +309,67 @@ export enum AbilitySpeed {
   INSTANT = 'INSTANT',
 }
 
-export interface Ability {
+export interface IAbility {
   id: string
   name: string
   description: string
   speed: AbilitySpeed
-  costs: Cost[]
-  effects: Effect[]
+  costs: ICost[]
+  effects: IEffect[]
 }
 
-export interface EffectTrigger {
+export interface IEffectTrigger {
   on: EffectType
-  costs: Cost[]
-  effects: Effect[]
+  costs: ICost[]
+  effects: IEffect[]
 }
 
 // ACTIONS
 
-export interface BaseAction {
+export interface IBaseAction {
   type: ActionType
   controllerId: string
-  costItems: CostItem[]
-  effectItems: EffectItem[]
+  costItems: ICostItem[]
+  effectItems: IEffectItem[]
 }
 
 export enum ActionType {
+  CAST_ACTION = 'CAST_ACTION',
+  COMBAT_ACTION = 'COMBAT_ACTION',
   ABILITY_ACTION = 'ABILITY_ACTION',
   EFFECT_ACTION = 'EFFECT_ACTION',
   PRIORITY_ACTION = 'PRIORITY_ACTION',
 }
 
-export interface AbilityAction extends BaseAction {
+export interface ICastAction extends IBaseAction {
+  type: ActionType.CAST_ACTION
+  cardId: string
+}
+
+export interface ICombatAction extends IBaseAction {
+  type: ActionType.COMBAT_ACTION
+  cardId: string
+}
+
+export interface IAbilityAction extends IBaseAction {
   type: ActionType.ABILITY_ACTION
   abilityId: string
   cardId: string
 }
 
-export interface EffectAction extends BaseAction {
+export interface IEffectAction extends IBaseAction {
   type: ActionType.EFFECT_ACTION
 }
 
-export interface PriorityAction extends BaseAction {
+export interface IPriorityAction extends IBaseAction {
   type: ActionType.PRIORITY_ACTION
 }
 
-export type Action = AbilityAction | EffectAction | PriorityAction
+export type IAction = ICastAction | ICombatAction | IAbilityAction | IEffectAction | IPriorityAction
 
 // STACK
 
-export interface StackItem {
+export interface IStackItem {
   controllerId: string
-  effectItem: EffectItem
+  effectItem: IEffectItem
 }

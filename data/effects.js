@@ -15,4 +15,20 @@ export default [
     color: '',
     amount: '1',
   },
+  {
+    id: 'add-blue-mana-2',
+    type: 'MANA_ADD',
+    executionType: 'IMMEDIATE',
+    target: 'PLAYER',
+    color: 'BLUE',
+    amount: '2',
+  },
+  {
+    id: 'add-green-mana-2',
+    type: 'MANA_ADD',
+    executionType: 'IMMEDIATE',
+    target: 'PLAYER',
+    color: 'GREEN',
+    amount: '2',
+  },
 ]

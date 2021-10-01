@@ -1,16 +1,15 @@
 import type { NextPage } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 
-import { useDispatch, useSelector } from '../../lib/hooks'
-import { updateDeckId, updateCardIdx } from '../../lib/store'
+import { useDispatch, useSelector, updateDeckId } from '../../lib/store'
 import { useCardsForDeck } from '../../lib/useCardsForDeck'
 
 import Nav from '../../components/Nav'
 import Card from '../../components/Card'
 import type { IDeck } from '../../lib/types'
-import { rarityMap, rarityColorKey, randomIntFromInterval, isNumeric, toSentenceCase } from '../../lib/utils'
+import { rarityMap, randomIntFromInterval, isNumeric, toSentenceCase } from '../../lib/utils'
 
 const DeckPage: NextPage = () => {
   const router = useRouter()

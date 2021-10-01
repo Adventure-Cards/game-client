@@ -8,6 +8,7 @@ export default class Document extends NextDocument {
           {/* ROOT STYLES */}
           <style>{`
             #__next {
+              overflow: hidden;
             }
           `}</style>
 

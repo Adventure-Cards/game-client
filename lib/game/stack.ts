@@ -1,8 +1,8 @@
-import { Game } from './types'
+import { IGame } from './types'
 
 import { processEffectItem } from './effects'
 
-export function processStackItem(initialGame: Game) {
+export function processStackItem(initialGame: IGame) {
   let game = { ...initialGame }
 
   // the purpose of this function is to pop the top StackItem

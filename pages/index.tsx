@@ -1,8 +1,7 @@
 import type { NextPage } from 'next'
 import { useEffect } from 'react'
 
-import { useDispatch, useSelector } from '../lib/hooks'
-import { updateAddress } from '../lib/store'
+import { useDispatch, useSelector, updateAddress } from '../lib/store'
 import { useDecksForAddress } from '../lib/useDecksForAddress'
 
 import Nav from '../components/Nav'
