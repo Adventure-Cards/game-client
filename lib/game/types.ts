@@ -73,6 +73,7 @@ export enum CardLocation {
   BATTLEFIELD = 'BATTLEFIELD',
   LIBRARY = 'LIBRARY',
   GRAVEYARD = 'GRAVEYARD',
+  STACK = 'STACK',
 }
 
 export interface ICreature extends IBaseCard {

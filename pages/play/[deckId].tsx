@@ -18,6 +18,8 @@ import { IAction, CardLocation } from '../../lib/game/types'
 import CardInHand from '../../components/game/CardInHand'
 import CardOnBattlefield from '../../components/game/CardOnBattlefield'
 
+import { useDrop } from 'react-dnd'
+
 const PlayPage: NextPage = () => {
   const router = useRouter()
   const { deckId: pathDeckId } = router.query
@@ -111,8 +113,16 @@ function BattlefieldPanel() {
     state.game.game.players[0].deck.filter((card) => card.location === CardLocation.BATTLEFIELD)
   )
 
+  const [{ canDrop, isOver }, drop] = useDrop(() => ({
+    accept: 'CARD',
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+  }))
+
   return (
-    <div className="flex flex-row flex-1  justify-center items-center gap-6">
+    <div ref={drop} className={`flex flex-row flex-1 justify-center items-center gap-6 ${isOver ? '' : ''}`}>
       {cardsOnBattlefield.map((card, idx) => (
         <CardOnBattlefield key={idx} card={card} />
       ))}

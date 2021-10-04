@@ -249,6 +249,18 @@ export function submitAction(initialGame: IGame, action: IAction): IGame {
         game = processEffectItem(game, effectItem)
         break
       case EffectExecutionType.RESPONDABLE:
+        // if its a casting action, must set card location to STACK
+        if (action.type === ActionType.CAST_ACTION) {
+          const cards = game.players[0].deck.filter((card) => card.id === action.cardId)
+          if (cards.length === 0) {
+            throw new Error(`unable to find card with cardId ${action.cardId}`)
+          }
+          if (cards.length > 1) {
+            throw new Error('found multiple cards with the same id')
+          }
+          cards[0].location = CardLocation.STACK
+        }
+
         game.stack.push({
           controllerId: action.controllerId,
           effectItem: effectItem,

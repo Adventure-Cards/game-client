@@ -6,6 +6,8 @@ import { IAction, ICard, ActionType, CardType } from '../../lib/game/types'
 
 import CardDetail from './CardDetail'
 
+import { useDrag } from 'react-dnd'
+
 const CardInHand = ({ card }: { card: ICard }) => {
   const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
 
@@ -21,23 +23,31 @@ const CardInHand = ({ card }: { card: ICard }) => {
     dispatch(submitAction(action))
   }
 
+  const [{}, drag] = useDrag(() => ({
+    type: 'CARD',
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+    end: (_, monitor) => {
+      if (castAction && monitor.didDrop()) {
+        handleClickSubmitAction(castAction)
+      }
+    },
+  }))
+
   return (
     <>
       <HoverTrigger {...hoverTriggerProps}>
         <div
+          ref={drag}
+          role="Handle"
           className={`flex flex-col justify-between w-36 p-2 bg-background
-          rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)} `}
+        rounded-md shadow-xl border-2 ${
+          castAction ? 'border-blue-400 cursor-grab' : 'border-common cursor-pointer'
+        }
+      `}
         >
           <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
-            {castAction && (
-              <button
-                className="px-2 py-1 bg-gold border border-gray-200"
-                onClick={() => handleClickSubmitAction(castAction)}
-              >
-                Cast
-              </button>
-            )}
-
             <div className="flex flex-row justify-between">
               <p>{card.name}</p>
               <p className={`text-${getColorForManaColor(card.cost.color)}`}>{card.cost.amount}</p>
