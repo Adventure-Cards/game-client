@@ -1,56 +1,44 @@
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
+import { submitAction, useDispatch } from '../../lib/store'
+
 import { useSmartHover } from '../../lib/useSmartHover'
-import { submitAction, useDispatch, useSelector } from '../../lib/store'
-
-import { IAction, ICard, ActionType, CardType } from '../../lib/game/types'
-
 import CardDetail from './CardDetail'
 
-import { useDrag } from 'react-dnd'
+import { IAction, ICard, ActionType, CardType } from '../../lib/game/types'
 
 const CardInHand = ({ card }: { card: ICard }) => {
   const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
 
   const dispatch = useDispatch()
 
-  const castAction = useSelector((state) =>
-    state.game.game.players[0].availableActions.find(
-      (action) => action.type === ActionType.CAST_ACTION && action.cardId === card.id
-    )
-  )
+  const castAction = card.actions.find((action) => action.type === ActionType.CAST_ACTION)
 
   function handleClickSubmitAction(action: IAction) {
     dispatch(submitAction(action))
   }
 
-  const [{}, drag] = useDrag(() => ({
-    type: 'CARD',
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-    end: (_, monitor) => {
-      if (castAction && monitor.didDrop()) {
-        handleClickSubmitAction(castAction)
-      }
-    },
-  }))
-
   return (
     <>
       <HoverTrigger {...hoverTriggerProps}>
         <div
-          ref={drag}
-          role="Handle"
           className={`flex flex-col justify-between w-36 p-2 bg-background
         rounded-md shadow-xl border-2 ${
           castAction ? 'border-blue-400 cursor-grab' : 'border-common cursor-pointer'
         }
       `}
         >
+          {castAction && (
+            <button
+              className="px-2 py-1 bg-gold border border-gray-200"
+              onClick={() => handleClickSubmitAction(castAction)}
+            >
+              Cast
+            </button>
+          )}
           <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
             <div className="flex flex-row justify-between">
               <p>{card.name}</p>
-              <p className={`text-${getColorForManaColor(card.cost.color)}`}>{card.cost.amount}</p>
+              <p>{card.cost.amount}</p>
             </div>
 
             <p className={`text-${rarityColorKey(card.level)}`}>
@@ -75,20 +63,3 @@ const CardInHand = ({ card }: { card: ICard }) => {
 }
 
 export default CardInHand
-
-export function getColorForManaColor(color: string) {
-  switch (color) {
-    case 'white':
-      return 'white'
-    case 'blue':
-      return 'blue-600'
-    case 'black':
-      return 'black'
-    case 'red':
-      return 'red-700'
-    case 'green':
-      return 'green-700'
-    default:
-      throw new Error(`unhandled color: ${color}`)
-  }
-}

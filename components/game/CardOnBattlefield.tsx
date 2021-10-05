@@ -13,11 +13,7 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
 
   const game = useSelector((state) => state.game.game)
 
-  const combatAction = useSelector((state) =>
-    state.game.game.players[0].availableActions.find(
-      (action) => action.type === ActionType.COMBAT_ACTION && action.cardId === card.id
-    )
-  )
+  const combatAction = card.actions.find((action) => action.type === ActionType.COMBAT_ACTION)
 
   function getActionForAbility(ability: IAbility) {
     const action = game.players[0].availableActions
@@ -45,7 +41,9 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
       <HoverTrigger {...hoverTriggerProps}>
         <div
           className={`flex flex-col justify-between w-36 p-2 bg-background
-            rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)} `}
+            rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)}
+            ${card.tapped ? 'transform rotate-6' : ''}
+            `}
         >
           <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
             <div className="flex flex-row justify-between">

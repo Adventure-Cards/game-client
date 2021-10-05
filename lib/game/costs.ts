@@ -19,7 +19,7 @@ function validateCostPlayer(game: IGame, cost: ICost, playerId: string) {
 
   switch (cost.type) {
     case CostType.MANA:
-      if (player.manaPool[cost.color] < cost.amount) {
+      if (player.mana < cost.amount) {
         return false
       }
       break
@@ -32,7 +32,7 @@ function validateCostPlayer(game: IGame, cost: ICost, playerId: string) {
 
 function validateCostCard(game: IGame, cost: ICost, cardId: string) {
   const card = game.players
-    .map((player) => player.deck)
+    .map((player) => player.cards)
     .flat()
     .find((card) => card.id === cardId)
 
@@ -80,7 +80,7 @@ function processCostPlayer(initialGame: IGame, cost: ICost, playerId: string) {
 
   switch (cost.type) {
     case CostType.MANA:
-      player.manaPool[cost.color] -= cost.amount
+      player.mana -= cost.amount
       break
     default:
       throw new Error(`unhandled CostTarget`)
@@ -93,7 +93,7 @@ function processCostCard(initialGame: IGame, cost: ICost, cardId: string) {
   let game = { ...initialGame }
 
   const card = game.players
-    .map((player) => player.deck)
+    .map((player) => player.cards)
     .flat()
     .find((card) => card.id === cardId)
 
