@@ -61,13 +61,13 @@ function processEffectWithAmount(initialGame: IGame, effect: IEffect, amount: nu
 
   switch (effect.type) {
     case EffectType.DAMAGE_ANY:
-      game.players.map((player) =>
-        player.username === 'opponent' ? { ...player, life: player.life - 1 } : { ...player }
+      game.players = game.players.map((player) =>
+        player.username === 'opponent' ? { ...player, life: player.life - amount } : { ...player }
       )
       break
     case EffectType.DAMAGE_PLAYER:
-      game.players.map((player) =>
-        player.username === 'opponent' ? { ...player, life: player.life - 1 } : { ...player }
+      game.players = game.players.map((player) =>
+        player.username === 'opponent' ? { ...player, life: player.life - amount } : { ...player }
       )
       break
     default:
