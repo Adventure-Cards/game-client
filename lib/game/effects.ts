@@ -11,6 +11,7 @@ import {
 } from './types'
 
 import { updateAvailableActionsForPlayers } from './actions'
+import { drawCard } from './utils'
 
 export function processEffectItem(initialGame: IGame, effectItem: IEffectItem) {
   let game = { ...initialGame }
@@ -45,9 +46,6 @@ function processEffectCore(initialGame: IGame, effect: IEffect, player: IPlayer)
   let game = { ...initialGame }
 
   switch (effect.type) {
-    case EffectType.MANA_ADD:
-      player.manaPool[effect.color] += effect.amount
-      break
     case EffectType.RELEASE_PRIORITY:
       game = advancePhase(game)
       break
@@ -63,10 +61,14 @@ function processEffectWithAmount(initialGame: IGame, effect: IEffect, amount: nu
 
   switch (effect.type) {
     case EffectType.DAMAGE_ANY:
-      game.opponentLife -= amount
+      game.players = game.players.map((player) =>
+        player.username === 'opponent' ? { ...player, life: player.life - amount } : { ...player }
+      )
       break
     case EffectType.DAMAGE_PLAYER:
-      game.opponentLife -= amount
+      game.players = game.players.map((player) =>
+        player.username === 'opponent' ? { ...player, life: player.life - amount } : { ...player }
+      )
       break
     default:
       throw new Error(`unhandled EffectType: ${effect.type}`)
@@ -79,7 +81,7 @@ function processEffectCast(initialGame: IGame, effect: IEffect, cardId: string) 
   let game = { ...initialGame }
 
   const card = game.players
-    .map((player) => player.deck)
+    .map((player) => player.cards)
     .flat()
     .find((card) => card.id === cardId)
 
@@ -91,7 +93,7 @@ function processEffectCast(initialGame: IGame, effect: IEffect, cardId: string) 
     case EffectType.CAST:
       if (card.type === CardType.SPELL) {
         card.location = CardLocation.GRAVEYARD
-        // how do we kick of spell effects?
+        // how do we kick off spell effects?
         card.effects.forEach((effect) => {
           game = processEffectWithAmount(game, effect, 1)
         })
@@ -109,24 +111,29 @@ function processEffectCast(initialGame: IGame, effect: IEffect, cardId: string) 
 function advancePhase(initialGame: IGame) {
   let game = { ...initialGame }
 
+  const playerWhoHasTurn = game.players.find((player) => player.id === game.hasTurn)
+  if (!playerWhoHasTurn) {
+    throw new Error('active player not found')
+  }
+
   // eventually, we might want this function to kick off other effects
   // which update the game state. in any case, need to support effects
   // triggered by other effects
 
-  if (game.phase === Phase.UNTAP) {
-    // untap all permanents
-    game.players
-      .filter((player) => player.id === game.hasPriority)
-      .map((player) => player.deck)
-      .flat()
-      .forEach((card) => (card.tapped = false))
-    game.phase = Phase.DRAW
-  } else if (game.phase === Phase.DRAW) {
+  if (game.phase === Phase.START) {
+    // untap permanents
+    playerWhoHasTurn.cards.forEach((card) => {
+      if (card.location === CardLocation.BATTLEFIELD) {
+        card.tapped = false
+      }
+    })
+
     // draw a card
-    if (game.players[0].deck.filter((card) => card.location === CardLocation.LIBRARY).length > 0) {
-      game.players[0].deck.filter((card) => card.location === CardLocation.LIBRARY)[0].location =
-        CardLocation.HAND
-    }
+    game = drawCard(game, playerWhoHasTurn.id)
+
+    // reset mana to current turn count
+    playerWhoHasTurn.mana = game.turn
+
     game.phase = Phase.MAIN
   } else if (game.phase === Phase.MAIN) {
     game.phase = Phase.COMBAT
@@ -135,7 +142,7 @@ function advancePhase(initialGame: IGame) {
   } else if (game.phase === Phase.END) {
     game.turn += 1
     // TODO pass turn to other player here
-    game.phase = Phase.UNTAP
+    game.phase = Phase.START
   }
 
   return game

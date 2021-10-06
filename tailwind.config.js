@@ -19,6 +19,9 @@ module.exports = {
         legendary: '#f8b73e',
         mythic: '#ff44b7',
       },
+      cursor: {
+        grab: 'grab',
+      },
     },
   },
   variants: {

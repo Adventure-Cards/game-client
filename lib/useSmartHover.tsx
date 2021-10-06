@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 /*
   useSmartHover returns a component definition and an instance of props for
@@ -33,6 +33,11 @@ export function useSmartHover() {
     }
   }
 
+  useEffect(() => {
+    if (triggerRef.current) {
+    }
+  }, [triggerRef])
+
   return {
     hoverTriggerProps: { ref: triggerRef, setVisible, handleMouseEnter },
     HoverTrigger,
@@ -48,6 +53,13 @@ interface HoverTriggerProps {
 
 const HoverTrigger = React.forwardRef<HTMLDivElement, HoverTriggerProps>(
   ({ setVisible, handleMouseEnter, ...props }, ref) => {
+    // when the trigger unmounts, should set detail to invisible
+    useEffect(() => {
+      return () => {
+        setVisible(false)
+      }
+    }, [])
+
     return (
       <div
         ref={ref}

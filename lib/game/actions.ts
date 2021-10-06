@@ -20,15 +20,20 @@ import {
 import { processEffectItem } from './effects'
 import { validateCostItem, processCostItem } from './costs'
 
+import { moveCardToStack } from './utils'
+
 export function updateAvailableActionsForPlayers(initialGame: IGame): IGame {
   let game = { ...initialGame }
 
-  for (const player of game.players) {
+  for (const [_, player] of Object.entries(game.players)) {
     let availableActions: IAction[] = []
 
-    const cardActions = player.deck.map((card) => getActionsForCard(game, player, card)).flat()
+    player.cards.forEach((card) => {
+      card.actions = getActionsForCard(game, player, card)
+    })
 
-    availableActions = [...availableActions, ...cardActions]
+    // const cardActions = player.deck.map((card) => getActionsForCard(game, player, card)).flat()
+    // availableActions = [...availableActions, ...cardActions]
 
     if (game.hasPriority === player.id && game.stack.length === 0) {
       const releasePriorityAction: IAction = {
@@ -86,11 +91,11 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     }
   }
 
-  // handle activated abilities
   if (card.type === CardType.SPELL) {
     return actions
   }
 
+  // handle activated abilities
   for (const ability of card.abilities) {
     // validate card is on battlefield
     if (card.location !== CardLocation.BATTLEFIELD) {
@@ -98,16 +103,11 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
     }
 
     // validate ability speed
-    let speedOk = true
+    let speedOk = false
     switch (ability.speed) {
       case AbilitySpeed.NORMAL:
-        if (game.hasPriority !== player.id || game.phase !== Phase.MAIN) {
-          speedOk = false
-        }
-        break
-      case AbilitySpeed.INSTANT:
-        if (game.hasPriority !== player.id || game.phase === Phase.DRAW) {
-          speedOk = false
+        if (game.hasPriority === player.id && game.phase === Phase.MAIN) {
+          speedOk = true
         }
         break
       default:
@@ -160,13 +160,6 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
       const effect = { ..._effect }
 
       switch (effect.type) {
-        case EffectType.MANA_ADD:
-          effectItems.push({
-            type: EffectItemType.CORE,
-            controllerId: player.id,
-            effect: effect,
-          })
-          break
         case EffectType.DAMAGE_ANY:
           effectItems.push({
             type: EffectItemType.WITH_AMOUNT,
@@ -226,6 +219,12 @@ function getActionsForCard(game: IGame, player: IPlayer, card: ICard) {
 export function submitAction(initialGame: IGame, action: IAction): IGame {
   let game = { ...initialGame }
 
+  // get the player object who submitted the action
+  const player = game.players.find((player) => player.id === action.controllerId)
+  if (!player) {
+    throw new Error(`unable to find player with id ${action.controllerId}`)
+  }
+
   // validate that costItems can be paid
   for (const costItem of action.costItems) {
     if (!validateCostItem(game, costItem)) {
@@ -249,6 +248,11 @@ export function submitAction(initialGame: IGame, action: IAction): IGame {
         game = processEffectItem(game, effectItem)
         break
       case EffectExecutionType.RESPONDABLE:
+        // if its a casting action, must move card to stack
+        if (action.type === ActionType.CAST_ACTION) {
+          game = moveCardToStack(game, action.cardId)
+        }
+
         game.stack.push({
           controllerId: action.controllerId,
           effectItem: effectItem,

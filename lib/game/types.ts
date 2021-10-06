@@ -1,47 +1,32 @@
 // WORLD //
 
-export enum IManaColor {
-  WHITE = 'white',
-  BLUE = 'blue',
-  BLACK = 'black',
-  RED = 'red',
-  GREEN = 'green',
-  COLORLESS = 'colorless',
-}
-
 export interface IGame {
   turn: number
   phase: Phase
   players: IPlayer[]
-  opponentLife: number // hack for demo
+
   hasPriority: string
+  hasTurn: string
   stack: IStackItem[]
 }
 
 export enum Phase {
-  UNTAP = 'UNTAP',
-  DRAW = 'DRAW',
+  START = 'START',
   MAIN = 'MAIN',
   COMBAT = 'COMBAT',
   END = 'END',
 }
 
-export interface IManaPool {
-  white: number
-  blue: number
-  black: number
-  red: number
-  green: number
-  colorless: number
-}
-
 export interface IPlayer {
   id: string
   username: string
+
   life: number
-  deck: ICard[]
+  mana: number
+
+  cards: ICard[]
+
   availableActions: IAction[]
-  manaPool: IManaPool
 }
 
 export enum Target {
@@ -52,13 +37,15 @@ export enum Target {
 // CARDS //
 
 export interface IBaseCard {
-  name: string
-  level: number
   id: string
   type: CardType
+  level: number
+  name: string
+
   location: CardLocation
   tapped: boolean
   cost: ICostMana
+  actions: IAction[]
 }
 
 export enum CardType {
@@ -73,6 +60,7 @@ export enum CardLocation {
   BATTLEFIELD = 'BATTLEFIELD',
   LIBRARY = 'LIBRARY',
   GRAVEYARD = 'GRAVEYARD',
+  STACK = 'STACK',
 }
 
 export interface ICreature extends IBaseCard {
@@ -117,7 +105,6 @@ export enum CostType {
 export interface ICostMana extends IBaseCost {
   target: Target.PLAYER
   type: CostType.MANA
-  color: IManaColor
   amount: number
 }
 
@@ -177,10 +164,8 @@ export enum EffectType {
   DAMAGE_PLAYER = 'DAMAGE_PLAYER',
   DAMAGE_CREATURE = 'DAMAGE_CREATURE',
   SELECT_TARGET = 'SELECT_TARGET',
-  MANA_ADD = 'MANA_ADD',
 
-  PHASE_UNTAP = 'PHASE_UNTAP',
-  PHASE_DRAW = 'PHASE_DRAW',
+  PHASE_START = 'PHASE_START',
   PHASE_MAIN = 'PHASE_MAIN',
   PHASE_COMBAT = 'PHASE_COMBAT',
   PHASE_END = 'PHASE_END',
@@ -195,6 +180,7 @@ export interface IEffectCast extends IBaseEffect {
 export interface IEffectDamageAny extends IBaseEffect {
   executionType: EffectExecutionType.RESPONDABLE
   type: EffectType.DAMAGE_ANY
+  amount: number
 }
 
 export interface IEffectDamagePlayer extends IBaseEffect {
@@ -203,28 +189,15 @@ export interface IEffectDamagePlayer extends IBaseEffect {
   target: Target.PLAYER
 }
 
-// this just mutates the controllers mana pool
-export interface IEffectManaAdd extends IBaseEffect {
-  executionType: EffectExecutionType.IMMEDIATE
-  type: EffectType.MANA_ADD
-  color: IManaColor
-  amount: number
-}
-
 // this mutates the games priorityPlayerId
 export interface IEffectReleasePriority extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
   type: EffectType.RELEASE_PRIORITY
 }
 
-export interface IEffectPhaseUntap extends IBaseEffect {
+export interface IEffectPhaseStart extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
-  type: EffectType.PHASE_UNTAP
-}
-
-export interface IEffectPhaseDraw extends IBaseEffect {
-  executionType: EffectExecutionType.IMMEDIATE
-  type: EffectType.PHASE_DRAW
+  type: EffectType.PHASE_START
 }
 
 export interface IEffectPhaseMain extends IBaseEffect {
@@ -244,12 +217,10 @@ export interface IEffectPhaseEnd extends IBaseEffect {
 
 export type IEffect =
   | IEffectCast
-  | IEffectManaAdd
   | IEffectDamageAny
   | IEffectDamagePlayer
   | IEffectReleasePriority
-  | IEffectPhaseUntap
-  | IEffectPhaseDraw
+  | IEffectPhaseStart
   | IEffectPhaseMain
   | IEffectPhaseCombat
   | IEffectPhaseEnd

@@ -13,7 +13,7 @@ import {
 } from '../../lib/store'
 import { useCardsForDeck } from '../../lib/useCardsForDeck'
 
-import { IAction, CardLocation } from '../../lib/game/types'
+import { IAction } from '../../lib/game/types'
 
 import CardInHand from '../../components/game/CardInHand'
 import CardOnBattlefield from '../../components/game/CardOnBattlefield'
@@ -24,6 +24,7 @@ const PlayPage: NextPage = () => {
 
   const dispatch = useDispatch()
   const game = useSelector((state) => state.game.game)
+  const opponent = useSelector((state) => state.game.opponent)
 
   const { data: deck, fetch } = useCardsForDeck()
 
@@ -40,7 +41,7 @@ const PlayPage: NextPage = () => {
   }
 
   useEffect(() => {
-    if (game && game.opponentLife < 0) {
+    if (game && opponent?.life < 0) {
       alert('you win!')
     }
   }, [game])
@@ -107,12 +108,10 @@ const PlayPage: NextPage = () => {
 export default PlayPage
 
 function BattlefieldPanel() {
-  const cardsOnBattlefield = useSelector((state) =>
-    state.game.game.players[0].deck.filter((card) => card.location === CardLocation.BATTLEFIELD)
-  )
+  const cardsOnBattlefield = useSelector((state) => state.game.player.battlefield)
 
   return (
-    <div className="flex flex-row flex-1  justify-center items-center gap-6">
+    <div className={`flex flex-row flex-1 justify-center items-center gap-6`}>
       {cardsOnBattlefield.map((card, idx) => (
         <CardOnBattlefield key={idx} card={card} />
       ))}
@@ -121,9 +120,7 @@ function BattlefieldPanel() {
 }
 
 function HandPanel() {
-  const cardsInHand = useSelector((state) =>
-    state.game.game.players[0].deck.filter((card) => card.location === CardLocation.HAND)
-  )
+  const cardsInHand = useSelector((state) => state.game.player.hand)
 
   return (
     <div className="flex-1 flex flex-row justify-center gap-2">
@@ -135,45 +132,37 @@ function HandPanel() {
 }
 
 function OpponentPanel() {
-  const game = useSelector((state) => state.game.game)
+  const opponent = useSelector((state) => state.game.opponent)
 
   return (
     <div className="flex flex-col text-center gap-3 p-4 text-sm" style={{ width: '240px' }}>
       <p className="">test-opponent</p>
-      <p className="">Life: {game.opponentLife}</p>
+      <p className="">Life: {opponent.life}</p>
     </div>
   )
 }
 
 function PlayerPanel() {
-  const game = useSelector((state) => state.game.game)
+  const player = useSelector((state) => state.game.player)
   const deckId = useSelector((state) => state.app.deckId)
 
   return (
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
       <p className="text-white">
         Mana:
-        <span className="text-white mx-2">{game.players[0].manaPool.white}</span>
-        <span className="text-blue-600 mx-2">{game.players[0].manaPool.blue}</span>
-        <span className="text-black mx-2">{game.players[0].manaPool.black}</span>
-        <span className="text-red-700 mx-2">{game.players[0].manaPool.red}</span>
-        <span className="text-green-700 mx-2">{game.players[0].manaPool.green}</span>
+        <span className="text-white mx-2">{player.mana}</span>
       </p>
 
       <div className="flex flex-col gap-2">
-        <p className="">Life: {game.players[0].life}</p>
+        <p className="">Life: {player.life}</p>
 
-        <p className="">
-          Library: {game.players[0].deck.filter((card) => card.location === CardLocation.LIBRARY).length}
-        </p>
+        <p className="">Library: {player.numberOfCardsInLibrary}</p>
 
-        <p className="">
-          Graveyard: {game.players[0].deck.filter((card) => card.location === CardLocation.GRAVEYARD).length}
-        </p>
+        <p className="">Graveyard: {player.graveyard.length}</p>
 
         <p className="">
           <Link href={`/deck/${deckId}`}>
-            <a className="underline">{game.players[0].username}</a>
+            <a className="underline">deck-{deckId}</a>
           </Link>
         </p>
       </div>
@@ -237,7 +226,7 @@ function StackPanel() {
           <div key={idx} className="flex flex-row w-full gap-3">
             <p className="">{game.stack.length - idx - 1}</p>
             <p className="">
-              {game.players.find((player) => player.id === stackItem.controllerId)?.username}
+              {/* {game.players.find((player) => player.id === stackItem.controllerId)?.username} */}
             </p>
             <p className="">{stackItem.effectItem.effect.type}</p>
           </div>

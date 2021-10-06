@@ -5,7 +5,6 @@ import effects from '../../data/effects'
 import costs from '../../data/costs'
 
 import {
-  IManaColor,
   IGame,
   Phase,
   IPlayer,
@@ -24,39 +23,47 @@ import {
 
 import { updateAvailableActionsForPlayers } from './actions'
 import { IDeck, ICardData } from '../types'
-import { randomIntFromInterval } from '../utils'
+import { shuffle, randomIntFromInterval } from '../utils'
 
 export function buildTestGame(deck: IDeck): IGame {
   const cards = deck.cards.map((card) => getCard(card))
+
+  shuffle(cards)
 
   // put 3 cards into hand at random
   while (cards.filter((card) => card.location === CardLocation.HAND).length < 3) {
     cards[randomIntFromInterval(0, 44)].location = CardLocation.HAND
   }
 
-  const player1: IPlayer = {
+  const player: IPlayer = {
     id: uuidv4(),
-    username: `deck-${deck.id}`,
+    username: 'player',
     life: 20,
-    deck: cards,
+    mana: 0,
+
+    cards: cards,
+
     availableActions: [],
-    manaPool: {
-      white: 5,
-      blue: 5,
-      black: 0,
-      red: 0,
-      green: 5,
-      colorless: 0,
-    },
+  }
+
+  const opponent: IPlayer = {
+    id: uuidv4(),
+    username: 'opponent',
+    life: 20,
+    mana: 0,
+
+    cards: [],
+
+    availableActions: [],
   }
 
   let game: IGame = {
-    players: [{ ...player1 }],
-    hasPriority: player1.id,
-    phase: Phase.MAIN,
+    players: [{ ...player }, { ...opponent }],
+    hasPriority: player.id,
+    hasTurn: player.id,
+    phase: Phase.START,
     stack: [],
     turn: 1,
-    opponentLife: 20,
   }
 
   game = updateAvailableActionsForPlayers(game)
@@ -75,7 +82,6 @@ function getCard(cardData: ICardData): ICard {
   const cost: ICost = {
     type: (<any>CostType)[foundCost.type],
     target: (<any>Target)[foundCost.target],
-    color: (<any>IManaColor)[foundCost.color],
     amount: Number(foundCost.amount),
   }
 
@@ -89,12 +95,14 @@ function getCard(cardData: ICardData): ICard {
         level: cardData.level,
         id: uuidv4(),
         type: (<any>CardType)[cardData.type],
-        location: CardLocation.LIBRARY,
-        tapped: false,
-        cost: cost,
         abilities: [],
         attack: Number(cardData.attack),
         defense: Number(cardData.defense),
+
+        location: CardLocation.LIBRARY,
+        tapped: false,
+        cost: cost,
+        actions: [],
       }
       break
     case 'ARTIFACT':
@@ -103,10 +111,12 @@ function getCard(cardData: ICardData): ICard {
         level: cardData.level,
         id: uuidv4(),
         type: (<any>CardType)[cardData.type],
+        abilities: [],
+
         location: CardLocation.LIBRARY,
         tapped: false,
         cost: cost,
-        abilities: [],
+        actions: [],
       }
       break
     case 'ENCHANTMENT':
@@ -115,10 +125,12 @@ function getCard(cardData: ICardData): ICard {
         level: cardData.level,
         id: uuidv4(),
         type: (<any>CardType)[cardData.type],
+        abilities: [],
+
         location: CardLocation.LIBRARY,
         tapped: false,
         cost: cost,
-        abilities: [],
+        actions: [],
       }
       break
     case 'SPELL':
@@ -127,10 +139,12 @@ function getCard(cardData: ICardData): ICard {
         level: cardData.level,
         id: uuidv4(),
         type: (<any>CardType)[cardData.type],
+        effects: [],
+
         location: CardLocation.LIBRARY,
         tapped: false,
         cost: cost,
-        effects: [],
+        actions: [],
       }
       break
     default:
@@ -211,7 +225,6 @@ function getCost(costId: string): ICost {
   return {
     type: (<any>CostType)[foundCost.type],
     target: (<any>Target)[foundCost.target],
-    color: (<any>IManaColor)[foundCost.color],
     amount: Number(foundCost.amount),
   }
 }
@@ -219,14 +232,13 @@ function getCost(costId: string): ICost {
 function getEffect(effectId: string): IEffect {
   const foundEffect = effects.find((effect) => effect.id === effectId)
   if (!foundEffect) {
-    throw new Error(`costId not found: ${effectId}`)
+    throw new Error(`effectId not found: ${effectId}`)
   }
 
   return {
     type: (<any>EffectType)[foundEffect.type],
     executionType: (<any>EffectExecutionType)[foundEffect.executionType],
     target: (<any>Target)[foundEffect.target],
-    color: (<any>IManaColor)[foundEffect.color],
     amount: Number(foundEffect.amount),
   }
 }
