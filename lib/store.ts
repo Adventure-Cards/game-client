@@ -1,13 +1,13 @@
 import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 // APP SLICE //
-interface AppState {
+interface IAppState {
   address: string
   deckId: number
   cardIdx: number
 }
 
-const initialAppState: AppState = {
+const initialAppState: IAppState = {
   address: '0xd17d1BcDe2A28AaDe2b3B5012f93b8B079d0E86B',
   deckId: 1,
   cardIdx: 0,
@@ -38,13 +38,13 @@ import { getGameStateForPlayer, IPlayerForPlayer, IOpponentForPlayer } from './g
 import type { IGame, IAction } from './game/types'
 import { IDeck } from './types'
 
-interface GameState {
+interface IGameState {
   game: IGame
   player: IPlayerForPlayer
   opponent: IOpponentForPlayer
 }
 
-const initialGameState: GameState = {
+const initialGameState: IGameState = {
   game: null!,
   player: null!,
   opponent: null!,
@@ -80,10 +80,44 @@ export const gameSlice = createSlice({
 
 export const { startGame, submitAction, processStack } = gameSlice.actions
 
+// LOBBY SLICE //
+
+export interface ILobbyState {
+  games: ILobbyGame[]
+}
+
+export type ILobbyGame = {
+  id: string
+  status: ILobbyGameStatus
+  playerIds: string[]
+}
+
+export enum ILobbyGameStatus {
+  STARTED = 'STARTED',
+  NOT_STARTED = 'NOT_STARTED',
+}
+
+const initialLobbyState: ILobbyState = {
+  games: [],
+}
+
+export const lobbySlice = createSlice({
+  name: 'app',
+  initialState: initialLobbyState,
+  reducers: {
+    updateLobby: (state, action: PayloadAction<ILobbyState>) => {
+      state.games = action.payload.games
+    },
+  },
+})
+
+export const { updateLobby } = lobbySlice.actions
+
 export const store = configureStore({
   reducer: {
     app: appSlice.reducer,
     game: gameSlice.reducer,
+    lobby: lobbySlice.reducer,
   },
 })
 
