@@ -105,13 +105,13 @@ function CardLevelDetails({ deck }: { deck: IDeck }) {
       <h4 className="pb-3">Rarity </h4>
       <div className="flex flex-row">
         <div className="flex flex-col pr-5">
-          {levels.map((level) => (
-            <p>{rarityMap[level]}</p>
+          {levels.map((level, idx) => (
+            <p key={idx}>{rarityMap[level]}</p>
           ))}
         </div>
         <div className="flex flex-col">
-          {levels.map((level) => (
-            <p>{deck.cards.filter((card) => card.level === level).length}</p>
+          {levels.map((level, idx) => (
+            <p key={idx}>{deck.cards.filter((card) => card.level === level).length}</p>
           ))}
         </div>
       </div>
@@ -127,13 +127,13 @@ function CardTypeDetails({ deck }: { deck: IDeck }) {
       <h4 className="pb-3">Card Types </h4>
       <div className="flex flex-row">
         <div className="flex flex-col pr-5">
-          {types.map((type) => (
-            <p>{toSentenceCase(type)}s</p>
+          {types.map((type, idx) => (
+            <p key={idx}>{toSentenceCase(type)}s</p>
           ))}
         </div>
         <div className="flex flex-col">
-          {types.map((type) => (
-            <div className="flex flex-row">
+          {types.map((type, idx) => (
+            <div key={idx} className="flex flex-row">
               <p>{deck.cards.filter((card) => card.type === type).length}</p>
             </div>
           ))}
