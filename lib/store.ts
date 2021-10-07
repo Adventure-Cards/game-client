@@ -3,12 +3,14 @@ import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit'
 // APP SLICE //
 interface IAppState {
   address: string
+  connected: boolean
   deckId: number
   cardIdx: number
 }
 
 const initialAppState: IAppState = {
-  address: '0xd17d1BcDe2A28AaDe2b3B5012f93b8B079d0E86B',
+  address: '',
+  connected: false,
   deckId: 1,
   cardIdx: 0,
 }
@@ -20,6 +22,9 @@ export const appSlice = createSlice({
     updateAddress: (state, action: PayloadAction<string>) => {
       state.address = action.payload
     },
+    updateConnected: (state, action: PayloadAction<boolean>) => {
+      state.connected = action.payload
+    },
     updateDeckId: (state, action: PayloadAction<number>) => {
       state.deckId = action.payload
     },
@@ -29,7 +34,7 @@ export const appSlice = createSlice({
   },
 })
 
-export const { updateAddress, updateDeckId, updateCardIdx } = appSlice.actions
+export const { updateAddress, updateConnected, updateDeckId, updateCardIdx } = appSlice.actions
 
 // GAME SLICE //
 

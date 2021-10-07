@@ -30,3 +30,7 @@ export function shuffle(arr: any[]) {
     arr[j] = temp
   }
 }
+
+export function prettyPrintAddress(address: string) {
+  return `${address.slice(0, 6)}...${address.slice(38, 42)}`
+}

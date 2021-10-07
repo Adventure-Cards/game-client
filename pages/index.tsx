@@ -1,25 +1,25 @@
 import type { NextPage } from 'next'
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
-import { useDispatch, useSelector, updateAddress } from '../lib/store'
 import { useDecksForAddress } from '../lib/useDecksForAddress'
 
 import Nav from '../components/Nav'
 import DeckPreview from '../components/DeckPreview'
 import images from '../data/images'
 
-const HomePage: NextPage = () => {
-  const dispatch = useDispatch()
-  const address = useSelector((state) => state.app.address)
+const DEFAULT_ADDRESS = '0xd17d1BcDe2A28AaDe2b3B5012f93b8B079d0E86B'
 
+const HomePage: NextPage = () => {
   const { data: decks, loading, fetch } = useDecksForAddress()
 
-  useEffect(() => {
-    fetch(address)
-  }, [address])
+  const [lookupAddress, setLookupAddress] = useState(DEFAULT_ADDRESS)
 
-  function handleChangeAddress(address: string) {
-    dispatch(updateAddress(address))
+  useEffect(() => {
+    fetch(lookupAddress)
+  }, [lookupAddress])
+
+  function handleChangeAddress(event: React.ChangeEvent<HTMLInputElement>) {
+    setLookupAddress(event.target.value)
   }
 
   return (
@@ -30,9 +30,14 @@ const HomePage: NextPage = () => {
         <p className="text-xl md:mr-2">Find by address: </p>
         <input
           className="text-xl bg-backgrounddark px-2 py-1 border border-gray-100"
-          value={address}
-          onChange={(e) => handleChangeAddress(e.target.value)}
-          placeholder="Address"
+          value={lookupAddress}
+          onChange={handleChangeAddress}
+          onFocus={(event) => event.target.select()}
+          onBlur={(event) => {
+            if (event.target.value.length === 0) {
+              setLookupAddress(DEFAULT_ADDRESS)
+            }
+          }}
         />
       </div>
 
