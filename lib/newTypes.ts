@@ -35,6 +35,7 @@ export interface IOpponentForPlayer {
   battlefield: ICard[]
   graveyard: ICard[]
   stack: ICard[]
+  actions: IAction[]
 }
 
 export type IGameMetadata = {

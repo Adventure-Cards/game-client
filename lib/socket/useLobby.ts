@@ -14,6 +14,7 @@ export function useLobby() {
 
   useEffect(() => {
     function handleLobbyUpdate(data: any) {
+      console.log('received lobby data:', data)
       const lobby = validateLobbyData(data)
       dispatch(updateLobby(lobby))
     }

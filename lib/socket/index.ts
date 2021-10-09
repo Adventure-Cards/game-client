@@ -14,4 +14,4 @@ function useSocket() {
   return React.useContext(SocketContext)
 }
 
-export { socket, SocketContext, SocketProvider, useSocket }
+export { socket, SocketProvider, useSocket }
