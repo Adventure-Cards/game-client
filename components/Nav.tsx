@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import WalletButton from './wallet/WalletButton'
+import WalletButton from './WalletButton'
 
 export default function Nav() {
   return (

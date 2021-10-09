@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import { useState, useEffect } from 'react'
 
 import Nav from '../../components/Nav'
 
@@ -6,7 +7,7 @@ import { useSelector } from '../../lib/store'
 import { createGame, joinGame } from '../../lib/socket/actions'
 
 import { useLobby } from '../../lib/socket/useLobby'
-import { ILobbyGameStatus } from '../../lib/store'
+import { IGameMetadata, IGameStatus } from '../../lib/store'
 
 import { prettyPrintAddress } from '../../lib/utils'
 
@@ -15,6 +16,25 @@ const LobbyPage: NextPage = () => {
   const connected = useSelector((state) => state.app.connected)
 
   const lobby = useLobby()
+
+  const [playerGames, setPlayerGames] = useState<IGameMetadata[]>([])
+  const [otherGames, setOtherGames] = useState<IGameMetadata[]>([])
+
+  useEffect(() => {
+    setPlayerGames(
+      Object.values(lobby.games).filter((game) =>
+        game.players.map((player) => player.address).includes(address)
+      )
+    )
+  }, [lobby.games, address])
+
+  useEffect(() => {
+    setOtherGames(
+      Object.values(lobby.games).filter(
+        (game) => !connected || !game.players.map((player) => player.address).includes(address)
+      )
+    )
+  }, [lobby.games])
 
   function handleCreateGame() {
     createGame({
@@ -37,7 +57,7 @@ const LobbyPage: NextPage = () => {
         <div className="w-full md:w-1/3 flex flex-col items-start gap-4">
           {connected && (
             <>
-              {lobby.games.filter((game) => game.playerIds.includes(address)).length === 0 && (
+              {playerGames.length === 0 && (
                 <button className="px-2 py-1 bg-gold border border-gray-200" onClick={handleCreateGame}>
                   Create Game
                 </button>
@@ -50,19 +70,17 @@ const LobbyPage: NextPage = () => {
                 <div className="col-span-2">players</div>
                 <div className="col-span-2">status</div>
 
-                {lobby.games
-                  .filter((game) => game.playerIds.includes(address))
-                  .map((game) => (
-                    <>
-                      <div className="col-span-2">{game.id.slice(0, 5)}...</div>
-                      <div className="col-span-2 flex flex-col gap-1">
-                        {game.playerIds.map((address) => (
-                          <p>{prettyPrintAddress(address)}</p>
-                        ))}
-                      </div>
-                      <div className="col-span-2">{game.status}</div>
-                    </>
-                  ))}
+                {playerGames.map((game) => (
+                  <>
+                    <div className="col-span-2">{game.id.slice(0, 5)}...</div>
+                    <div className="col-span-2 flex flex-col gap-1">
+                      {game.players.map((player, idx) => (
+                        <p key={idx}>{prettyPrintAddress(player.address)}</p>
+                      ))}
+                    </div>
+                    <div className="col-span-2">{game.status}</div>
+                  </>
+                ))}
               </div>
             </>
           )}
@@ -76,17 +94,21 @@ const LobbyPage: NextPage = () => {
             <div className="col-span-2">players</div>
             <div className="col-span-2"></div>
 
-            {lobby.games
+            {otherGames
               .filter(
-                (game) => !game.playerIds.includes(address) && game.status === ILobbyGameStatus.NOT_STARTED
+                (game) =>
+                  !game.players.map((player) => player.address).includes(address) &&
+                  game.status === IGameStatus.NOT_STARTED
               )
               .map((game) => (
                 <>
                   <div className="col-span-2">{game.id.slice(0, 5)}...</div>
                   <div className="col-span-2 flex flex-col gap-1">
-                    {game.playerIds.map((address) => (
-                      <p>
-                        {address.length > 10 ? `${address.slice(0, 6)}...${address.slice(38, 42)}` : address}
+                    {game.players.map((player, idx) => (
+                      <p key={idx}>
+                        {player.address.length > 10
+                          ? `${player.address.slice(0, 6)}...${player.address.slice(38, 42)}`
+                          : player.address}
                       </p>
                     ))}
                   </div>
@@ -111,21 +133,21 @@ const LobbyPage: NextPage = () => {
             <div className="col-span-2">players</div>
             <div className="col-span-2">status</div>
 
-            {lobby.games
-              .filter((game) => !game.playerIds.includes(address) && game.status === ILobbyGameStatus.STARTED)
-              .map((game) => (
-                <>
-                  <div className="col-span-2">{game.id.slice(0, 6)}...</div>
-                  <div className="col-span-2 flex flex-col gap-1">
-                    {game.playerIds.map((address) => (
-                      <p>
-                        {address.length > 10 ? `${address.slice(0, 6)}...${address.slice(38, 42)}` : address}
-                      </p>
-                    ))}
-                  </div>
-                  <div className="col-span-2">{game.status}</div>
-                </>
-              ))}
+            {otherGames.map((game) => (
+              <>
+                <div className="col-span-2">{game.id.slice(0, 6)}...</div>
+                <div className="col-span-2 flex flex-col gap-1">
+                  {game.players.map((player, idx) => (
+                    <p key={idx}>
+                      {player.address.length > 10
+                        ? `${player.address.slice(0, 6)}...${player.address.slice(38, 42)}`
+                        : player.address}
+                    </p>
+                  ))}
+                </div>
+                <div className="col-span-2">{game.status}</div>
+              </>
+            ))}
           </div>
         </div>
       </div>

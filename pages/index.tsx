@@ -31,6 +31,7 @@ const HomePage: NextPage = () => {
         <input
           className="text-xl bg-backgrounddark px-2 py-1 border border-gray-100"
           value={lookupAddress}
+          placeholder="Address"
           onChange={handleChangeAddress}
           onFocus={(event) => event.target.select()}
           onBlur={(event) => {
@@ -43,6 +44,8 @@ const HomePage: NextPage = () => {
 
       {!loading && (
         <div className="flex flex-wrap justify-center gap-12 md:p-4">
+          {decks.length === 0 && <p>No Decks!</p>}
+
           {decks.map((deck, idx) => (
             <DeckPreview key={idx} deck={deck} images={images} />
           ))}

@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 import { useDispatch, useSelector, updateAddress } from '../../lib/store'
 import { useDecksForAddress } from '../../lib/useDecksForAddress'
@@ -9,22 +9,27 @@ import Nav from '../../components/Nav'
 import DeckPreview from '../../components/DeckPreview'
 import images from '../../data/images'
 
+const DEFAULT_ADDRESS = '0xd17d1BcDe2A28AaDe2b3B5012f93b8B079d0E86B'
+
 const AddressPage: NextPage = () => {
   const router = useRouter()
   const { address: pathAddress } = router.query
 
   const dispatch = useDispatch()
-  const address = useSelector((state) => state.app.address)
 
   const { data: decks, loading, fetch } = useDecksForAddress()
 
-  function handleChangeAddress(address: string) {
-    if (true) {
-      dispatch(updateAddress(address))
-      // weird bug if the path is set to empty string
-      if (address.length === 42) {
-        router.push(`/address/${address}`)
-      }
+  const [lookupAddress, setLookupAddress] = useState(DEFAULT_ADDRESS)
+
+  useEffect(() => {
+    fetch(lookupAddress)
+  }, [lookupAddress])
+
+  function handleChangeAddress(event: React.ChangeEvent<HTMLInputElement>) {
+    setLookupAddress(event.target.value)
+
+    if (event.target.value.length === 42) {
+      router.push(`/address/${event.target.value}`)
     }
   }
 
@@ -43,14 +48,22 @@ const AddressPage: NextPage = () => {
         <p className="text-xl md:mr-2">Find by address: </p>
         <input
           className="text-xl bg-backgrounddark px-2 py-1 border border-gray-100"
-          value={address}
-          onChange={(e) => handleChangeAddress(e.target.value)}
+          value={lookupAddress}
           placeholder="Address"
+          onChange={handleChangeAddress}
+          onFocus={(event) => event.target.select()}
+          onBlur={(event) => {
+            if (event.target.value.length === 0) {
+              setLookupAddress(DEFAULT_ADDRESS)
+            }
+          }}
         />
       </div>
 
       {!loading && (
         <div className="flex flex-wrap justify-center gap-12 md:p-4">
+          {decks.length === 0 && <p>No Decks!</p>}
+
           {decks.map((deck, idx) => (
             <DeckPreview key={idx} deck={deck} images={images} />
           ))}

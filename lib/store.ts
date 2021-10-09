@@ -2,15 +2,11 @@ import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 // APP SLICE //
 interface IAppState {
-  address: string
-  connected: boolean
   deckId: number
   cardIdx: number
 }
 
 const initialAppState: IAppState = {
-  address: '',
-  connected: false,
   deckId: 1,
   cardIdx: 0,
 }
@@ -19,12 +15,6 @@ export const appSlice = createSlice({
   name: 'app',
   initialState: initialAppState,
   reducers: {
-    updateAddress: (state, action: PayloadAction<string>) => {
-      state.address = action.payload
-    },
-    updateConnected: (state, action: PayloadAction<boolean>) => {
-      state.connected = action.payload
-    },
     updateDeckId: (state, action: PayloadAction<number>) => {
       state.deckId = action.payload
     },
@@ -34,7 +24,7 @@ export const appSlice = createSlice({
   },
 })
 
-export const { updateAddress, updateConnected, updateDeckId, updateCardIdx } = appSlice.actions
+export const { updateDeckId, updateCardIdx } = appSlice.actions
 
 // GAME SLICE //
 
@@ -88,22 +78,32 @@ export const { startGame, submitAction, processStack } = gameSlice.actions
 // LOBBY SLICE //
 
 export interface ILobbyState {
-  games: ILobbyGame[]
+  games: { [gameId: string]: IGameMetadata }
 }
 
-export type ILobbyGame = {
+export type IGameMetadata = {
   id: string
-  status: ILobbyGameStatus
-  playerIds: string[]
+  status: IGameStatus
+  players: {
+    address: string
+    status: IPlayerStatus
+    deckId: number | null
+  }[]
 }
 
-export enum ILobbyGameStatus {
-  STARTED = 'STARTED',
+export enum IPlayerStatus {
+  JOINED = 'JOINED',
+  READY = 'READY',
+}
+
+export enum IGameStatus {
   NOT_STARTED = 'NOT_STARTED',
+  PLAYERS_JOINED = 'PLAYERS_JOINED',
+  STARTED = 'STARTED',
 }
 
 const initialLobbyState: ILobbyState = {
-  games: [],
+  games: {},
 }
 
 export const lobbySlice = createSlice({

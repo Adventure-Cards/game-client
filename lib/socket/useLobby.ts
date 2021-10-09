@@ -23,6 +23,7 @@ export function useLobby() {
   return lobby
 }
 
+// TODO
 function validateLobbyData(data: any): ILobbyState {
   return data as ILobbyState
 }
