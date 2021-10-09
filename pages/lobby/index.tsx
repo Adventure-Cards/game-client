@@ -3,19 +3,16 @@ import { useState, useEffect } from 'react'
 
 import Nav from '../../components/Nav'
 
-import { useSelector } from '../../lib/store'
-import { createGame, joinGame } from '../../lib/socket/actions'
-
 import { useLobby } from '../../lib/socket/useLobby'
 import { IGameMetadata, IGameStatus } from '../../lib/store'
 
-import { prettyPrintAddress } from '../../lib/utils'
+import { shortenAddress } from '@usedapp/core'
+import { useWallet } from '../../lib/useWallet'
 
 const LobbyPage: NextPage = () => {
-  const address = useSelector((state) => state.app.address)
-  const connected = useSelector((state) => state.app.connected)
+  const { connected, address } = useWallet()
 
-  const lobby = useLobby()
+  const { lobby, createGame, joinGame, readyGame } = useLobby()
 
   const [playerGames, setPlayerGames] = useState<IGameMetadata[]>([])
   const [otherGames, setOtherGames] = useState<IGameMetadata[]>([])
@@ -49,6 +46,29 @@ const LobbyPage: NextPage = () => {
     })
   }
 
+  function handleJoinGameDummy(gameId: string) {
+    joinGame({
+      address: '0x544b031F366e2b3E2b60Eb32c697098C7f5Bd018',
+      gameId: gameId,
+    })
+  }
+
+  function handleReadyGame(gameId: string) {
+    readyGame({
+      address: address,
+      gameId: gameId,
+      deckId: 1053,
+    })
+  }
+
+  function handleReadyGameDummy(gameId: string) {
+    readyGame({
+      address: '0x544b031F366e2b3E2b60Eb32c697098C7f5Bd018',
+      gameId: gameId,
+      deckId: 4749,
+    })
+  }
+
   return (
     <div className="relative w-screen min-h-screen p-4 md:p-8">
       <Nav />
@@ -72,13 +92,34 @@ const LobbyPage: NextPage = () => {
 
                 {playerGames.map((game) => (
                   <>
-                    <div className="col-span-2">{game.id.slice(0, 5)}...</div>
                     <div className="col-span-2 flex flex-col gap-1">
                       {game.players.map((player, idx) => (
-                        <p key={idx}>{prettyPrintAddress(player.address)}</p>
+                        <p key={idx}>{shortenAddress(player.address)}</p>
                       ))}
                     </div>
                     <div className="col-span-2">{game.status}</div>
+                    <button
+                      className="col-span-2 px-2 py-1 bg-gold border border-gray-200"
+                      onClick={() => handleJoinGameDummy(game.id)}
+                    >
+                      Join Dummy
+                    </button>
+                    {game.status === IGameStatus.PLAYERS_JOINED && (
+                      <button
+                        className="col-span-2 px-2 py-1 bg-gold border border-gray-200"
+                        onClick={() => handleReadyGame(game.id)}
+                      >
+                        Ready
+                      </button>
+                    )}
+                    {game.status === IGameStatus.PLAYERS_JOINED && (
+                      <button
+                        className="col-span-2 px-2 py-1 bg-gold border border-gray-200"
+                        onClick={() => handleReadyGameDummy(game.id)}
+                      >
+                        Ready Dummy
+                      </button>
+                    )}
                   </>
                 ))}
               </div>

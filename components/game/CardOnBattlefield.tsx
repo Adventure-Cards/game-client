@@ -1,22 +1,20 @@
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 import { useSmartHover } from '../../lib/useSmartHover'
-import { submitAction, useDispatch, useSelector } from '../../lib/store'
+import { useGame } from '../../lib/socket/useGame'
 
-import { IAction, ICard, ActionType, IAbilityAction, CardType, IAbility } from '../../lib/game/types'
+import { IAction, ICard, ActionType, IAbilityAction, CardType, IAbility } from '../../lib/newTypes'
 
 import CardDetail from './CardDetail'
 
 const CardOnBattlefield = ({ card }: { card: ICard }) => {
   const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
 
-  const dispatch = useDispatch()
-
-  const game = useSelector((state) => state.game.game)
+  const { game, submitAction } = useGame()
 
   const combatAction = card.actions.find((action) => action.type === ActionType.COMBAT_ACTION)
 
   function getActionForAbility(ability: IAbility) {
-    const action = game.players[0].availableActions
+    const action = game.player.actions
       .filter((action) => action.type === ActionType.ABILITY_ACTION)
       .filter((action) => (action as IAbilityAction).cardId === card.id)
       .find((action) => (action as IAbilityAction).abilityId === ability.id)
@@ -28,12 +26,12 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
     const action = getActionForAbility(ability)
 
     if (action) {
-      dispatch(submitAction(action))
+      submitAction(action)
     }
   }
 
   function handleClickSubmitAction(action: IAction) {
-    dispatch(submitAction(action))
+    submitAction(action)
   }
 
   return (

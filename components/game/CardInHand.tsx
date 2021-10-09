@@ -1,20 +1,21 @@
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
-import { submitAction, useDispatch } from '../../lib/store'
+
+import { useGame } from '../../lib/socket/useGame'
 
 import { useSmartHover } from '../../lib/useSmartHover'
 import CardDetail from './CardDetail'
 
-import { IAction, ICard, ActionType, CardType } from '../../lib/game/types'
+import { IAction, ICard, ActionType, CardType } from '../../lib/newTypes'
 
 const CardInHand = ({ card }: { card: ICard }) => {
   const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
 
-  const dispatch = useDispatch()
+  const { submitAction } = useGame()
 
   const castAction = card.actions.find((action) => action.type === ActionType.CAST_ACTION)
 
   function handleClickSubmitAction(action: IAction) {
-    dispatch(submitAction(action))
+    submitAction(action)
   }
 
   return (

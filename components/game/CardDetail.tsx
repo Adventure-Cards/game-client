@@ -1,8 +1,6 @@
-import React from 'react'
-
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 
-import { ICard, CardType } from '../../lib/game/types'
+import { ICard, CardType } from '../../lib/newTypes'
 
 interface CardDetailProps {
   card: ICard

@@ -28,52 +28,27 @@ export const { updateDeckId, updateCardIdx } = appSlice.actions
 
 // GAME SLICE //
 
-import { buildTestGame, submitAction as _submitAction, processStackItem as _processStackItem } from './game'
-import { getGameStateForPlayer, IPlayerForPlayer, IOpponentForPlayer } from './game/state'
-import type { IGame, IAction } from './game/types'
-import { IDeck } from './types'
+import type { IGameStateForPlayer } from './newTypes'
 
 interface IGameState {
-  game: IGame
-  player: IPlayerForPlayer
-  opponent: IOpponentForPlayer
+  game: IGameStateForPlayer
 }
 
 const initialGameState: IGameState = {
   game: null!,
-  player: null!,
-  opponent: null!,
 }
 
 export const gameSlice = createSlice({
   name: 'app',
   initialState: initialGameState,
   reducers: {
-    startGame: (state, action: PayloadAction<IDeck>) => {
-      state.game = buildTestGame(action.payload)
-
-      const { player, opponent } = getGameStateForPlayer(state.game)
-      state.player = player
-      state.opponent = opponent
-    },
-    submitAction: (state, action: PayloadAction<IAction>) => {
-      state.game = _submitAction(state.game, action.payload)
-
-      const { player, opponent } = getGameStateForPlayer(state.game)
-      state.player = player
-      state.opponent = opponent
-    },
-    processStack: (state, action: PayloadAction<void>) => {
-      state.game = _processStackItem(state.game)
-
-      const { player, opponent } = getGameStateForPlayer(state.game)
-      state.player = player
-      state.opponent = opponent
+    updateGame: (state, action: PayloadAction<IGameStateForPlayer>) => {
+      state.game = action.payload
     },
   },
 })
 
-export const { startGame, submitAction, processStack } = gameSlice.actions
+export const { updateGame } = gameSlice.actions
 
 // LOBBY SLICE //
 

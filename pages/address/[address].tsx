@@ -2,7 +2,6 @@ import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 
-import { useDispatch, useSelector, updateAddress } from '../../lib/store'
 import { useDecksForAddress } from '../../lib/useDecksForAddress'
 
 import Nav from '../../components/Nav'
@@ -15,15 +14,9 @@ const AddressPage: NextPage = () => {
   const router = useRouter()
   const { address: pathAddress } = router.query
 
-  const dispatch = useDispatch()
-
   const { data: decks, loading, fetch } = useDecksForAddress()
 
   const [lookupAddress, setLookupAddress] = useState(DEFAULT_ADDRESS)
-
-  useEffect(() => {
-    fetch(lookupAddress)
-  }, [lookupAddress])
 
   function handleChangeAddress(event: React.ChangeEvent<HTMLInputElement>) {
     setLookupAddress(event.target.value)
@@ -34,8 +27,11 @@ const AddressPage: NextPage = () => {
   }
 
   useEffect(() => {
+    fetch(lookupAddress)
+  }, [lookupAddress])
+
+  useEffect(() => {
     if (typeof pathAddress === 'string') {
-      dispatch(updateAddress(pathAddress))
       fetch(pathAddress)
     }
   }, [pathAddress])
