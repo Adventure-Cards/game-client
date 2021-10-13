@@ -11,7 +11,9 @@ const SocketContext = React.createContext(socket)
 const SocketProvider = SocketContext.Provider
 
 function useSocket() {
-  return React.useContext(SocketContext)
+  const socket = React.useContext(SocketContext)
+
+  return { socket }
 }
 
 export { socket, SocketProvider, useSocket }

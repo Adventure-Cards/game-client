@@ -1,10 +1,10 @@
 import type { NextPage } from 'next'
 import { useState, useEffect } from 'react'
 
-import { useDecksForAddress } from '../lib/useDecksForAddress'
+import { useDecksForAddress } from '../lib/deck-viewer/useDecksForAddress'
 
-import Nav from '../components/Nav'
-import DeckPreview from '../components/DeckPreview'
+import Nav from '../components/core/Nav'
+import DeckPreview from '../components/deck-viewer/DeckPreview'
 import images from '../data/images'
 
 const DEFAULT_ADDRESS = '0xd17d1BcDe2A28AaDe2b3B5012f93b8B079d0E86B'

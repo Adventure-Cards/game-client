@@ -7,12 +7,9 @@ import { config } from '../lib/useWallet'
 import { Provider } from 'react-redux'
 import { store } from '../lib/store'
 
-import { SocketProvider, socket } from '../lib/socket'
-import { useSocketConnection } from '../lib/socket/useSocketConnection'
+import { SocketProvider, socket } from '../lib/useSocket'
 
 export default function App({ Component, pageProps }: AppProps) {
-  useSocketConnection(socket)
-
   return (
     <Provider store={store}>
       <DAppProvider config={config}>

@@ -1,9 +1,9 @@
 import type { NextPage } from 'next'
 import { useState, useEffect } from 'react'
 
-import Nav from '../../components/Nav'
+import Nav from '../../components/core/Nav'
 
-import { useLobby } from '../../lib/socket/useLobby'
+import { useLobby } from '../../lib/lobby/useLobby'
 import { IGameMetadata, IGameStatus } from '../../lib/store'
 
 import { shortenAddress } from '@usedapp/core'

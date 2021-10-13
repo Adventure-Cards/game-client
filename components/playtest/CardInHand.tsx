@@ -1,16 +1,16 @@
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 
-import { useGame } from '../../lib/game/useGame'
+import { usePlaytestGame } from '../../lib/playtest/usePlaytest'
 
 import { useSmartHover } from '../../lib/useSmartHover'
-import CardDetail from './CardDetail'
+import CardDetail from '../game/CardDetail'
 
 import { IAction, ICard, ActionType, CardType } from '../../lib/types'
 
 const CardInHand = ({ card }: { card: ICard }) => {
   const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
 
-  const { submitAction } = useGame()
+  const { submitAction } = usePlaytestGame()
 
   const castAction = card.actions.find((action) => action.type === ActionType.CAST_ACTION)
 

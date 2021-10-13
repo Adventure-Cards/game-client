@@ -3,12 +3,13 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import { useDispatch, useSelector, updateDeckId } from '../../lib/store'
-import { useCardsForDeck } from '../../lib/useCardsForDeck'
+import { useDispatch, useSelector } from '../../lib/store'
+import { updateDeckId } from '../../lib/deck-viewer/slice'
+import { useCardsForDeck } from '../../lib/deck-viewer/useCardsForDeck'
 
-import Nav from '../../components/Nav'
-import Card from '../../components/Card'
-import type { IDeck } from '../../lib/types'
+import Nav from '../../components/core/Nav'
+import Card from '../../components/deck-viewer/Card'
+import type { IDeck } from '../../lib/deck-viewer/types'
 import { rarityMap, randomIntFromInterval, isNumeric, toSentenceCase } from '../../lib/utils'
 
 const DeckPage: NextPage = () => {
@@ -16,8 +17,8 @@ const DeckPage: NextPage = () => {
   const { deckId: pathDeckId } = router.query
 
   const dispatch = useDispatch()
-  const deckId = useSelector((state) => state.app.deckId)
-  const cardIdx = useSelector((state) => state.app.cardIdx)
+  const deckId = useSelector((state) => state.viewer.deckId)
+  const cardIdx = useSelector((state) => state.viewer.cardIdx)
 
   const { data: deck, fetch } = useCardsForDeck()
 

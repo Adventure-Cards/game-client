@@ -1,6 +1,6 @@
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 
-import { ICard, CardType } from '../../lib/newTypes'
+import { ICard, CardType } from '../../lib/types'
 
 interface CardDetailProps {
   card: ICard

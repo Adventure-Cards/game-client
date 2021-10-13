@@ -1,20 +1,20 @@
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 import { useSmartHover } from '../../lib/useSmartHover'
-import { useGame } from '../../lib/game/useGame'
+import { usePlaytestGame } from '../../lib/playtest/usePlaytest'
 
 import { IAction, ICard, ActionType, IAbilityAction, CardType, IAbility } from '../../lib/types'
 
-import CardDetail from './CardDetail'
+import CardDetail from '../game/CardDetail'
 
 const CardOnBattlefield = ({ card }: { card: ICard }) => {
   const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
 
-  const { game, submitAction } = useGame()
+  const { game, submitAction } = usePlaytestGame()
 
   const attackAction = card.actions.find((action) => action.type === ActionType.ATTACK_ACTION)
 
   function getActionForAbility(ability: IAbility) {
-    const action = game.player.actions
+    const action = [...game.player1.actions, ...game.player2.actions]
       .filter((action) => action.type === ActionType.ABILITY_ACTION)
       .filter((action) => (action as IAbilityAction).cardId === card.id)
       .find((action) => (action as IAbilityAction).abilityId === ability.id)

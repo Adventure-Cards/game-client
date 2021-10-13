@@ -1,18 +1,19 @@
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 
-import { useDispatch, useSelector, updateGame } from '../../lib/store'
-import { useWallet } from '../../lib/useWallet'
-import { useSocket } from '../../lib/socket'
+import { useDispatch } from '../store'
+import { updateGame } from './slice'
+import { useWallet } from '../useWallet'
+import { useSocket } from '../useSocket'
 
-import { IGameStateForPlayer } from '../../lib/newTypes'
+import { IGameStateForPlayer } from '../types'
 
 export function useGameConnection() {
   const router = useRouter()
   const { gameId: pathGameId } = router.query
 
   const dispatch = useDispatch()
-  const socket = useSocket()
+  const { socket } = useSocket()
   const { address } = useWallet()
 
   const [hasReceivedGameUpdate, setHasReceivedGameUpdate] = useState(false)

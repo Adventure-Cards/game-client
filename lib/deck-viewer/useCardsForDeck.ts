@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { request, gql } from 'graphql-request'
 
-import { getCardData } from './getCardData'
+// import { getCardData } from './getCardData'
 import type { IDeck } from './types'
 
 const SUBGRAPH = 'https://api.thegraph.com/subgraphs/name/knav-eth/adventure-cards'
@@ -37,7 +37,7 @@ export function useCardsForDeck() {
       .then((data) => {
         setData({
           ...data.adventureCardPacks[0],
-          cards: data.adventureCardPacks[0].cards.map((card: string) => getCardData(card)),
+          // cards: data.adventureCardPacks[0].cards.map((card: string) => getCardData(card)),
         })
       })
       .then(stopLoading)

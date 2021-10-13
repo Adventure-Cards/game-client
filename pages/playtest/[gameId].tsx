@@ -1,27 +1,23 @@
 import type { NextPage } from 'next'
 
-import { useGameConnection } from '../../lib/game/useGameConnection'
-import { useGame } from '../../lib/game/useGame'
-import { useWallet } from '../../lib/useWallet'
-import { shortenAddress } from '@usedapp/core'
+import { usePlaytestGame, usePlaytestGameConnection } from '../../lib/playtest/usePlaytest'
+import CardInHand from '../../components/playtest/CardInHand'
+import CardOnBattlefield from '../../components/playtest/CardOnBattlefield'
 
-import { IAction } from '../../lib/types'
+import { EffectItemType, IAction, IStackItem } from '../../lib/types'
 
-import CardInHand from '../../components/game/CardInHand'
-import CardOnBattlefield from '../../components/game/CardOnBattlefield'
-
-const GamePage: NextPage = () => {
-  // 1) useGameConnection handles the logic of joining the game "room"
+const PlaytestGamePage: NextPage = () => {
+  // 1) usePlaytestGameConnection handles the logic of joining the game "room"
   // and processing game state updates (which updates the redux store)
-  // 2) children should use the useGame hook to read game state data
-  useGameConnection()
+  // 2) children should use the usePlaytestGame hook to read game state data
+  usePlaytestGameConnection()
 
-  const { game } = useGame()
+  const { game } = usePlaytestGame()
 
   if (!game) {
     return (
       <div className="relative w-screen h-screen p-4">
-        <div className="flex flex-col justify-center items-center h-full w-full ">Loading</div>
+        <div className="flex flex-col justify-center items-center h-full w-full">Loading</div>
       </div>
     )
   }
@@ -69,28 +65,40 @@ const GamePage: NextPage = () => {
       <div className="absolute bottom-0 right-0 z-20">
         <PlayerGamePanel />
       </div>
+
+      <div className="absolute top-32 right-0 z-20">
+        <StackPanel />
+      </div>
     </>
   )
 }
 
-export default GamePage
+export default PlaytestGamePage
 
 function BattlefieldPanel() {
-  const { game } = useGame()
-  const cardsOnBattlefield = game.player.battlefield
+  const { game } = usePlaytestGame()
+  const player1Cards = game.player1.battlefield
+  const player2Cards = game.player2.battlefield
 
   return (
-    <div className={`flex flex-row flex-1 justify-center items-center gap-6`}>
-      {cardsOnBattlefield.map((card, idx) => (
-        <CardOnBattlefield key={idx} card={card} />
-      ))}
+    <div className="flex flex-col flex-1 overflow-x-scroll">
+      <div className={`h-1/2 w-full flex flex-row justify-center items-center gap-6`}>
+        {player2Cards.map((card, idx) => (
+          <CardOnBattlefield key={idx} card={card} />
+        ))}
+      </div>
+      <div className={`h-1/2 w-full flex flex-row flex-1 justify-center items-center gap-6`}>
+        {player1Cards.map((card, idx) => (
+          <CardOnBattlefield key={idx} card={card} />
+        ))}
+      </div>
     </div>
   )
 }
 
 function HandPanel() {
-  const { game } = useGame()
-  const cardsInHand = game.player.hand
+  const { game } = usePlaytestGame()
+  const cardsInHand = game.player1.hand
 
   return (
     <div className="flex-1 flex flex-row justify-center gap-2">
@@ -102,22 +110,21 @@ function HandPanel() {
 }
 
 function OpponentHandPanel() {
-  const { game } = useGame()
-  const opponent = game.opponent
+  const { game } = usePlaytestGame()
+  const cardsInHand = game.player2.hand
 
   return (
     <div className="flex-1 flex flex-row justify-center gap-2">
-      {[...new Array(opponent.numberOfCardsInHand)].map((card, idx) => (
-        <p key={idx}>CARD</p>
+      {cardsInHand.map((card, idx) => (
+        <CardInHand key={idx} card={card} />
       ))}
     </div>
   )
 }
 
 function PlayerPanel() {
-  const { game } = useGame()
-  const player = game.player
-  const { ens } = useWallet()
+  const { game } = usePlaytestGame()
+  const player = game.player1
 
   return (
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
@@ -129,14 +136,14 @@ function PlayerPanel() {
 
       <p className="">Graveyard: {player.graveyard.length}</p>
 
-      <p className="underline">{ens ?? shortenAddress(player.address)}</p>
+      <p className="underline">{player.address}</p>
     </div>
   )
 }
 
 function OpponentPanel() {
-  const { game } = useGame()
-  const opponent = game.opponent
+  const { game } = usePlaytestGame()
+  const opponent = game.player2
 
   return (
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
@@ -148,13 +155,14 @@ function OpponentPanel() {
 
       <p className="">Graveyard: {opponent.graveyard.length}</p>
 
-      <p className="underline">{shortenAddress(opponent.address)}</p>
+      <p className="underline">{opponent.address}</p>
     </div>
   )
 }
 
 function PlayerGamePanel() {
-  const { game, submitAction } = useGame()
+  const { game, submitAction } = usePlaytestGame()
+  const player = game.player1
 
   function handleClickSubmitAction(action: IAction) {
     submitAction(action)
@@ -163,7 +171,7 @@ function PlayerGamePanel() {
   return (
     <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
       <div>
-        {game.player.actions
+        {player.actions
           .filter((action) => action.type === 'PRIORITY_ACTION')
           .map((action, idx) => (
             <div key={idx} className="flex flex-col justify-center">
@@ -192,8 +200,8 @@ function PlayerGamePanel() {
 }
 
 function OpponentGamePanel() {
-  const { game, submitAction } = useGame()
-  const opponent = game.opponent
+  const { game, submitAction } = usePlaytestGame()
+  const opponent = game.player2
 
   function handleClickSubmitAction(action: IAction) {
     submitAction(action)
@@ -231,36 +239,39 @@ function OpponentGamePanel() {
 }
 
 function StackPanel() {
-  const { game, submitAction } = useGame()
+  const { game } = usePlaytestGame()
+  const cardsOnStack = [...game.player1.stack, ...game.player2.stack]
 
-  function handleClickProcessStack() {
-    // submitAction()
+  function renderStackItemDetail(stackItem: IStackItem) {
+    switch (stackItem.effectItem.type) {
+      case EffectItemType.CAST: {
+        const cardId = stackItem.effectItem.cardId
+        const card = cardsOnStack.find((card) => card.id === cardId)
+        if (!card) {
+          return <></>
+        }
+        return <p>{card.name}</p>
+      }
+      default:
+        return <></>
+    }
   }
 
   return (
-    <div className="flex flex-col items-end gap-4 p-4 text-sm">
-      <p className="text-center">Stack</p>
+    <div className="flex flex-col items-start gap-4 p-4 text-sm">
+      <p className="w-32 border-b border-gray-300">Stack</p>
 
-      <div className="flex flex-col justify-end">
+      <div className="flex flex-col">
         {[...game.stack].reverse().map((stackItem, idx) => (
-          <div key={idx} className="flex flex-row w-full gap-3">
-            <p className="">{game.stack.length - idx - 1}</p>
+          <div key={idx} className="flex flex-row w-full gap-2">
             <p className="">
-              {/* {game.players.find((player) => player.id === stackItem.controllerId)?.username} */}
+              {stackItem.controllerId === game.player1.id ? game.player1.address : game.player2.address}
             </p>
             <p className="">{stackItem.effectItem.effect.type}</p>
+            {renderStackItemDetail(stackItem)}
           </div>
         ))}
       </div>
-
-      {game.stack.length > 0 && (
-        <button
-          className="px-2 py-1 bg-gold border border-gray-200 text-base"
-          onClick={handleClickProcessStack}
-        >
-          Process Stack
-        </button>
-      )}
     </div>
   )
 }
