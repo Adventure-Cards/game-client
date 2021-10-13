@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { IDeck } from '../lib/types'
+import { IDeck } from '../../lib/viewer/types'
 import * as CSS from 'csstype'
 
 const containerStyle: CSS.Properties = {

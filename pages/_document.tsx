@@ -26,7 +26,6 @@ export default class Document extends NextDocument {
           <meta name="theme-color" content="#ffffff" />
 
           {/* META */}
-          <title>Deck Viewer - Adventure Cards</title>
         </Head>
         <body>
           <Main />

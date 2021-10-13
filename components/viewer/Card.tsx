@@ -1,7 +1,7 @@
 import Image from 'next/image'
-import jpeg from '../public/adv.jpeg'
+import jpeg from '../../public/adv.jpeg'
 
-import { ICardData } from '../../lib/deck-viewer/types'
+import { ICardData } from '../../lib/viewer/types'
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 
 const Card = ({ card, className }: { card: ICardData; className?: string }) => {

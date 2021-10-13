@@ -2,7 +2,8 @@ import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
 import { useSocket } from '../useSocket'
-import { useDispatch, updateLobby, ILobbyState } from '../store'
+import { useDispatch } from '../store'
+import { updateLobby, ILobbyState } from './slice'
 
 export function useLobbyConnection() {
   const router = useRouter()

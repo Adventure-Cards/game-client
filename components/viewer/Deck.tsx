@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
-import { rarityColorKey } from '../lib/utils'
-import { IDeck } from '../lib/types'
+import { rarityColorKey } from '../../lib/utils'
+import { IDeck } from '../../lib/viewer/types'
 
 const Deck = ({ deck }: { deck: IDeck }) => {
   return (

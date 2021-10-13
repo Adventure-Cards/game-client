@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import Head from 'next/head'
 
 import { useGameConnection } from '../../lib/game/useGameConnection'
 import { useGame } from '../../lib/game/useGame'
@@ -38,6 +39,9 @@ const GamePage: NextPage = () => {
 
   return (
     <>
+      <Head>
+        <title>Game - Adventure Cards</title>
+      </Head>
       <div className="relative w-screen h-screen p-4">
         <div className="flex flex-col h-full w-full">
           <div className="flex flex-row">

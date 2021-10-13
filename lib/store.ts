@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch as _useDispatch, useSelector as _useSelector } from 'react-redux'
 
-import { viewerSlice } from './deck-viewer/slice'
+import { viewerSlice } from './viewer/slice'
 import { gameSlice } from './game/slice'
 import { lobbySlice } from './lobby/slice'
 import { playtestSlice } from './playtest/slice'

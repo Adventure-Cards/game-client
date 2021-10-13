@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import Head from 'next/head'
 
 import { usePlaytestGame, usePlaytestGameConnection } from '../../lib/playtest/usePlaytest'
 import CardInHand from '../../components/playtest/CardInHand'
@@ -34,6 +35,10 @@ const PlaytestGamePage: NextPage = () => {
 
   return (
     <>
+      <Head>
+        <title>Playtest - Adventure Cards</title>
+      </Head>
+
       <div className="relative w-screen h-screen p-4">
         <div className="flex flex-col h-full w-full">
           <div className="flex flex-row">
