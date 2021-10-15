@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 
 import { useDispatch, useSelector } from '../store'
 import { updatePlaytestGame } from './slice'
-import { useSocket } from '../useSocket'
+import { useSocket } from '../socket/useSocket'
 
 import { IAction, IGameStateForPlaytest } from '../types'
 

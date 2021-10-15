@@ -7,7 +7,7 @@ import { config } from '../lib/useWallet'
 import { Provider } from 'react-redux'
 import { store } from '../lib/store'
 
-import { SocketProvider, socket } from '../lib/useSocket'
+import { socket, SocketProvider } from '../lib/socket/useSocket'
 
 export default function App({ Component, pageProps }: AppProps) {
   return (

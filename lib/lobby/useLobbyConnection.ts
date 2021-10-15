@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import { useSocket } from '../useSocket'
+import { useSocket } from '../socket/useSocket'
 import { useDispatch } from '../store'
 import { updateLobby, ILobbyState } from './slice'
 

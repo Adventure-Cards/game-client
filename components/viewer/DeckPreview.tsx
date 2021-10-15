@@ -1,25 +1,14 @@
 import Link from 'next/link'
 
 import { IDeck } from '../../lib/viewer/types'
-import * as CSS from 'csstype'
-
-const containerStyle: CSS.Properties = {
-  position: 'relative',
-}
-
-const deckIdStyle: CSS.Properties = {
-  position: 'absolute',
-  right: '20px',
-  top: '20px',
-}
 
 const DeckPreview = ({ deck, images }: { deck: IDeck; images: any }) => {
   return (
-    <Link href={`/deck/${deck.id}`}>
+    <Link href={`/deck/${deck.mintId}`}>
       <div className="flex flex-col w-96 justify-between p-4 bg-background rounded-md shadow-xl cursor-pointer">
-        <div style={containerStyle}>
-          <span style={deckIdStyle}>#{deck.id}</span>
-          <div dangerouslySetInnerHTML={{ __html: images[deck.id] }} />
+        <div className="relative">
+          <span className="absolute top-5 right-5">#{deck.mintId}</span>
+          <div dangerouslySetInnerHTML={{ __html: images[deck.mintId] }} />
         </div>
       </div>
     </Link>

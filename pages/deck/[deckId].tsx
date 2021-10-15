@@ -19,7 +19,6 @@ const DeckPage: NextPage = () => {
 
   const dispatch = useDispatch()
   const deckId = useSelector((state) => state.viewer.deckId)
-  const cardIdx = useSelector((state) => state.viewer.cardIdx)
 
   const { data: deck, fetch } = useCardsForDeck()
 
@@ -68,9 +67,8 @@ const DeckPage: NextPage = () => {
                 Random
               </button>
             </div>
-            {!(Number(deckId) >= 0 && Number(deckId) < 4888) && <p>Invalid deckId: {deckId}</p>}
             {deck && (
-              <Link href={`/play/${deck.id}`}>
+              <Link href={`/playtest`}>
                 <a className="underline">Playtest</a>
               </Link>
             )}

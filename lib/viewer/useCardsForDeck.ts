@@ -1,19 +1,20 @@
 import { useState } from 'react'
 import { request, gql } from 'graphql-request'
 
-// import { getCardData } from './getCardData'
 import type { IDeck } from './types'
 
-const SUBGRAPH = 'https://api.thegraph.com/subgraphs/name/knav-eth/adventure-cards'
+const SUBGRAPH = `${process.env.NEXT_PUBLIC_API_BASE_URL}/graphql`
 
 const GET_DECK_BY_ID_QUERY = gql`
-  query GetCardsByDeck($deckId: Int) {
-    adventureCardPacks(where: { numericId: $deckId }) {
-      id
-      numericId
+  query GetDeck($mintId: Int!) {
+    deck(mintId: $mintId) {
+      mintId
       owner
-      name
-      cards
+      cards {
+        name
+        level
+        type
+      }
     }
   }
 `
@@ -33,12 +34,9 @@ export function useCardsForDeck() {
     }
 
     startLoading()
-    request(SUBGRAPH, GET_DECK_BY_ID_QUERY, { deckId: deckId })
+    request(SUBGRAPH, GET_DECK_BY_ID_QUERY, { mintId: deckId })
       .then((data) => {
-        setData({
-          ...data.adventureCardPacks[0],
-          // cards: data.adventureCardPacks[0].cards.map((card: string) => getCardData(card)),
-        })
+        setData(data.deck)
       })
       .then(stopLoading)
       .catch(setError)

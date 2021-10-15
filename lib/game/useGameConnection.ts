@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useDispatch } from '../store'
 import { updateGame } from './slice'
 import { useWallet } from '../useWallet'
-import { useSocket } from '../useSocket'
+import { useSocket } from '../socket/useSocket'
 
 import { IGameStateForPlayer } from '../types'
 

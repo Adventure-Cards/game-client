@@ -1,4 +1,4 @@
-import { useSocket } from '../useSocket'
+import { useSocket } from '../socket/useSocket'
 import { useSelector } from '../store'
 import { IAction } from '../types'
 
