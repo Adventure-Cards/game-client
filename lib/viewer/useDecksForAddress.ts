@@ -42,9 +42,9 @@ export function useDecksForAddress() {
     request(SUBGRAPH, GET_DECKS_BY_OWNER_QUERY, { owner: address })
       .then((data) => {
         setData(
-          data.adventureCardPacks.map((deck: { cards: string[] }) => ({
+          data.adventureCardPacks.map((deck: any) => ({
             ...deck,
-            // cards: deck.cards.map((card: string) => getCardData(card)),
+            mintId: deck.numericId,
           }))
         )
       })
