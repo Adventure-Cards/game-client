@@ -1,14 +1,16 @@
 import type { NextPage } from 'next'
+import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import { useDispatch, useSelector, updateDeckId } from '../../lib/store'
-import { useCardsForDeck } from '../../lib/useCardsForDeck'
+import { useDispatch, useSelector } from '../../lib/store'
+import { updateDeckId } from '../../lib/viewer/slice'
+import { useCardsForDeck } from '../../lib/viewer/useCardsForDeck'
 
-import Nav from '../../components/Nav'
-import Card from '../../components/Card'
-import type { IDeck } from '../../lib/types'
+import Nav from '../../components/core/Nav'
+import Card from '../../components/viewer/Card'
+import type { IDeck } from '../../lib/viewer/types'
 import { rarityMap, randomIntFromInterval, isNumeric, toSentenceCase } from '../../lib/utils'
 
 const DeckPage: NextPage = () => {
@@ -16,8 +18,7 @@ const DeckPage: NextPage = () => {
   const { deckId: pathDeckId } = router.query
 
   const dispatch = useDispatch()
-  const deckId = useSelector((state) => state.app.deckId)
-  const cardIdx = useSelector((state) => state.app.cardIdx)
+  const deckId = useSelector((state) => state.viewer.deckId)
 
   const { data: deck, fetch } = useCardsForDeck()
 
@@ -46,52 +47,56 @@ const DeckPage: NextPage = () => {
   }
 
   return (
-    <div className="relative w-screen min-h-screen p-4 md:p-8">
-      <Nav />
+    <>
+      <Head>
+        <title>Deck {deckId} - Adventure Cards</title>
+      </Head>
+      <div className="relative w-screen min-h-screen p-4 md:p-8">
+        <Nav />
 
-      <div className="flex flex-wrap justify-center gap-12 md:gap-24 mb-16">
-        <div className="flex flex-col gap-3">
-          <h3>Deck #</h3>
-          <div>
-            <input
-              className="w-20 bg-backgrounddark px-2 py-1 border border-gray-100"
-              value={deckId ? deckId : ''}
-              onChange={(e) => handleChangeDeckId(e.target.value)}
-            />
-            <button onClick={handleClickRandom} className="px-2 py-1 border border-gray-100">
-              Random
-            </button>
+        <div className="flex flex-wrap justify-center gap-12 md:gap-24 mb-16">
+          <div className="flex flex-col gap-3">
+            <h3>Deck #</h3>
+            <div>
+              <input
+                className="w-20 bg-backgrounddark px-2 py-1 border border-gray-100"
+                value={deckId ? deckId : ''}
+                onChange={(e) => handleChangeDeckId(e.target.value)}
+              />
+              <button onClick={handleClickRandom} className="px-2 py-1 border border-gray-100">
+                Random
+              </button>
+            </div>
+            {deck && (
+              <Link href={`/playtest`}>
+                <a className="underline">Playtest</a>
+              </Link>
+            )}
           </div>
-          {!(Number(deckId) >= 0 && Number(deckId) < 4888) && <p>Invalid deckId: {deckId}</p>}
+
           {deck && (
-            <Link href={`/play/${deck.id}`}>
-              <a className="underline">Playtest</a>
-            </Link>
+            <>
+              <div className="flex flex-col">
+                <h3 className="pb-3">Owner</h3>
+                <Link href={`/address/${deck.owner}`}>
+                  <a className="underline">{`${deck.owner.slice(0, 6)}...${deck.owner.slice(38)}`}</a>
+                </Link>
+              </div>
+              <CardLevelDetails deck={deck} />
+              <CardTypeDetails deck={deck} />{' '}
+            </>
           )}
         </div>
 
         {deck && (
-          <>
-            <div className="flex flex-col">
-              <h3 className="pb-3">Owner</h3>
-              <Link href={`/address/${deck.owner}`}>
-                <a className="underline">{`${deck.owner.slice(0, 6)}...${deck.owner.slice(38)}`}</a>
-              </Link>
-            </div>
-            <CardLevelDetails deck={deck} />
-            <CardTypeDetails deck={deck} />{' '}
-          </>
+          <div className="flex flex-wrap justify-center gap-8">
+            {deck.cards.map((card, idx) => (
+              <Card key={idx} card={card} />
+            ))}
+          </div>
         )}
       </div>
-
-      {deck && (
-        <div className="flex flex-wrap justify-center gap-8">
-          {deck.cards.map((card, idx) => (
-            <Card key={idx} card={card} />
-          ))}
-        </div>
-      )}
-    </div>
+    </>
   )
 }
 

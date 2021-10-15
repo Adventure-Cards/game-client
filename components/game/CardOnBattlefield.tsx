@@ -1,22 +1,20 @@
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 import { useSmartHover } from '../../lib/useSmartHover'
-import { submitAction, useDispatch, useSelector } from '../../lib/store'
+import { useGame } from '../../lib/game/useGame'
 
-import { IAction, ICard, ActionType, IAbilityAction, CardType, IAbility } from '../../lib/game/types'
+import { IAction, ICard, ActionType, IAbilityAction, CardType, IAbility } from '../../lib/types'
 
 import CardDetail from './CardDetail'
 
 const CardOnBattlefield = ({ card }: { card: ICard }) => {
   const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
 
-  const dispatch = useDispatch()
+  const { game, submitAction } = useGame()
 
-  const game = useSelector((state) => state.game.game)
-
-  const combatAction = card.actions.find((action) => action.type === ActionType.COMBAT_ACTION)
+  const attackAction = card.actions.find((action) => action.type === ActionType.ATTACK_ACTION)
 
   function getActionForAbility(ability: IAbility) {
-    const action = game.players[0].availableActions
+    const action = game.player.actions
       .filter((action) => action.type === ActionType.ABILITY_ACTION)
       .filter((action) => (action as IAbilityAction).cardId === card.id)
       .find((action) => (action as IAbilityAction).abilityId === ability.id)
@@ -28,12 +26,13 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
     const action = getActionForAbility(ability)
 
     if (action) {
-      dispatch(submitAction(action))
+      submitAction(action)
     }
   }
 
   function handleClickSubmitAction(action: IAction) {
-    dispatch(submitAction(action))
+    console.log('submitting action:', action)
+    submitAction(action)
   }
 
   return (
@@ -41,8 +40,9 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
       <HoverTrigger {...hoverTriggerProps}>
         <div
           className={`flex flex-col justify-between w-36 p-2 bg-background
-            rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)}
+            rounded-md shadow-xl border-2
             ${card.tapped ? 'transform rotate-6' : ''}
+            ${card.attacking ? 'border-blue-400' : `border-${rarityColorKey(card.level)}`}
             `}
         >
           <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
@@ -74,12 +74,12 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
               ))}
 
             <div className="flex flex-row justify-between items-center">
-              {combatAction ? (
+              {attackAction ? (
                 <button
                   className="px-2 py-1 bg-gold border border-gray-200"
-                  onClick={() => handleClickSubmitAction(combatAction)}
+                  onClick={() => handleClickSubmitAction(attackAction)}
                 >
-                  Combat
+                  Attack
                 </button>
               ) : (
                 <div />
