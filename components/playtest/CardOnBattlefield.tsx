@@ -13,6 +13,8 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
 
   const attackAction = card.actions.find((action) => action.type === ActionType.ATTACK_ACTION)
 
+  const blockActions = card.actions.filter((action) => action.type === ActionType.BLOCK_ACTION)
+
   function getActionForAbility(ability: IAbility) {
     const action = [...game.player1.actions, ...game.player2.actions]
       .filter((action) => action.type === ActionType.ABILITY_ACTION)
@@ -90,6 +92,17 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
                   {card.attack}/{card.defense}
                 </p>
               )}
+            </div>
+
+            <div className="flex flex-row justify-between items-center">
+              {blockActions.map((blockAction) => (
+                <button
+                  className="px-2 py-1 bg-gold border border-gray-200"
+                  onClick={() => handleClickSubmitAction(blockAction)}
+                >
+                  Block
+                </button>
+              ))}
             </div>
           </div>
         </div>
