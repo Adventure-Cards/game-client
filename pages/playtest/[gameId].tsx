@@ -250,7 +250,7 @@ function StackPanel() {
   function renderStackItemDetail(stackItem: IStackItem) {
     switch (stackItem.effectItem.type) {
       case EffectItemType.CAST: {
-        const cardId = stackItem.effectItem.cardId
+        const cardId = stackItem.effectItem.arguments.cardId
         const card = cardsOnStack.find((card) => card.id === cardId)
         if (!card) {
           return <></>
@@ -272,7 +272,7 @@ function StackPanel() {
             <p className="">
               {stackItem.controllerId === game.player1.id ? game.player1.address : game.player2.address}
             </p>
-            <p className="">{stackItem.effectItem.effect.type}</p>
+            <p className="">{stackItem.effectItem.type}</p>
             {renderStackItemDetail(stackItem)}
           </div>
         ))}

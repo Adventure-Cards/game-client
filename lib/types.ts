@@ -1,4 +1,24 @@
-// PUBLIC TYPES
+// LOBBY  DATA //
+export type IGameMetadata = {
+  id: string
+  status: IGameStatus
+  players: {
+    address: string
+    status: IPlayerStatus
+    deckId: number | null
+  }[]
+}
+
+export enum IPlayerStatus {
+  JOINED = 'JOINED',
+  READY = 'READY',
+}
+
+export enum IGameStatus {
+  NOT_STARTED = 'NOT_STARTED',
+  PLAYERS_JOINED = 'PLAYERS_JOINED',
+  STARTED = 'STARTED',
+}
 
 export interface IGameStateForPlayer {
   player: IPlayerForPlayer
@@ -24,7 +44,7 @@ export interface IGameStateForPlaytest {
   stack: IStackItem[]
 }
 
-export interface IPlayerForPlayer {
+interface IPlayerForPlayer {
   id: string
   address: string
   life: number
@@ -37,7 +57,7 @@ export interface IPlayerForPlayer {
   actions: IAction[]
 }
 
-export interface IOpponentForPlayer {
+interface IOpponentForPlayer {
   id: string
   address: string
   life: number
@@ -48,28 +68,6 @@ export interface IOpponentForPlayer {
   graveyard: ICard[]
   stack: ICard[]
   actions: IAction[]
-}
-
-// LOBBY  DATA //
-export type IGameMetadata = {
-  id: string
-  status: IGameStatus
-  players: {
-    address: string
-    status: IPlayerStatus
-    deckId: number | null
-  }[]
-}
-
-export enum IPlayerStatus {
-  JOINED = 'JOINED',
-  READY = 'READY',
-}
-
-export enum IGameStatus {
-  NOT_STARTED = 'NOT_STARTED',
-  PLAYERS_JOINED = 'PLAYERS_JOINED',
-  STARTED = 'STARTED',
 }
 
 // GAME  DATA //
@@ -117,12 +115,14 @@ export interface IBaseCard {
   type: CardType
   level: number
   name: string
+  cost: ICostMana
 
   location: CardLocation
   tapped: boolean
   attacking: boolean
-  cost: ICostMana
   actions: IAction[]
+  activeAttack: IActiveAttack | null
+  activeBlock: IActiveBlock | null
 }
 
 export enum CardType {
@@ -138,6 +138,16 @@ export enum CardLocation {
   LIBRARY = 'LIBRARY',
   GRAVEYARD = 'GRAVEYARD',
   STACK = 'STACK',
+}
+
+interface IActiveAttack {
+  attackingCardId: string
+  defendingPlayerId: string
+}
+
+interface IActiveBlock {
+  blockingCardId: string
+  attackingCardId: string
 }
 
 export interface ICreature extends IBaseCard {
@@ -224,9 +234,8 @@ export type ICostItem = ICostItemPlayer | ICostItemCard
 // Effects are used to create EffectItems when submitting an Action
 
 export interface IBaseEffect {
-  executionType: EffectExecutionType
   type: EffectType
-  target?: Target
+  executionType: EffectExecutionType
 }
 
 export enum EffectExecutionType {
@@ -235,20 +244,17 @@ export enum EffectExecutionType {
 }
 
 export enum EffectType {
-  RELEASE_PRIORITY = 'RELEASE_PRIORITY',
+  PASS_PRIORITY = 'PASS_PRIORITY',
 
   CAST = 'CAST',
   DECLARE_ATTACK = 'DECLARE_ATTACK',
   DECLARE_BLOCK = 'DECLARE_BLOCK',
 
-  DAMAGE_ANY = 'DAMAGE_ANY',
-  DAMAGE_PLAYER = 'DAMAGE_PLAYER',
-  DAMAGE_CREATURE = 'DAMAGE_CREATURE',
-  SELECT_TARGET = 'SELECT_TARGET',
-
   PHASE_START = 'PHASE_START',
   PHASE_MAIN = 'PHASE_MAIN',
-  PHASE_COMBAT = 'PHASE_COMBAT',
+  PHASE_ATTACKERS = 'PHASE_ATTACKERS',
+  PHASE_BLOCKERS = 'PHASE_BLOCKERS',
+  PHASE_BATTLE = 'PHASE_BATTLE',
   PHASE_END = 'PHASE_END',
 }
 
@@ -257,9 +263,9 @@ export interface IEffectCast extends IBaseEffect {
   type: EffectType.CAST
 }
 
-export interface IEffectReleasePriority extends IBaseEffect {
+export interface IEffectPassPriority extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
-  type: EffectType.RELEASE_PRIORITY
+  type: EffectType.PASS_PRIORITY
 }
 
 export interface IEffectDeclareAttack extends IBaseEffect {
@@ -272,18 +278,6 @@ export interface IEffectDeclareBlock extends IBaseEffect {
   type: EffectType.DECLARE_BLOCK
 }
 
-export interface IEffectDamageAny extends IBaseEffect {
-  executionType: EffectExecutionType.RESPONDABLE
-  type: EffectType.DAMAGE_ANY
-  amount: number
-}
-
-export interface IEffectDamagePlayer extends IBaseEffect {
-  executionType: EffectExecutionType.RESPONDABLE
-  type: EffectType.DAMAGE_PLAYER
-  target: Target.PLAYER
-}
-
 export interface IEffectPhaseStart extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
   type: EffectType.PHASE_START
@@ -294,9 +288,19 @@ export interface IEffectPhaseMain extends IBaseEffect {
   type: EffectType.PHASE_MAIN
 }
 
-export interface IEffectPhaseCombat extends IBaseEffect {
+export interface IEffectPhaseAttackers extends IBaseEffect {
   executionType: EffectExecutionType.IMMEDIATE
-  type: EffectType.PHASE_COMBAT
+  type: EffectType.PHASE_ATTACKERS
+}
+
+export interface IEffectPhaseBlockers extends IBaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.PHASE_BLOCKERS
+}
+
+export interface IEffectPhaseBattle extends IBaseEffect {
+  executionType: EffectExecutionType.IMMEDIATE
+  type: EffectType.PHASE_BATTLE
 }
 
 export interface IEffectPhaseEnd extends IBaseEffect {
@@ -305,29 +309,29 @@ export interface IEffectPhaseEnd extends IBaseEffect {
 }
 
 export type IEffect =
-  | IEffectReleasePriority
+  | IEffectPassPriority
   | IEffectCast
   | IEffectDeclareAttack
   | IEffectDeclareBlock
-  | IEffectDamageAny
-  | IEffectDamagePlayer
   | IEffectPhaseStart
   | IEffectPhaseMain
-  | IEffectPhaseCombat
+  | IEffectPhaseAttackers
+  | IEffectPhaseBlockers
+  | IEffectPhaseBattle
   | IEffectPhaseEnd
 
 // EFFECT ITEMS //
-// an EffectItem exists as part of an Action
-// it refers to a specific effect that will happen
+// refers to a specific effect that will happen
 
 export interface IBaseEffectItem {
   type: EffectItemType
   controllerId: string
-  effect: IEffect
+  executionType: EffectExecutionType
+  arguments?: { [key: string]: string | number }
 }
 
 export enum EffectItemType {
-  CORE = 'CORE',
+  PASS_PRIORITY = 'PASS_PRIORITY',
   CAST = 'CAST',
   TARGETS_PLAYER = 'TARGETS_PLAYER',
   TARGETS_CARD = 'TARGETS_CARD',
@@ -335,46 +339,36 @@ export enum EffectItemType {
   DECLARE_ATTACK = 'DECLARE_ATTACK',
   DECLARE_BLOCK = 'DECLARE_BLOCK',
 }
-export interface IEffectItemCore extends IBaseEffectItem {
-  type: EffectItemType.CORE
+export interface IEffectItemPassPriority extends IBaseEffectItem {
+  type: EffectItemType.PASS_PRIORITY
 }
 
 export interface IEffectItemCast extends IBaseEffectItem {
   type: EffectItemType.CAST
-  cardId: string
+  arguments: {
+    cardId: string
+  }
 }
 
 export interface IEffectItemDeclareAttack extends IBaseEffectItem {
   type: EffectItemType.DECLARE_ATTACK
-  cardId: string
+  arguments: {
+    attackingCardId: string
+    defendingPlayerId: string
+  }
 }
 
 export interface IEffectItemDeclareBlock extends IBaseEffectItem {
   type: EffectItemType.DECLARE_BLOCK
-  cardId: string
-}
-
-export interface IEffectItemTargetsPlayer extends IBaseEffectItem {
-  type: EffectItemType.TARGETS_PLAYER
-  playerId: string
-}
-
-export interface IEffectItemTargetsCard extends IBaseEffectItem {
-  type: EffectItemType.TARGETS_CARD
-  cardId: string
-}
-
-export interface IEffectItemWithAmount extends IBaseEffectItem {
-  type: EffectItemType.WITH_AMOUNT
-  amount: number
+  arguments: {
+    blockingCardId: string
+    attackingCardId: string
+  }
 }
 
 export type IEffectItem =
-  | IEffectItemCore
+  | IEffectItemPassPriority
   | IEffectItemCast
-  | IEffectItemTargetsPlayer
-  | IEffectItemTargetsCard
-  | IEffectItemWithAmount
   | IEffectItemDeclareAttack
   | IEffectItemDeclareBlock
 
@@ -390,12 +384,6 @@ export interface IAbility {
   name: string
   description: string
   speed: AbilitySpeed
-  costs: ICost[]
-  effects: IEffect[]
-}
-
-export interface IEffectTrigger {
-  on: EffectType
   costs: ICost[]
   effects: IEffect[]
 }
@@ -455,6 +443,13 @@ export type IAction =
   | IAbilityAction
   | IEffectAction
   | IPriorityAction
+
+// TRIGGERS
+
+export interface ITrigger {
+  on: EffectType
+  effectItems: IEffectItem[]
+}
 
 // STACK
 
