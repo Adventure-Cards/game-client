@@ -233,38 +233,3 @@ function OpponentGamePanel() {
     </div>
   )
 }
-
-function StackPanel() {
-  const { game, submitAction } = useGame()
-
-  function handleClickProcessStack() {
-    // submitAction()
-  }
-
-  return (
-    <div className="flex flex-col items-end gap-4 p-4 text-sm">
-      <p className="text-center">Stack</p>
-
-      <div className="flex flex-col justify-end">
-        {[...game.stack].reverse().map((stackItem, idx) => (
-          <div key={idx} className="flex flex-row w-full gap-3">
-            <p className="">{game.stack.length - idx - 1}</p>
-            <p className="">
-              {/* {game.players.find((player) => player.id === stackItem.controllerId)?.username} */}
-            </p>
-            <p className="">{stackItem.effectItem.effect.type}</p>
-          </div>
-        ))}
-      </div>
-
-      {game.stack.length > 0 && (
-        <button
-          className="px-2 py-1 bg-gold border border-gray-200 text-base"
-          onClick={handleClickProcessStack}
-        >
-          Process Stack
-        </button>
-      )}
-    </div>
-  )
-}

@@ -119,7 +119,6 @@ export interface IBaseCard {
 
   location: CardLocation
   tapped: boolean
-  attacking: boolean
   actions: IAction[]
   activeAttack: IActiveAttack | null
   activeBlock: IActiveBlock | null
@@ -419,7 +418,6 @@ export interface IAttackAction extends IBaseAction {
 export interface IBlockAction extends IBaseAction {
   type: ActionType.BLOCK_ACTION
   cardId: string
-  attackingCardId: string
 }
 
 export interface IAbilityAction extends IBaseAction {

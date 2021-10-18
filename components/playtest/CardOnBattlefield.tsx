@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 import { useSmartHover } from '../../lib/useSmartHover'
 import { usePlaytestGame } from '../../lib/playtest/usePlaytest'
@@ -11,8 +12,10 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
 
   const { game, submitAction } = usePlaytestGame()
 
+  const [isAttacking, setIsAttacking] = useState(false)
   const attackAction = card.actions.find((action) => action.type === ActionType.ATTACK_ACTION)
 
+  const [isBlocking, setIsBlocking] = useState(false)
   const blockActions = card.actions.filter((action) => action.type === ActionType.BLOCK_ACTION)
 
   function getActionForAbility(ability: IAbility) {
@@ -33,7 +36,6 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
   }
 
   function handleClickSubmitAction(action: IAction) {
-    console.log('submitting action:', action)
     submitAction(action)
   }
 
@@ -42,9 +44,9 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
       <HoverTrigger {...hoverTriggerProps}>
         <div
           className={`flex flex-col justify-between w-36 p-2 bg-background
-            rounded-md shadow-xl border-2
+            rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)}
             ${card.tapped ? 'transform rotate-6' : ''}
-            ${card.attacking ? 'border-blue-400' : `border-${rarityColorKey(card.level)}`}
+            ${card.activeAttack ? 'transform -translate-x-3' : ''}
             `}
         >
           <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">

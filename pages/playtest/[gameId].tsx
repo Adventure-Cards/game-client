@@ -1,11 +1,13 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import Link from 'next/link'
 
 import { usePlaytestGame, usePlaytestGameConnection } from '../../lib/playtest/usePlaytest'
 import CardInHand from '../../components/playtest/CardInHand'
 import CardOnBattlefield from '../../components/playtest/CardOnBattlefield'
 
-import { EffectItemType, IAction, IStackItem } from '../../lib/types'
+import { ActionType, EffectItemType, IAction, IStackItem } from '../../lib/types'
+import { useEffect, ReactEventHandler } from 'react'
 
 const PlaytestGamePage: NextPage = () => {
   // 1) usePlaytestGameConnection handles the logic of joining the game "room"
@@ -142,6 +144,10 @@ function PlayerPanel() {
       <p className="">Graveyard: {player.graveyard.length}</p>
 
       <p className="underline">{player.address}</p>
+
+      <Link href="/playtest">
+        <a className="px-2 py-1 bg-gray-400 border border-gray-200 text-base text-center">Restart</a>
+      </Link>
     </div>
   )
 }
@@ -169,9 +175,25 @@ function PlayerGamePanel() {
   const { game, submitAction } = usePlaytestGame()
   const player = game.player1
 
+  const passPriorityAction = player.actions.find((action) => action.type === ActionType.PRIORITY_ACTION)
+
   function handleClickSubmitAction(action: IAction) {
     submitAction(action)
   }
+
+  useEffect(() => {
+    function handleKeyDown(e: any) {
+      if (e.key === 'Enter' && passPriorityAction) {
+        handleClickSubmitAction(passPriorityAction)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    // return () => {
+    //   document.removeEventListener('keydown', handleKeyDown)
+    // }
+  }, [])
 
   return (
     <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
@@ -208,9 +230,25 @@ function OpponentGamePanel() {
   const { game, submitAction } = usePlaytestGame()
   const opponent = game.player2
 
+  const passPriorityAction = opponent.actions.find((action) => action.type === ActionType.PRIORITY_ACTION)
+
   function handleClickSubmitAction(action: IAction) {
     submitAction(action)
   }
+
+  useEffect(() => {
+    function handleKeyDown(e: any) {
+      if (e.key === 'Enter' && passPriorityAction) {
+        handleClickSubmitAction(passPriorityAction)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    // return () => {
+    //   document.removeEventListener('keydown', handleKeyDown)
+    // }
+  }, [])
 
   return (
     <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
