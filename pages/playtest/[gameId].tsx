@@ -135,7 +135,15 @@ function PlayerPanel() {
 
   return (
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
-      <p className="">Mana: {player.mana}</p>
+      <div className="flex flex-row gap-2 items-center">
+        <p className="">Mana:</p>
+        {[...Array(player.currentMana)].map(() => (
+          <div className="h-3 w-3 rounded-full bg-blue-500" />
+        ))}
+        {[...Array(player.totalMana - player.currentMana)].map(() => (
+          <div className="h-3 w-3 rounded-full bg-gray-500" />
+        ))}
+      </div>
 
       <p className="">Life: {player.life}</p>
 
@@ -158,7 +166,15 @@ function OpponentPanel() {
 
   return (
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
-      <p className="">Mana: {opponent.mana}</p>
+      <div className="flex flex-row gap-2 items-center">
+        <p className="">Mana:</p>
+        {[...Array(opponent.currentMana)].map(() => (
+          <div className="h-3 w-3 rounded-full bg-blue-500" />
+        ))}
+        {[...Array(opponent.totalMana - opponent.currentMana)].map(() => (
+          <div className="h-3 w-3 rounded-full bg-gray-500" />
+        ))}
+      </div>
 
       <p className="">Life: {opponent.life}</p>
 
@@ -181,35 +197,19 @@ function PlayerGamePanel() {
     submitAction(action)
   }
 
-  useEffect(() => {
-    function handleKeyDown(e: any) {
-      if (e.key === 'Enter' && passPriorityAction) {
-        handleClickSubmitAction(passPriorityAction)
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-
-    // return () => {
-    //   document.removeEventListener('keydown', handleKeyDown)
-    // }
-  }, [])
-
   return (
     <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
       <div>
-        {player.actions
-          .filter((action) => action.type === 'PRIORITY_ACTION')
-          .map((action, idx) => (
-            <div key={idx} className="flex flex-col justify-center">
-              <button
-                className="px-2 py-1 bg-gold border border-gray-200 text-base"
-                onClick={() => handleClickSubmitAction(action)}
-              >
-                Pass Priority
-              </button>
-            </div>
-          ))}
+        {passPriorityAction && (
+          <div className="flex flex-col justify-center">
+            <button
+              className="px-2 py-1 bg-gold border border-gray-200 text-base"
+              onClick={() => handleClickSubmitAction(passPriorityAction)}
+            >
+              Pass Priority
+            </button>
+          </div>
+        )}
       </div>
       <div className="flex flex-row items-center gap-4">
         <div className="flex flex-col text-center">
@@ -236,35 +236,19 @@ function OpponentGamePanel() {
     submitAction(action)
   }
 
-  useEffect(() => {
-    function handleKeyDown(e: any) {
-      if (e.key === 'Enter' && passPriorityAction) {
-        handleClickSubmitAction(passPriorityAction)
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-
-    // return () => {
-    //   document.removeEventListener('keydown', handleKeyDown)
-    // }
-  }, [])
-
   return (
     <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
       <div>
-        {opponent.actions
-          .filter((action) => action.type === 'PRIORITY_ACTION')
-          .map((action, idx) => (
-            <div key={idx} className="flex flex-col justify-center">
-              <button
-                className="px-2 py-1 bg-gold border border-gray-200 text-base"
-                onClick={() => handleClickSubmitAction(action)}
-              >
-                Pass Priority
-              </button>
-            </div>
-          ))}
+        {passPriorityAction && (
+          <div className="flex flex-col justify-center">
+            <button
+              className="px-2 py-1 bg-gold border border-gray-200 text-base"
+              onClick={() => handleClickSubmitAction(passPriorityAction)}
+            >
+              Pass Priority
+            </button>
+          </div>
+        )}
       </div>
       <div className="flex flex-row items-center gap-4">
         <div className="flex flex-col text-center">

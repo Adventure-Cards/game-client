@@ -48,7 +48,8 @@ interface IPlayerForPlayer {
   id: string
   address: string
   life: number
-  mana: number
+  totalMana: number
+  currentMana: number
   hand: ICard[]
   numberOfCardsInLibrary: number
   battlefield: ICard[]
@@ -61,7 +62,8 @@ interface IOpponentForPlayer {
   id: string
   address: string
   life: number
-  mana: number
+  totalMana: number
+  currentMana: number
   numberOfCardsInHand: number
   numberOfCardsInLibrary: number
   battlefield: ICard[]
@@ -96,7 +98,8 @@ export interface IPlayer {
   address: string
 
   life: number
-  mana: number
+  totalMana: number
+  currentMana: number
 
   cards: ICard[]
 

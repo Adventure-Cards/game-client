@@ -125,7 +125,15 @@ function PlayerPanel() {
 
   return (
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
-      <p className="">Mana: {player.mana}</p>
+      <div className="flex flex-row gap-2 items-center">
+        <p className="">Mana:</p>
+        {[...Array(player.currentMana)].map(() => (
+          <div className="h-3 w-3 rounded-full bg-blue-500" />
+        ))}
+        {[...Array(player.totalMana - player.currentMana)].map(() => (
+          <div className="h-3 w-3 rounded-full bg-gray-500" />
+        ))}
+      </div>
 
       <p className="">Life: {player.life}</p>
 
@@ -144,7 +152,15 @@ function OpponentPanel() {
 
   return (
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
-      <p className="">Mana: {opponent.mana}</p>
+      <div className="flex flex-row gap-2 items-center">
+        <p className="">Mana:</p>
+        {[...Array(opponent.currentMana)].map(() => (
+          <div className="h-3 w-3 rounded-full bg-blue-500" />
+        ))}
+        {[...Array(opponent.totalMana - opponent.currentMana)].map(() => (
+          <div className="h-3 w-3 rounded-full bg-gray-500" />
+        ))}
+      </div>
 
       <p className="">Life: {opponent.life}</p>
 

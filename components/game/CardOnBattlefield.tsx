@@ -40,9 +40,8 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
       <HoverTrigger {...hoverTriggerProps}>
         <div
           className={`flex flex-col justify-between w-36 p-2 bg-background
-            rounded-md shadow-xl border-2
+            rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)}
             ${card.tapped ? 'transform rotate-6' : ''}
-            ${card.attacking ? 'border-blue-400' : `border-${rarityColorKey(card.level)}`}
             `}
         >
           <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
