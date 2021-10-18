@@ -3,7 +3,7 @@ import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 import { usePlaytestGame } from '../../lib/playtest/usePlaytest'
 
 import { useSmartHover } from '../../lib/useSmartHover'
-import CardDetail from '../game/CardDetail'
+import CardDetail from './CardDetail'
 
 import { IAction, ICard, ActionType, CardType } from '../../lib/types'
 
@@ -24,18 +24,10 @@ const CardInHand = ({ card }: { card: ICard }) => {
         <div
           className={`flex flex-col justify-between w-36 p-2 bg-background
           rounded-md shadow-xl border-2
-          ${castAction ? 'border-blue-400 cursor-grab' : 'border-common cursor-pointer'}
+          ${castAction ? 'border-gold' : 'border-common'}
           ${visible && 'opacity-0'}
       `}
         >
-          {castAction && (
-            <button
-              className="px-2 py-1 bg-gold border border-gray-200"
-              onClick={() => handleClickSubmitAction(castAction)}
-            >
-              Cast
-            </button>
-          )}
           <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
             <div className="flex flex-row justify-between">
               <p>{card.name}</p>
