@@ -41,8 +41,9 @@ export function useSmartHover() {
   return {
     hoverTriggerProps: { ref: triggerRef, setVisible, handleMouseEnter },
     HoverTrigger,
-    hoverDetailProps: { ref: detailRef, visible },
+    hoverDetailProps: { ref: detailRef, setVisible, visible },
     HoverDetail,
+    visible,
   }
 }
 
@@ -67,9 +68,6 @@ const HoverTrigger = React.forwardRef<HTMLDivElement, HoverTriggerProps>(
           setVisible(true)
           handleMouseEnter()
         }}
-        onMouseLeave={() => {
-          setVisible(false)
-        }}
       >
         {props.children}
       </div>
@@ -78,16 +76,25 @@ const HoverTrigger = React.forwardRef<HTMLDivElement, HoverTriggerProps>(
 )
 
 interface HoverDetailProps {
+  setVisible: (visible: boolean) => void
   visible: boolean
 }
 
-const HoverDetail = React.forwardRef<HTMLDivElement, HoverDetailProps>(({ visible, ...props }, ref) => {
-  return (
-    <div ref={ref} className={`absolute z-50 p-2 ${visible ? 'visible' : 'invisible'}`}>
-      {props.children}
-    </div>
-  )
-})
+const HoverDetail = React.forwardRef<HTMLDivElement, HoverDetailProps>(
+  ({ visible, setVisible, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        onMouseLeave={() => {
+          setVisible(false)
+        }}
+        className={`absolute z-50 p-2 ${visible ? 'visible' : 'invisible'}`}
+      >
+        {props.children}
+      </div>
+    )
+  }
+)
 
 interface ICoords {
   top: number
@@ -100,22 +107,12 @@ function getHoverPosition(trigger: HTMLElement, detail: HTMLElement) {
   const triggerCoords = getCoords(trigger)
   const detailCoords = getCoords(detail)
 
-  const midpointY = triggerCoords.top + triggerCoords.height / 2
+  let newDetailLeft = triggerCoords.left + triggerCoords.width / 2 - detailCoords.width / 2
+  let newDetailTop = triggerCoords.top + triggerCoords.height - detailCoords.height
 
-  // try to put the detail on the right side of the trigger
-  let newDetailTop = midpointY - detailCoords.height / 2
-  if (newDetailTop < 0) {
-    newDetailTop = 0
-  }
-  if (newDetailTop + detailCoords.height > window.innerHeight) {
-    newDetailTop = window.innerHeight - detailCoords.height
-  }
-  let newDetailLeft = triggerCoords.left + triggerCoords.width
-
-  // if the detail is going to overflow off the right side of the viewport,
-  // put it on the left side of the trigger instead
-  if (newDetailLeft + detailCoords.width > window.innerWidth) {
-    newDetailLeft = triggerCoords.left - detailCoords.width
+  // fix if the detail is going to overflow off the top of the viewport
+  if (newDetailTop < 10) {
+    newDetailTop = 10
   }
 
   return {

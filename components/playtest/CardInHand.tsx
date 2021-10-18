@@ -8,7 +8,7 @@ import CardDetail from '../game/CardDetail'
 import { IAction, ICard, ActionType, CardType } from '../../lib/types'
 
 const CardInHand = ({ card }: { card: ICard }) => {
-  const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
+  const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps, visible } = useSmartHover()
 
   const { submitAction } = usePlaytestGame()
 
@@ -23,9 +23,9 @@ const CardInHand = ({ card }: { card: ICard }) => {
       <HoverTrigger {...hoverTriggerProps}>
         <div
           className={`flex flex-col justify-between w-36 p-2 bg-background
-        rounded-md shadow-xl border-2 ${
-          castAction ? 'border-blue-400 cursor-grab' : 'border-common cursor-pointer'
-        }
+          rounded-md shadow-xl border-2
+          ${castAction ? 'border-blue-400 cursor-grab' : 'border-common cursor-pointer'}
+          ${visible && 'opacity-0'}
       `}
         >
           {castAction && (
