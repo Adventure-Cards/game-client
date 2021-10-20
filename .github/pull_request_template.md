@@ -1,24 +1,22 @@
+### Overview
+
+### Changes
+
 <!--
 Thanks for opening a PR! Your contribution is much appreciated.
 In order to make sure your PR is handled as smoothly as possible we request that you follow the checklist sections below.
-Choose the right checklist for the change that you're making:
+Choose the right checklist for the change that you're making (you can delete the other):
 -->
 
-## 🐛 Bug Fix
+### 🐛 Bug Fix
 
 - [ ] Related issues linked using `fixes #number`
-- [ ] Resolved errors have before and after documentation
-- [ ] Integration tests updated (if applicable)
-
-
-## 🚀 New Feature
-
-- [ ] Implements an existing feature request or builds out a new idea
-- [ ] Related issues linked using `fixes #number`
-- [ ] Integration tests added
+- [ ] Resolved error behavior has "before" and "after" documentation
 - [ ] Documentation added
 
 
-## Documentation
+### 🚀 New Feature
 
-- [ ] See `contributing.md`
+- [ ] Related issues linked using `fixes #number`
+- [ ] Implements an existing feature request or builds out a new idea
+- [ ] Documentation added
