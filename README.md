@@ -37,7 +37,6 @@
 
 ### Contributing to this repository
 
-#### Quickstart
 1. Clone the repository
 ```
 git clone https://github.com/Adventure-Cards/game-client.git && cd game-client
@@ -50,8 +49,7 @@ cp sample.env .env
 ```
 yarn dev
 ```
+4. (optional) Clone and start the [game server](https://github.com/Adventure-Cards/game-server)
 
 #### Overview
-The game client is a Next.js app that makes heavy use of `tailwindcss`, `redux-toolkit`, and `socket.io-client`. To run the client app locally, you'll also need to clone and run the [game server](https://github.com/Adventure-Cards/game-server).
-
-Please take a look at the open issues, or reach out on [discord](https://discord.gg/YdgRxhMq) if you can't find a good place to start.
+The game client is a Next.js app that makes use of `tailwindcss`, `redux-toolkit`, and `socket.io-client`. Please take a look at the open issues, or reach out on [discord](https://discord.gg/YdgRxhMq) if you can't find a good place to start.
