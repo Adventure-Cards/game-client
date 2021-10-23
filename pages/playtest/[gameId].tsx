@@ -6,7 +6,7 @@ import { usePlaytestGame, usePlaytestGameConnection } from '../../lib/playtest/u
 import CardInHand from '../../components/playtest/CardInHand'
 import CardOnBattlefield from '../../components/playtest/CardOnBattlefield'
 
-import { ActionType, EffectItemType, IAction, IStackItem } from '../../lib/types'
+import { ActionType, EffectItemType, IAction, IStackItem, Phase } from '../../lib/types'
 import { useEffect, ReactEventHandler } from 'react'
 
 const PlaytestGamePage: NextPage = () => {
@@ -137,11 +137,11 @@ function PlayerPanel() {
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
       <div className="flex flex-row gap-2 items-center">
         <p className="">Mana:</p>
-        {[...Array(player.currentMana)].map(() => (
-          <div className="h-3 w-3 rounded-full bg-blue-500" />
+        {[...Array(player.currentMana)].map((_, idx) => (
+          <div key={`${idx}-full`} className="h-3 w-3 rounded-full bg-blue-500" />
         ))}
-        {[...Array(player.totalMana - player.currentMana)].map(() => (
-          <div className="h-3 w-3 rounded-full bg-gray-500" />
+        {[...Array(player.totalMana - player.currentMana)].map((_, idx) => (
+          <div key={`${idx}-empty`} className="h-3 w-3 rounded-full bg-gray-500" />
         ))}
       </div>
 
@@ -168,11 +168,11 @@ function OpponentPanel() {
     <div className="flex flex-col justify-end gap-3 p-4 text-sm">
       <div className="flex flex-row gap-2 items-center">
         <p className="">Mana:</p>
-        {[...Array(opponent.currentMana)].map(() => (
-          <div className="h-3 w-3 rounded-full bg-blue-500" />
+        {[...Array(opponent.currentMana)].map((_, idx) => (
+          <div key={`${idx}-full`} className="h-3 w-3 rounded-full bg-blue-500" />
         ))}
-        {[...Array(opponent.totalMana - opponent.currentMana)].map(() => (
-          <div className="h-3 w-3 rounded-full bg-gray-500" />
+        {[...Array(opponent.totalMana - opponent.currentMana)].map((_, idx) => (
+          <div key={`${idx}-empty`} className="h-3 w-3 rounded-full bg-gray-500" />
         ))}
       </div>
 
@@ -199,28 +199,48 @@ function PlayerGamePanel() {
 
   return (
     <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
-      <div>
-        {passPriorityAction && (
-          <div className="flex flex-col justify-center">
-            <button
-              className="px-2 py-1 bg-gold border border-gray-200 text-base"
-              onClick={() => handleClickSubmitAction(passPriorityAction)}
-            >
-              Pass Priority
-            </button>
-          </div>
-        )}
-      </div>
+      {passPriorityAction && (
+        <div className="flex flex-col justify-center">
+          <button
+            className="px-2 py-1 bg-gold border border-gray-200 text-base"
+            onClick={() => handleClickSubmitAction(passPriorityAction)}
+          >
+            Pass Priority
+          </button>
+        </div>
+      )}
+      {game.hasTurn === player.id && <p>{game.phase}</p>}
       <div className="flex flex-row items-center gap-4">
-        <div className="flex flex-col text-center">
-          <p>Turn</p>
-          <p>{game.turn}</p>
-        </div>
-
-        <div className="flex flex-col text-center">
-          <p>Phase</p>
-          <p>{game.phase}</p>
-        </div>
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === player.id && game.phase === Phase.START ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === player.id && game.phase === Phase.MAIN ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === player.id && game.phase === Phase.ATTACKERS ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === player.id && game.phase === Phase.BLOCKERS ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === player.id && game.phase === Phase.BATTLE ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === player.id && game.phase === Phase.END ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
       </div>
     </div>
   )
@@ -238,29 +258,49 @@ function OpponentGamePanel() {
 
   return (
     <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
-      <div>
-        {passPriorityAction && (
-          <div className="flex flex-col justify-center">
-            <button
-              className="px-2 py-1 bg-gold border border-gray-200 text-base"
-              onClick={() => handleClickSubmitAction(passPriorityAction)}
-            >
-              Pass Priority
-            </button>
-          </div>
-        )}
-      </div>
       <div className="flex flex-row items-center gap-4">
-        <div className="flex flex-col text-center">
-          <p>Turn</p>
-          <p>{game.turn}</p>
-        </div>
-
-        <div className="flex flex-col text-center">
-          <p>Phase</p>
-          <p>{game.phase}</p>
-        </div>
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === opponent.id && game.phase === Phase.START ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === opponent.id && game.phase === Phase.MAIN ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === opponent.id && game.phase === Phase.ATTACKERS ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === opponent.id && game.phase === Phase.BLOCKERS ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === opponent.id && game.phase === Phase.BATTLE ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
+        <div
+          className={`h-3 w-3 rounded-full ${
+            game.hasTurn === opponent.id && game.phase === Phase.END ? 'bg-green-500' : 'bg-gray-500'
+          } `}
+        />
       </div>
+      {game.hasTurn === opponent.id && <p>{game.phase}</p>}
+      {passPriorityAction && (
+        <div className="flex flex-col justify-center">
+          <button
+            className="px-2 py-1 bg-gold border border-gray-200 text-base"
+            onClick={() => handleClickSubmitAction(passPriorityAction)}
+          >
+            Pass Priority
+          </button>
+        </div>
+      )}
     </div>
   )
 }

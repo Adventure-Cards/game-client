@@ -23,7 +23,7 @@ export function usePlaytestLobby() {
     return () => {
       socket.off('playtest:game:start', handleGameStart)
     }
-  }, [socket])
+  }, [])
 
   function createGame({ deckId1, deckId2 }: { deckId1: number; deckId2: number }) {
     socket.emit('playtest:game:create', {
@@ -49,9 +49,8 @@ export function usePlaytestGameConnection() {
   const [hasReceivedGameUpdate, setHasReceivedGameUpdate] = useState(false)
 
   useEffect(() => {
-    // try to join the game room when socket or address change
-    if (socket && pathGameId && !hasReceivedGameUpdate) {
-      console.log('emitting game:join with:', { pathGameId })
+    // try to join the game room when the gameId from the path becomes available
+    if (pathGameId && !hasReceivedGameUpdate) {
       socket.emit('playtest:game:join', {
         gameId: pathGameId,
       })
@@ -65,9 +64,20 @@ export function usePlaytestGameConnection() {
 
     socket.on('playtest:game:update', handleGameUpdate)
     return () => {
+      // remove game update event handler
       socket.off('playtest:game:update', handleGameUpdate)
+
+      // emit event to leave the game room
+      if (pathGameId) {
+        socket.emit('playtest:game:leave', {
+          gameId: pathGameId,
+        })
+      }
+
+      // clear the game state in the store
+      dispatch(updatePlaytestGame(null!))
     }
-  }, [socket.connected, pathGameId])
+  }, [pathGameId])
 }
 
 // TODO
