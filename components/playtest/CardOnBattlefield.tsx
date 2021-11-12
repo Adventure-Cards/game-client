@@ -1,53 +1,45 @@
-import { useState } from 'react'
-import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
-// import { useSmartHover } from '../../lib/useSmartHover'
+import { useMemo } from 'react'
 import { usePlaytestGame } from '../../lib/playtest/usePlaytest'
+import { useDispatch, useSelector } from '../../lib/store'
+import { selectTarget } from '../../lib/playtest/slice'
 
-import { IAction, ICard, ActionType, IAbilityAction, CardType, IAbility } from '../../lib/types'
+import { rarityMap, rarityColorKey, toSentenceCase } from '../../lib/utils'
 
-// import CardDetail from './CardDetail'
+import { ICard, ActionType, CardType } from '../../lib/types'
 
 const CardOnBattlefield = ({ card }: { card: ICard }) => {
-  // const { HoverTrigger, hoverTriggerProps, HoverDetail, hoverDetailProps } = useSmartHover()
+  const { submitAction } = usePlaytestGame()
 
-  const { game, submitAction } = usePlaytestGame()
+  const dispatch = useDispatch()
+  const { selectingTargets, selectingTargetsForCard, target } = useSelector((state) => state.playtest)
 
-  const [isAttacking, setIsAttacking] = useState(false)
   const attackAction = card.actions.find((action) => action.type === ActionType.ATTACK_ACTION)
-
-  const [isBlocking, setIsBlocking] = useState(false)
   const blockActions = card.actions.filter((action) => action.type === ActionType.BLOCK_ACTION)
 
-  function getActionForAbility(ability: IAbility) {
-    const action = [...game.player1.actions, ...game.player2.actions]
-      .filter((action) => action.type === ActionType.ABILITY_ACTION)
-      .filter((action) => (action as IAbilityAction).cardId === card.id)
-      .find((action) => (action as IAbilityAction).abilityId === ability.id)
+  const isValidTarget = useMemo(() => {
+    if (selectingTargets) {
+      return true
+    } else {
+      return false
+    }
+  }, [selectingTargets, selectingTargetsForCard])
 
-    return action
-  }
-
-  function handleClickSubmitActionForAbility(ability: IAbility) {
-    const action = getActionForAbility(ability)
-
-    if (action) {
-      submitAction(action)
+  const handleClick = () => {
+    if (isValidTarget) {
+      dispatch(selectTarget(card.id))
     }
   }
 
-  function handleClickSubmitAction(action: IAction) {
-    submitAction(action)
-  }
-
   return (
-    // <>
-    //   <HoverTrigger {...hoverTriggerProps}>
     <div
       className={`flex flex-col justify-between w-36 p-2 bg-background
-            rounded-md shadow-xl border-2 border-${rarityColorKey(card.level)}
-            ${card.tapped ? 'transform rotate-6' : ''}
-            ${card.activeAttack ? 'transform -translate-x-3' : ''}
-            `}
+        rounded-md shadow-xl border-2
+        ${card.tapped ? 'transform rotate-6' : ''}
+        ${card.activeAttack ? 'transform -translate-x-3' : ''}
+        ${isValidTarget ? 'cursor-pointer border-red-500' : `border-common`}
+        ${target === card.id && 'border-green-500'}
+      `}
+      onClick={handleClick}
     >
       <div className="flex flex-col space-y-3 overflow-y-scroll no-scrollbar text-xs">
         <div className="flex flex-row justify-between">
@@ -58,30 +50,11 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
           {rarityMap[card.level]} {toSentenceCase(card.type)}
         </p>
 
-        {/* {card.type !== CardType.SPELL &&
-          card.abilities.map((ability, idx) => (
-            <div key={idx} className="flex flex-col">
-              <div className="flex flex-row justify-between items-center">
-                <p className="py-2">{ability.name}</p>
-                {getActionForAbility(ability) && (
-                  <button
-                    className="px-2 py-1 bg-gold border border-gray-200"
-                    onClick={() => handleClickSubmitActionForAbility(ability)}
-                  >
-                    Submit Action
-                  </button>
-                )}
-              </div>
-
-              <p>{ability.description}</p>
-            </div>
-          ))} */}
-
         <div className="flex flex-row justify-between items-center">
           {attackAction ? (
             <button
               className="px-2 py-1 bg-gold border border-gray-200"
-              onClick={() => handleClickSubmitAction(attackAction)}
+              onClick={() => submitAction(attackAction)}
             >
               Attack
             </button>
@@ -100,7 +73,7 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
           {blockActions.map((blockAction) => (
             <button
               className="px-2 py-1 bg-gold border border-gray-200"
-              onClick={() => handleClickSubmitAction(blockAction)}
+              onClick={() => submitAction(blockAction)}
             >
               Block
             </button>
@@ -108,11 +81,6 @@ const CardOnBattlefield = ({ card }: { card: ICard }) => {
         </div>
       </div>
     </div>
-    //   </HoverTrigger>
-    //   <HoverDetail {...hoverDetailProps}>
-    //     <CardDetail card={card} />
-    //   </HoverDetail>
-    // </>
   )
 }
 

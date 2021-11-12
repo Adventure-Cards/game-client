@@ -7,7 +7,6 @@ import CardInHand from '../../components/playtest/CardInHand'
 import CardOnBattlefield from '../../components/playtest/CardOnBattlefield'
 
 import { ActionType, EffectItemType, IAction, IStackItem, Phase } from '../../lib/types'
-import { useEffect, ReactEventHandler } from 'react'
 
 const PlaytestGamePage: NextPage = () => {
   // 1) usePlaytestGameConnection handles the logic of joining the game "room"
@@ -76,6 +75,10 @@ const PlaytestGamePage: NextPage = () => {
       <div className="absolute top-32 right-0 z-20">
         <StackPanel />
       </div>
+
+      <div className="absolute top-0 right-0 z-30">
+        <SelectTargetsPanel />
+      </div>
     </>
   )
 }
@@ -107,11 +110,15 @@ function HandPanel() {
   const { game } = usePlaytestGame()
   const cardsInHand = game.player1.hand
 
+  const { selectingTargetsForCard } = useSelector((state) => state.playtest)
+
   return (
     <div className="flex-1 flex flex-row justify-center gap-2">
-      {cardsInHand.map((card, idx) => (
-        <CardInHand key={idx} card={card} />
-      ))}
+      {cardsInHand
+        .filter((card) => card.id !== selectingTargetsForCard?.id)
+        .map((card, idx) => (
+          <CardInHand key={idx} card={card} />
+        ))}
     </div>
   )
 }
@@ -120,11 +127,15 @@ function OpponentHandPanel() {
   const { game } = usePlaytestGame()
   const cardsInHand = game.player2.hand
 
+  const { selectingTargetsForCard } = useSelector((state) => state.playtest)
+
   return (
     <div className="flex-1 flex flex-row justify-center gap-2">
-      {cardsInHand.map((card, idx) => (
-        <CardInHand key={idx} card={card} />
-      ))}
+      {cardsInHand
+        .filter((card) => card.id !== selectingTargetsForCard?.id)
+        .map((card, idx) => (
+          <CardInHand key={idx} card={card} />
+        ))}
     </div>
   )
 }
@@ -191,19 +202,24 @@ function PlayerGamePanel() {
   const { game, submitAction } = usePlaytestGame()
   const player = game.player1
 
+  const { selectingTargets } = useSelector((state) => state.playtest)
+
   const passPriorityAction = player.actions.find((action) => action.type === ActionType.PRIORITY_ACTION)
 
-  function handleClickSubmitAction(action: IAction) {
-    submitAction(action)
-  }
+  const actionReady = useMemo(() => {
+    if (selectingTargets) {
+      return false
+    }
+    return !!passPriorityAction
+  }, [selectingTargets, passPriorityAction])
 
   return (
     <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
-      {passPriorityAction && (
+      {actionReady && passPriorityAction && (
         <div className="flex flex-col justify-center">
           <button
             className="px-2 py-1 bg-gold border border-gray-200 text-base"
-            onClick={() => handleClickSubmitAction(passPriorityAction)}
+            onClick={() => submitAction(passPriorityAction)}
           >
             Pass Priority
           </button>
@@ -250,11 +266,16 @@ function OpponentGamePanel() {
   const { game, submitAction } = usePlaytestGame()
   const opponent = game.player2
 
+  const { selectingTargets } = useSelector((state) => state.playtest)
+
   const passPriorityAction = opponent.actions.find((action) => action.type === ActionType.PRIORITY_ACTION)
 
-  function handleClickSubmitAction(action: IAction) {
-    submitAction(action)
-  }
+  const actionReady = useMemo(() => {
+    if (selectingTargets) {
+      return false
+    }
+    return !!passPriorityAction
+  }, [selectingTargets, passPriorityAction])
 
   return (
     <div className="flex flex-col justify-end items-end gap-3 p-4 text-sm">
@@ -291,11 +312,11 @@ function OpponentGamePanel() {
         />
       </div>
       {game.hasTurn === opponent.id && <p>{game.phase}</p>}
-      {passPriorityAction && (
+      {actionReady && passPriorityAction && (
         <div className="flex flex-col justify-center">
           <button
             className="px-2 py-1 bg-gold border border-gray-200 text-base"
-            onClick={() => handleClickSubmitAction(passPriorityAction)}
+            onClick={() => submitAction(passPriorityAction)}
           >
             Pass Priority
           </button>
@@ -311,13 +332,19 @@ function StackPanel() {
 
   function renderStackItemDetail(stackItem: IStackItem) {
     switch (stackItem.effectItem.type) {
-      case EffectItemType.CAST: {
+      case EffectItemType.CAST_PERMANENT: {
         const cardId = stackItem.effectItem.arguments.cardId
         const card = cardsOnStack.find((card) => card.id === cardId)
-        if (!card) {
-          return <></>
+        if (card) {
+          return <p>{card.name}</p>
         }
-        return <p>{card.name}</p>
+      }
+      case EffectItemType.CAST_SPELL: {
+        const cardId = stackItem.effectItem.arguments.cardId
+        const card = cardsOnStack.find((card) => card.id === cardId)
+        if (card) {
+          return <p>{card.name}</p>
+        }
       }
       default:
         return <></>
@@ -339,6 +366,56 @@ function StackPanel() {
           </div>
         ))}
       </div>
+    </div>
+  )
+}
+
+import { useDispatch, useSelector } from '../../lib/store'
+import { setSelectingTargets } from '../../lib/playtest/slice'
+import CardDetail from '../../components/playtest/CardDetail'
+import { useMemo } from 'react'
+
+function SelectTargetsPanel() {
+  const { submitAction } = usePlaytestGame()
+
+  const dispatch = useDispatch()
+  const { selectingTargets, selectingTargetsForCard, selectingTargetsForAction, target } = useSelector(
+    (state) => state.playtest
+  )
+
+  const handleSubmit = () => {
+    // inject args into action and submit it
+    if (selectingTargetsForAction && target) {
+      const action: IAction = {
+        ...selectingTargetsForAction,
+        arguments: { ...selectingTargetsForAction?.arguments, target: target },
+      }
+
+      console.log('submiting action:', action)
+
+      submitAction(action)
+    }
+    dispatch(setSelectingTargets(false))
+  }
+
+  if (!selectingTargets) {
+    return null
+  }
+
+  return (
+    <div className="w-72 h-screen p-4 gap-6 flex flex-col justify-center items-center bg-black bg-opacity-40">
+      {selectingTargetsForCard && <CardDetail card={selectingTargetsForCard} />}
+
+      <button className="px-2 py-1 bg-gold border border-gray-200 text-base" onClick={handleSubmit}>
+        Submit
+      </button>
+
+      <button
+        className="px-2 py-1 bg-gold border border-gray-200 text-base"
+        onClick={() => dispatch(setSelectingTargets(false))}
+      >
+        Cancel
+      </button>
     </div>
   )
 }
